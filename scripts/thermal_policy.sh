@@ -20,10 +20,12 @@
 apply_thermal_policy() {
     local policy="$1"
     local is_gaming="$2"
+    local temp="$3"
 
     log_info "Applying policy: $policy (gaming=$is_gaming)"
 
     case "$policy" in
+        suspend)          _policy_suspend                   ;;
         performance)      _policy_performance  "$is_gaming" ;;
         balanced)         _policy_balanced     "$is_gaming" ;;
         conservative)     _policy_conservative "$is_gaming" ;;
@@ -35,71 +37,64 @@ apply_thermal_policy() {
     _apply_vm_params    "$policy" "$is_gaming"
     _apply_io_scheduler "$policy"
     _apply_cpuset       "$policy" "$is_gaming"
+    apply_charging_control "$policy" "$temp"
+
+    # Apply optional gaming tweaks (if the function is available)
+    if command -v apply_gaming_enhancements >/dev/null 2>&1; then
+        apply_gaming_enhancements "$is_gaming"
+    fi
 }
 
 # ══════════════════════════════════════════════════════════════════════════════
-# PERFORMANCE  — temp <45°C, score ≥60
-# Full CPU headroom. GPU unlocked. WALT tuned for instant response.
-# Gaming: hispeed at 80% freq, very fast up-ramp, slow down-ramp.
+# PERFORMANCE  — temp <42°C, score ≥60
 # ══════════════════════════════════════════════════════════════════════════════
 _policy_performance() {
     local gaming="$1"
 
     if $gaming; then
-        # LITTLE: keep responsive for background game threads
-        #   gov=walt  min=30%=604800  max=100%=2016000
-        #   hispeed=1612800(80%) at 75% load, up=500µs down=5000µs
-        apply_cluster_settings 0 "walt" 30 100 "1612800" "75" "500"  "5000"
-
-        # BIG: primary game cluster — max ceiling, slow downscale
-        #   min=40%=1128960  max=100%=2803200
-        #   hispeed=2342400(83%) at 80% load, up=500µs down=8000µs
-        apply_cluster_settings 1 "walt" 40 100 "2342400" "80" "500"  "8000"
-
-        # PRIME: boost core — full speed, very aggressive upscale
-        #   min=40%=1209600  max=100%=3014400
-        #   hispeed=2419200(80%) at 85% load, up=200µs down=10000µs
-        apply_cluster_settings 2 "walt" 40 100 "2419200" "85" "200"  "10000"
-
-        # GPU: full ceiling, floor at PL3 (900MHz) — adreno-tz picks best
-        set_gpu_power_levels 0 3
+        # Gaming Performance: Smooth but prevent unnecessary 100% heat spikes.
+        # BIG/PRIME absolute max is capped to 90/95% (plenty for 120fps smooth).
+        apply_cluster_settings 0 "walt" 25 95 "1209600" "70" "500"  "5000"
+        apply_cluster_settings 1 "walt" 30 95 "2188800" "80" "500"  "8000"
+        apply_cluster_settings 2 "walt" 30 90 "2419200" "85" "500"  "10000"
+        # GPU: Fast up, but leave max power level (0) for emergency frame drops
+        set_gpu_power_levels 1 4
 
     else
-        # Non-gaming performance (charging, benchmarks, heavy app)
-        apply_cluster_settings 0 "walt" 25 100 "1612800" "80" "1000" "4000"
-        apply_cluster_settings 1 "walt" 35 100 "2342400" "85" "1000" "6000"
-        apply_cluster_settings 2 "walt" 35 100 "2419200" "85" "500"  "8000"
-        set_gpu_power_levels 0 5
+        # UI "Sweet Spot" Performance: Fast upscale but hispeed is efficient.
+        # Keeps animations butter smooth without massive voltage/heat.
+        apply_cluster_settings 0 "walt" 20 90 "1209600" "80" "1000" "4000"
+        apply_cluster_settings 1 "walt" 25 90 "1881600" "85" "1000" "6000"
+        apply_cluster_settings 2 "walt" 25 85 "2112000" "85" "1000" "8000"
+        set_gpu_power_levels 2 6
     fi
 
     log_info "Policy PERFORMANCE applied (gaming=$gaming)"
 }
 
 # ══════════════════════════════════════════════════════════════════════════════
-# BALANCED  — temp 45-55°C, score 20-60
-# Normal operation. WALT's defaults are sensible; we nudge for gaming.
+# BALANCED  — temp 42-48°C, score 20-60
+# Normal operation. Focus on heat mitigation without breaking UI smoothness.
 # ══════════════════════════════════════════════════════════════════════════════
 _policy_balanced() {
     local gaming="$1"
 
     if $gaming; then
-        # Gaming balanced: allow full freq ceiling but softer floor,
-        # slower down-ramp so frames don't drop mid-scene
-        apply_cluster_settings 0 "walt" 25 100 "1612800" "80" "1000" "6000"
-        apply_cluster_settings 1 "walt" 35 100 "2342400" "85" "1000" "8000"
-        apply_cluster_settings 2 "walt" 35 95  "2419200" "88" "500"  "10000"
-
-        # GPU: ceiling PL0 (1100MHz), floor PL5 (736MHz)
-        set_gpu_power_levels 0 5
+        # Gaming balanced: Phone is warming up. Cap max ceilings.
+        # BIG capped at 85%, PRIME capped at 80% to stop thermal runaway.
+        apply_cluster_settings 0 "walt" 20 90 "1209600" "80" "1000" "6000"
+        apply_cluster_settings 1 "walt" 25 85 "1881600" "85" "1000" "8000"
+        apply_cluster_settings 2 "walt" 25 80 "2112000" "90" "1000" "10000"
+        # GPU: ceiling PL2 (950MHz), floor PL6 (684MHz)
+        set_gpu_power_levels 2 6
 
     else
-        # Standard balanced — WALT defaults, light nudge
-        apply_cluster_settings 0 "walt" 20 100 "1209600" "85" "2000" "4000"
-        apply_cluster_settings 1 "walt" 25 100 "1881600" "85" "2000" "5000"
-        apply_cluster_settings 2 "walt" 25 90  "2112000" "90" "1000" "6000"
-
-        # GPU: ceiling PL1 (1000MHz), floor PL7 (633MHz)
-        set_gpu_power_levels 1 7
+        # Standard balanced UI: Slightly slower upscale to prevent heat.
+        apply_cluster_settings 0 "walt" 15 85 "806400"  "85" "2000" "4000"
+        apply_cluster_settings 1 "walt" 20 80 "1267200" "85" "2000" "5000"
+        apply_cluster_settings 2 "walt" 20 75 "1612800" "90" "2000" "6000"
+        # GPU: ceiling PL3 (900MHz), floor PL8 (500MHz)
+        set_gpu_power_levels 3 8
     fi
 
     log_info "Policy BALANCED applied (gaming=$gaming)"
@@ -176,7 +171,26 @@ _policy_powersave() {
 }
 
 # ══════════════════════════════════════════════════════════════════════════════
-# EMERGENCY COOL  — temp >72°C, score <-60
+# SUSPEND (Screen Off) - Lowest possible frequencies
+# Instant cool-down when phone is locked/in pocket.
+# ══════════════════════════════════════════════════════════════════════════════
+_policy_suspend() {
+    # All clusters locked to absolute minimum
+    apply_cluster_settings 0 "powersave" 0 30 "" "" "32000" "500"
+    apply_cluster_settings 1 "powersave" 0 20 "" "" "32000" "500"
+    apply_cluster_settings 2 "powersave" 0 20 "" "" "32000" "500"
+
+    # GPU locked to minimum
+    set_gpu_power_levels 10 10
+
+    # Force background cpuset
+    _constrain_background_to_little
+
+    log_info "Policy SUSPEND applied (Screen Off)"
+}
+
+# ══════════════════════════════════════════════════════════════════════════════
+# EMERGENCY COOL  — temp >68°C, score <-60
 # Prevent thermal shutdown. Minimal viable operation.
 # Releases automatically once AI score recovers above -20.
 # ══════════════════════════════════════════════════════════════════════════════

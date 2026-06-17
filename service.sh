@@ -52,6 +52,30 @@ if ! $CRITICAL_OK; then
     log_warn "Some paths are not writable — daemon will run but some features may be limited"
 fi
 
+# ─── Bootloop Protection ──────────────────────────────────────────────────────
+LOCK_FILE="/data/local/tmp/thermalai.lock"
+
+# If the lock file exists from a previous boot and wasn't cleared, it means the
+# device crashed shortly after our service started (potential bootloop).
+if [ -f "$LOCK_FILE" ]; then
+    log_error "CRITICAL: Lock file found! Possible bootloop detected."
+    log_error "Aborting ThermalAI startup and restoring stock thermal."
+    # Source governor tuner just to have access to restore_stock_thermal
+    . "$MODDIR/scripts/governor_tuner.sh" 2>/dev/null
+    restore_stock_thermal
+    exit 1
+fi
+
+# Create lock file to monitor stability
+touch "$LOCK_FILE"
+
+# Background task to clear the lock file after 2 minutes of uptime (meaning boot was stable)
+(
+    sleep 120
+    rm -f "$LOCK_FILE"
+    log_info "System stable for 2 minutes. Bootloop lock cleared."
+) &
+
 # ─── Launch AI daemon ─────────────────────────────────────────────────────────
 log_info "Launching AI thermal daemon..."
 sh "$MODDIR/scripts/thermal_ai.sh" &

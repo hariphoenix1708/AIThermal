@@ -20,15 +20,54 @@ cmd_status() {
     local pid
     pid=$(cat "$PID_FILE" 2>/dev/null)
     if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
-        echo "  Daemon : RUNNING (PID=$pid)"
+        echo "  Daemon      : RUNNING (PID=$pid)"
     else
-        echo "  Daemon : STOPPED"
+        echo "  Daemon      : STOPPED / FAILED"
     fi
 
-    # Current policy (last logged)
-    local policy
-    policy=$(grep "AI:.*->" "$LOG_FILE" 2>/dev/null | tail -1 | grep -o '-> .*' | cut -d' ' -f2)
-    echo "  Policy : ${policy:-unknown}"
+    # Bootloop protection
+    if [ -f "/data/local/tmp/thermalai.lock" ]; then
+        echo "  Stability   : VERIFYING (Lock Active)"
+    else
+        echo "  Stability   : STABLE (Lock Cleared)"
+    fi
+
+    # Self-Calibration
+    local calib=$(cat /data/local/tmp/thermalai.calibration 2>/dev/null || echo "0")
+    if [ "$calib" != "0" ]; then
+        echo "  Calibration : OFFSET -2°C (Device hot)"
+    else
+        echo "  Calibration : STANDARD"
+    fi
+
+    # Tweaks
+    if [ -f "/data/local/tmp/thermalai.gaming_tweaks_state" ]; then
+        echo "  Game Tweaks : ACTIVE (Net/Touch Boosted)"
+    else
+        echo "  Game Tweaks : INACTIVE"
+    fi
+
+    # Parse last log line for comprehensive state
+    local last_ai=$(grep "AI: cur=" "$LOG_FILE" 2>/dev/null | tail -1)
+    if [ -n "$last_ai" ]; then
+        local cur=$(echo "$last_ai" | grep -o "cur=[0-9]*" | cut -d= -f2)
+        local pred=$(echo "$last_ai" | grep -o "pred=[0-9]*" | cut -d= -f2)
+        local gpu=$(echo "$last_ai" | grep -o "gpu=[0-9]*" | cut -d= -f2)
+
+        local gaming_str=$(echo "$last_ai" | grep -o 'gaming=[^(]*([^)]*)')
+        local gaming_bool=$(echo "$gaming_str" | cut -d= -f2 | cut -d\( -f1)
+        local gaming_pkg=$(echo "$gaming_str" | cut -d\( -f2 | cut -d\) -f1)
+        [ -z "$gaming_pkg" ] && gaming_pkg="None"
+
+        local policy=$(echo "$last_ai" | awk -F'-> ' '{print $2}')
+
+        echo "  Policy      : $(echo "$policy" | tr '[:lower:]' '[:upper:]')"
+        echo "  Gaming      : $gaming_bool (Pkg: $gaming_pkg)"
+        echo "  AI Temp     : ${cur}°C (Predicted: ${pred}°C)"
+        echo "  GPU Load    : ${gpu}%"
+    else
+        echo "  Data        : No recent AI data found in logs."
+    fi
 
     # mi_thermald
     local mipid

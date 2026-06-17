@@ -14,6 +14,8 @@ MODDIR="${0%/*}/.."
 . "$MODDIR/scripts/logger.sh"
 . "$MODDIR/scripts/game_detector.sh"
 . "$MODDIR/scripts/governor_tuner.sh"
+. "$MODDIR/scripts/charge_control.sh"
+. "$MODDIR/scripts/game_tweaks.sh"
 . "$MODDIR/scripts/thermal_policy.sh"
 
 CFG="$MODDIR/config/profiles.conf"
@@ -29,11 +31,20 @@ GAMING_SCORE_BOOST="${GAMING_SCORE_BOOST:-35}"
 GPU_GAMING_THRESHOLD="${GPU_GAMING_THRESHOLD:-20}"
 LOG_ROTATE_MIN="${LOG_ROTATE_MIN:-60}"
 
-TEMP_COOL="${TEMP_COOL:-45}"
-TEMP_WARM="${TEMP_WARM:-55}"
-TEMP_HOT="${TEMP_HOT:-65}"
-TEMP_POWERSAVE="${TEMP_POWERSAVE:-72}"
-TEMP_CRITICAL="${TEMP_CRITICAL:-78}"
+# Base threshold definitions (can be modified by self-calibration)
+BASE_TEMP_COOL="${TEMP_COOL:-42}"
+BASE_TEMP_WARM="${TEMP_WARM:-48}"
+BASE_TEMP_HOT="${TEMP_HOT:-58}"
+BASE_TEMP_POWERSAVE="${TEMP_POWERSAVE:-68}"
+BASE_TEMP_CRITICAL="${TEMP_CRITICAL:-75}"
+
+TEMP_COOL="$BASE_TEMP_COOL"
+TEMP_WARM="$BASE_TEMP_WARM"
+TEMP_HOT="$BASE_TEMP_HOT"
+TEMP_POWERSAVE="$BASE_TEMP_POWERSAVE"
+TEMP_CRITICAL="$BASE_TEMP_CRITICAL"
+
+CALIBRATION_FILE="/data/local/tmp/thermalai.calibration"
 
 # ─── State ────────────────────────────────────────────────────────────────────
 TEMP_HISTORY=""
@@ -41,6 +52,8 @@ TEMP_HISTORY_COUNT=0
 TREND_SCORE=0
 CURRENT_POLICY="balanced"
 LAST_POLICY_CHANGE=0
+WATCHDOG_FAILURES=0
+WATCHDOG_LIMIT=5
 
 # ─── Thermal zones ────────────────────────────────────────────────────────────
 _zone_weight() {
@@ -127,11 +140,17 @@ calculate_trend() {
 # ─── Asymmetric EMA [FIX-1: clamp raised to ±50] ────────────────────────────
 update_trend_ema() {
     local s="$1"
-    if [ "$s" -gt "$TREND_SCORE" ]; then
+
+    # NEW: Heavily penalize sudden huge temperature spikes to act faster
+    if [ "$s" -gt 15 ] && [ "$s" -gt "$TREND_SCORE" ]; then
+        # Huge spike detected, fast-track the EMA upward
+        TREND_SCORE=$((TREND_SCORE*40/100 + s*60/100))
+    elif [ "$s" -gt "$TREND_SCORE" ]; then
         TREND_SCORE=$((TREND_SCORE*75/100 + s*25/100))
     else
         TREND_SCORE=$((TREND_SCORE*45/100 + s*55/100))
     fi
+
     [ "$TREND_SCORE" -gt  50 ] && TREND_SCORE=50   # was ±30
     [ "$TREND_SCORE" -lt -50 ] && TREND_SCORE=-50
 }
@@ -258,6 +277,66 @@ start_log_rotation() {
     log_info "Log rotation started (every ${LOG_ROTATE_MIN} min)"
 }
 
+# ─── Self-Calibration ─────────────────────────────────────────────────────────
+# Automatically adjust thresholds based on how often the device overheats
+perform_self_calibration() {
+    local current_temp="$1"
+
+    # Simple logic: track consecutive minutes above 'powersave' threshold.
+    # If the phone runs too hot for too long, permanently shift thresholds down slightly.
+    if [ "$current_temp" -ge "$BASE_TEMP_POWERSAVE" ]; then
+        if [ ! -f "$CALIBRATION_FILE" ]; then
+            echo "1" > "$CALIBRATION_FILE"
+        else
+            local count=$(cat "$CALIBRATION_FILE" 2>/dev/null || echo "0")
+            count=$((count + 1))
+            echo "$count" > "$CALIBRATION_FILE"
+
+            if [ "$count" -ge 60 ]; then # E.g., device was > 68C for roughly 60 ticks (2 mins)
+                log_warn "Self-Calibration: Device running hot for extended period. Lowering thresholds by 2°C to protect hardware."
+
+                # Apply dynamic shift
+                TEMP_COOL=$((BASE_TEMP_COOL - 2))
+                TEMP_WARM=$((BASE_TEMP_WARM - 2))
+                TEMP_HOT=$((BASE_TEMP_HOT - 2))
+                TEMP_POWERSAVE=$((BASE_TEMP_POWERSAVE - 2))
+                TEMP_CRITICAL=$((BASE_TEMP_CRITICAL - 2))
+
+                # Reset counter so we don't infinitely scale
+                echo "0" > "$CALIBRATION_FILE"
+            fi
+        fi
+    else
+        # If cool, slowly decay the calibration counter back to normal
+        if [ -f "$CALIBRATION_FILE" ]; then
+             local count=$(cat "$CALIBRATION_FILE" 2>/dev/null || echo "0")
+             if [ "$count" -gt 0 ]; then
+                 count=$((count - 1))
+                 echo "$count" > "$CALIBRATION_FILE"
+             elif [ "$TEMP_COOL" -ne "$BASE_TEMP_COOL" ]; then
+                 # If counter is 0 and we shifted, device has cooled completely. Restore thresholds.
+                 log_info "Self-Calibration: Device has recovered. Restoring original temperature thresholds."
+                 TEMP_COOL="$BASE_TEMP_COOL"
+                 TEMP_WARM="$BASE_TEMP_WARM"
+                 TEMP_HOT="$BASE_TEMP_HOT"
+                 TEMP_POWERSAVE="$BASE_TEMP_POWERSAVE"
+                 TEMP_CRITICAL="$BASE_TEMP_CRITICAL"
+             fi
+        fi
+    fi
+}
+
+# ─── Display State ────────────────────────────────────────────────────────────
+get_screen_state() {
+    local state
+    state=$(dumpsys power 2>/dev/null | grep 'mHoldingDisplaySuspendBlocker' | cut -d= -f2)
+    if [ "$state" = "false" ]; then
+        echo "off"
+    else
+        echo "on"
+    fi
+}
+
 # ─── Main Loop ────────────────────────────────────────────────────────────────
 main_loop() {
     log_info "════════════════════════════════════════"
@@ -274,11 +353,28 @@ main_loop() {
     init_thermal_zones
     discover_cpu_topology
     start_log_rotation
-    apply_thermal_policy "balanced" "false"
+    apply_thermal_policy "balanced" "false" "40"
 
     while true; do
         local temp; temp=$(get_composite_temp)
         local gpu;  gpu=$(get_gpu_load)
+
+        perform_self_calibration "$temp"
+
+        # Watchdog Check
+        if [ "$temp" -eq 45 ] && [ -z "$ACTIVE_ZONES" ]; then
+            WATCHDOG_FAILURES=$((WATCHDOG_FAILURES + 1))
+        else
+            WATCHDOG_FAILURES=0
+        fi
+
+        if [ "$WATCHDOG_FAILURES" -ge "$WATCHDOG_LIMIT" ]; then
+            log_error "CRITICAL: Watchdog triggered! Thermal sensors failing to read."
+            log_error "Aborting AI daemon and falling back to stock thermal engine."
+            restore_stock_thermal
+            exit 1
+        fi
+
         local gaming; gaming=$(detect_gaming_context)
 
         update_history "$temp"
@@ -288,16 +384,24 @@ main_loop() {
         local pred; pred=$(predict_temp "$temp" "$slope" "$PREDICTION_WINDOW")
         local conf; conf=$(calculate_confidence)
 
-        local new_policy; new_policy=$(ai_decide_policy "$temp" "$gpu" "$gaming" "$pred" "$conf")
+        local screen_state; screen_state=$(get_screen_state)
+        local new_policy
+
+        if [ "$screen_state" = "off" ]; then
+            new_policy="suspend"
+        else
+            new_policy=$(ai_decide_policy "$temp" "$gpu" "$gaming" "$pred" "$conf")
+        fi
 
         if [ "$new_policy" != "$CURRENT_POLICY" ]; then
-            apply_thermal_policy "$new_policy" "$gaming"
+            apply_thermal_policy "$new_policy" "$gaming" "$temp"
             CURRENT_POLICY="$new_policy"
             LAST_POLICY_CHANGE=$(date +%s)
         fi
 
-        # Fast poll when gaming OR GPU is hot (don't wait for detection to confirm)
-        if $gaming || [ "$gpu" -ge "$GPU_GAMING_THRESHOLD" ]; then
+        if [ "$screen_state" = "off" ]; then
+            sleep "$((POLL_INTERVAL * 2))" # Poll slower when screen is off
+        elif $gaming || [ "$gpu" -ge "$GPU_GAMING_THRESHOLD" ]; then
             sleep "$GAME_POLL_INTERVAL"
         else
             sleep "$POLL_INTERVAL"

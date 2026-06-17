@@ -240,5 +240,10 @@ restore_stock_thermal() {
     # Restore GPU to full range
     set_gpu_power_levels 0 10
 
+    # Restore charging (if charge_control.sh is available)
+    if command -v restore_charging_control >/dev/null 2>&1; then
+        restore_charging_control
+    fi
+
     log_info "Stock thermal (mi_thermald) restored and freq limits reset"
 }
