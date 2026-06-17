@@ -1,0 +1,172 @@
+#!/system/bin/sh
+# ThermalAI CLI — POCO F6 (peridot) / KernelSU
+# Usage: thermalair [status|logs|gaming|temps|stop|start|restart|policy <name>]
+
+MODDIR="/data/adb/modules/thermalai"
+LOG_FILE="/data/local/tmp/thermalai.log"
+PID_FILE="/data/local/tmp/thermalai.pid"
+
+. "$MODDIR/scripts/logger.sh"       2>/dev/null || true
+. "$MODDIR/scripts/governor_tuner.sh" 2>/dev/null || true
+. "$MODDIR/scripts/game_detector.sh"  2>/dev/null || true
+
+# ─── Status ───────────────────────────────────────────────────────────────────
+cmd_status() {
+    echo "════════════════════════════════════════"
+    echo "  ThermalAI Status — peridot (8s Gen3)"
+    echo "════════════════════════════════════════"
+
+    # Daemon
+    local pid
+    pid=$(cat "$PID_FILE" 2>/dev/null)
+    if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+        echo "  Daemon : RUNNING (PID=$pid)"
+    else
+        echo "  Daemon : STOPPED"
+    fi
+
+    # Current policy (last logged)
+    local policy
+    policy=$(grep "AI:.*->" "$LOG_FILE" 2>/dev/null | tail -1 | grep -o '-> .*' | cut -d' ' -f2)
+    echo "  Policy : ${policy:-unknown}"
+
+    # mi_thermald
+    local mipid
+    mipid=$(pgrep mi_thermald 2>/dev/null | head -1)
+    [ -n "$mipid" ] && echo "  mi_thermald : RUNNING (pid=$mipid) ← should be stopped" \
+                    || echo "  mi_thermald : stopped ✓"
+
+    # Key temps — zone IDs per AOSP/GlaciumKernel numbering (differ from HyperOS):
+    #   zone10=cpuss-0  zone11=cpuss-1  zone31=gpuss-0  zone32=gpuss-1
+    #   zone46=xo-therm zone47=cpu_therm zone48=quiet_therm
+    echo ""
+    echo "  Key Temperatures:"
+    for zone_id in 10 11 31 32 46 47 48; do
+        local zpath="/sys/class/thermal/thermal_zone${zone_id}"
+        [ -d "$zpath" ] || continue
+        local ztype raw_t t
+        ztype=$(cat "$zpath/type" 2>/dev/null)
+        raw_t=$(cat "$zpath/temp" 2>/dev/null || echo "0")
+        t=$((raw_t / 1000))
+        printf "    %-20s %d°C\n" "$ztype" "$t"
+    done
+
+    # GPU
+    echo ""
+    local gpu_busy gpu_max_pl gpu_min_pl gpu_gov
+    gpu_busy=$(cat /sys/class/kgsl/kgsl-3d0/gpu_busy_percentage 2>/dev/null | awk '{print int($1)}')
+    gpu_max_pl=$(cat /sys/class/kgsl/kgsl-3d0/max_pwrlevel 2>/dev/null)
+    gpu_min_pl=$(cat /sys/class/kgsl/kgsl-3d0/min_pwrlevel 2>/dev/null)
+    gpu_gov=$(cat /sys/class/kgsl/kgsl-3d0/devfreq/governor 2>/dev/null)
+    echo "  GPU    : ${gpu_busy}% busy  PL ceiling=${gpu_max_pl} floor=${gpu_min_pl}  gov=${gpu_gov}"
+
+    # CPU cluster freq
+    echo ""
+    echo "  CPU Frequencies:"
+    for cpu in 0 3 7; do
+        local cur max gov
+        cur=$(cat "/sys/devices/system/cpu/cpu${cpu}/cpufreq/scaling_cur_freq" 2>/dev/null)
+        max=$(cat "/sys/devices/system/cpu/cpu${cpu}/cpufreq/scaling_max_freq" 2>/dev/null)
+        gov=$(cat "/sys/devices/system/cpu/cpu${cpu}/cpufreq/scaling_governor" 2>/dev/null)
+        printf "    cpu%d: %s  cur=%-7s  max=%s\n" "$cpu" "$gov" "$cur" "$max"
+    done
+
+    # RAM
+    local free_mb
+    free_mb=$(awk '/MemAvailable/{printf "%d", $2/1024}' /proc/meminfo 2>/dev/null)
+    echo ""
+    echo "  RAM free: ${free_mb} MB  swappiness=$(cat /proc/sys/vm/swappiness 2>/dev/null)"
+    echo "════════════════════════════════════════"
+}
+
+# ─── Live Temps ───────────────────────────────────────────────────────────────
+cmd_temps() {
+    echo "All Active Thermal Zones:"
+    printf "  %-6s %-26s %s\n" "Zone" "Type" "Temp"
+    echo "  ──────────────────────────────────────────"
+    for zone_path in /sys/class/thermal/thermal_zone*/; do
+        local id type raw t
+        id="${zone_path##*thermal_zone}"; id="${id%/}"
+        type=$(cat "${zone_path}type" 2>/dev/null)
+        raw=$(cat "${zone_path}temp" 2>/dev/null || echo "-1")
+        [ "$raw" -lt 0 ] 2>/dev/null && continue  # skip inactive (-273°C) zones
+        t=$((raw / 1000))
+        [ "$t" -gt 120 ] 2>/dev/null && continue  # skip bogus readings
+        printf "  %-6s %-26s %d°C\n" "zone${id}" "$type" "$t"
+    done
+}
+
+# ─── Logs ─────────────────────────────────────────────────────────────────────
+cmd_logs() {
+    local n="${1:-60}"
+    echo "── Last $n ThermalAI log lines ──"
+    tail -n "$n" "$LOG_FILE" 2>/dev/null || echo "No log at $LOG_FILE"
+}
+
+# ─── Gaming detection status ──────────────────────────────────────────────────
+cmd_gaming() {
+    discover_cpu_topology 2>/dev/null
+    local pkg gpu rt game
+    pkg=$(get_foreground_package)
+    gpu=$(get_gpu_load)
+    rt=$(has_render_thread "$pkg")
+    game=$(detect_gaming_context)
+    echo "Foreground package : ${pkg:-<not detected>}"
+    echo "Known game pkg     : $(is_known_game_package "$pkg")"
+    echo "GPU load           : ${gpu}%"
+    echo "Has RenderThread   : $rt"
+    echo "Gaming detected    : $game"
+}
+
+# ─── Stop ─────────────────────────────────────────────────────────────────────
+cmd_stop() {
+    local pid
+    pid=$(cat "$PID_FILE" 2>/dev/null)
+    [ -n "$pid" ] && kill "$pid" 2>/dev/null && echo "Daemon stopped (PID=$pid)" \
+                  || echo "Daemon not running"
+    pkill -f "thermal_ai.sh" 2>/dev/null || true
+    restore_stock_thermal
+}
+
+# ─── Start ────────────────────────────────────────────────────────────────────
+cmd_start() {
+    if [ -n "$(cat "$PID_FILE" 2>/dev/null)" ] && \
+       kill -0 "$(cat "$PID_FILE" 2>/dev/null)" 2>/dev/null; then
+        echo "Already running (PID=$(cat $PID_FILE))"
+        return
+    fi
+    discover_cpu_topology
+    disable_stock_thermal
+    sh "$MODDIR/scripts/thermal_ai.sh" &
+    echo "$!" > "$PID_FILE"
+    echo "ThermalAI started (PID=$!)"
+}
+
+# ─── Force policy ─────────────────────────────────────────────────────────────
+cmd_policy() {
+    local p="$1"
+    case "$p" in
+        performance|balanced|conservative|powersave|emergency_cool) ;;
+        *) echo "Valid: performance balanced conservative powersave emergency_cool"
+           exit 1 ;;
+    esac
+    . "$MODDIR/scripts/thermal_policy.sh"
+    discover_cpu_topology
+    apply_thermal_policy "$p" "false"
+    echo "Policy '$p' applied"
+}
+
+# ─── Dispatch ─────────────────────────────────────────────────────────────────
+case "${1:-status}" in
+    status)  cmd_status ;;
+    temps)   cmd_temps ;;
+    logs)    cmd_logs "${2:-60}" ;;
+    gaming)  cmd_gaming ;;
+    stop)    cmd_stop ;;
+    start)   cmd_start ;;
+    restart) cmd_stop; sleep 2; cmd_start ;;
+    policy)  cmd_policy "$2" ;;
+    *)
+        echo "Usage: thermalair [status|temps|logs [N]|gaming|stop|start|restart|policy <name>]"
+        exit 1 ;;
+esac

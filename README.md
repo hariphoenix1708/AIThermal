@@ -1,0 +1,105 @@
+# ThermalAI — Intelligent Thermal Management Module
+
+An AI-driven Magisk/KernelSU module that replaces reactive thermal throttling with
+predictive, context-aware thermal management — preserving gaming performance while
+keeping your device safe.
+
+---
+
+## How It Works
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        ThermalAI Flow                           │
+│                                                                 │
+│  Sensors ──► History Buffer ──► Trend Analysis (LSQ) ──►       │
+│                                                                 │
+│  ──► Prediction ──► Confidence Score ──► AI Scoring Matrix ──► │
+│                                                                 │
+│  ──► Policy Decision ──► Hardware Enforcement                   │
+│         (debounced)          CPU/GPU/IO/VM                      │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### The 5 Policies
+
+| Policy        | Temp Range | Gaming Behavior                          |
+|---------------|-----------|-------------------------------------------|
+| performance   | < 45°C    | Full CPU/GPU headroom, fast schedutil     |
+| balanced      | 45–55°C   | Normal operation, adaptive GPU governor   |
+| conservative  | 55–65°C   | Throttle BG tasks, preserve FG frames    |
+| powersave     | 65–72°C   | Cap big/prime cores, reduce GPU levels   |
+| emergency_cool| > 72°C    | Maximum throttle, prevent thermal shutdown|
+
+### Key Features
+
+- **Predictive**: Uses linear regression on 10-sample temp history to predict
+  temperature 10 seconds ahead — acts *before* throttle kicks in
+- **Gaming-aware**: Detects foreground app package, GPU load ≥60%, RenderThread
+  presence — auto-biases toward performance during gameplay
+- **Anti-flapping**: 10-second debounce on policy changes — no stuttering from
+  rapid policy swaps
+- **Background isolation**: Pushes non-game processes to little cores via cpuset
+  during gaming conserve/powersave modes
+- **Multi-SoC**: Works with Qualcomm Adreno, Mali, and generic GPU governors
+
+---
+
+## Installation
+
+1. Download `ThermalAI.zip`
+2. Flash via Magisk Manager / KernelSU Manager
+3. Reboot
+
+---
+
+## CLI Usage (via ADB or terminal)
+
+```bash
+# View current status and temps
+thermalair status
+
+# Watch live logs
+thermalair logs 100
+
+# Check if gaming is detected
+thermalair gaming
+
+# Force a specific policy
+thermalair policy performance
+
+# Stop/start daemon
+thermalair stop
+thermalair start
+```
+
+---
+
+## Configuration
+
+Edit `/data/adb/modules/thermalai/config/profiles.conf` to tune thresholds.
+Edit `/data/adb/modules/thermalai/config/game_list.conf` to add your games.
+
+---
+
+## Compatibility
+
+- **Root**: Magisk 24+ or KernelSU
+- **Android**: 10–15
+- **SoC**: Qualcomm (Snapdragon), MediaTek, Exynos (partial)
+- **Arch**: ARM64
+
+---
+
+## Logs
+
+Logs are written to `/data/local/tmp/thermalai.log` and `logcat` (tag: ThermalAI).
+Set `THERMALAI_LOG_LEVEL=DEBUG` in `profiles.conf` for verbose output.
+
+---
+
+## Disclaimer
+
+This module replaces the stock thermal engine. While designed to be safe, use at
+your own risk. The module automatically restores stock thermal management if removed
+via Magisk/KernelSU.

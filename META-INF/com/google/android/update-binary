@@ -1,0 +1,54 @@
+#!/system/bin/sh
+# ThermalAI Magisk/KernelSU Installer
+
+SKIPUNZIP=1
+
+ui_print "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+ui_print "   ThermalAI v1.1.0 - Intelligent Thermal Manager"
+ui_print "   Device Edition: POCO F6 (peridot)"
+ui_print "   AOSP Android 16 / GlaciumKernel"
+ui_print "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+ui_print ""
+
+# Verify device (warn but don't block — allow manual override)
+DEVICE=$(getprop ro.product.device)
+SOC=$(getprop ro.board.platform)
+if [ "$DEVICE" != "peridot" ] || [ "$SOC" != "pineapple" ]; then
+    ui_print "  [!] WARNING: This build is tuned for peridot/pineapple"
+    ui_print "  [!] Your device: $DEVICE / $SOC"
+    ui_print "  [!] Module will still install — WALT & kgsl paths may differ"
+    ui_print ""
+fi
+
+ui_print "  Extracting files..."
+unzip -o "$ZIPFILE" -x "META-INF/*" -d "$MODPATH" >&2
+
+ui_print "  Setting permissions..."
+set_perm_recursive "$MODPATH"         root root 0755 0644
+set_perm "$MODPATH/service.sh"                    root root 0755
+set_perm "$MODPATH/scripts/thermal_ai.sh"         root root 0755
+set_perm "$MODPATH/scripts/game_detector.sh"      root root 0755
+set_perm "$MODPATH/scripts/governor_tuner.sh"     root root 0755
+set_perm "$MODPATH/scripts/thermal_policy.sh"     root root 0755
+set_perm "$MODPATH/scripts/logger.sh"             root root 0755
+set_perm "$MODPATH/system/bin/thermalair"         root root 0755
+
+ui_print ""
+ui_print "  Device  : $(getprop ro.product.model)"
+ui_print "  Android : $(getprop ro.build.version.release)"
+ui_print "  ROM     : $(getprop ro.build.display.id)"
+ui_print "  KSU     : $(ksud -V 2>/dev/null || echo 'N/A (Magisk?)')"
+ui_print ""
+ui_print "  ✓ AI daemon          → scripts/thermal_ai.sh"
+ui_print "  ✓ WALT governor      → cpu0-2 / cpu3-6 / cpu7 clusters"
+ui_print "  ✓ Adreno 735 control → 11 power levels via kgsl"
+ui_print "  ✓ mi_thermald        → will be replaced on boot"
+ui_print "  ✓ Gaming detection   → AOSP dumpsys + kgsl + RenderThread"
+ui_print "  ✓ CLI tool           → thermalair (in PATH after reboot)"
+ui_print ""
+ui_print "  Config: /data/adb/modules/thermalai/config/profiles.conf"
+ui_print "  Games : /data/adb/modules/thermalai/config/game_list.conf"
+ui_print "  Log   : /data/local/tmp/thermalai.log"
+ui_print ""
+ui_print "  Reboot to activate ThermalAI"
+ui_print "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
