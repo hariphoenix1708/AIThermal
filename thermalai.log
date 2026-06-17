@@ -1,0 +1,1138 @@
+[2026-06-17 15:22:46] [INFO] ── Log rotated (every 60min) ──
+[2026-06-17 15:16:39] [INFO] AI: cur=47°C pred=47°C gpu=18% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:16:43] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:16:43] [INFO] AI: cur=47°C pred=47°C gpu=21% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:16:47] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:16:47] [INFO] AI: cur=47°C pred=47°C gpu=11% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:16:51] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:16:51] [INFO] AI: cur=48°C pred=48°C gpu=21% gaming=true() t=-20 p=0 g=35 tr=0 score=15 -> balanced
+[2026-06-17 15:16:51] [INFO] Applying policy: balanced (gaming=true)
+[2026-06-17 15:16:51] [INFO] Policy BALANCED applied (gaming=true)
+[2026-06-17 15:16:56] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:16:56] [INFO] AI: cur=47°C pred=47°C gpu=18% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> balanced
+[2026-06-17 15:17:00] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:17:00] [INFO] AI: cur=48°C pred=48°C gpu=23% gaming=true() t=-20 p=0 g=35 tr=0 score=15 -> balanced
+[2026-06-17 15:17:04] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:17:04] [INFO] AI: cur=47°C pred=47°C gpu=14% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:17:04] [INFO] Applying policy: performance (gaming=true)
+[2026-06-17 15:17:04] [INFO] Policy PERFORMANCE applied (gaming=true)
+[2026-06-17 15:17:08] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:17:09] [INFO] AI: cur=48°C pred=48°C gpu=19% gaming=true() t=-20 p=0 g=35 tr=0 score=15 -> performance
+[2026-06-17 15:17:12] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:17:12] [INFO] AI: cur=48°C pred=48°C gpu=14% gaming=true() t=-20 p=0 g=35 tr=0 score=15 -> performance
+[2026-06-17 15:17:16] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:17:16] [INFO] AI: cur=47°C pred=47°C gpu=10% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:17:20] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:17:20] [INFO] AI: cur=47°C pred=47°C gpu=18% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:17:24] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:17:24] [INFO] AI: cur=47°C pred=47°C gpu=16% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:17:27] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:17:28] [INFO] AI: cur=47°C pred=47°C gpu=13% gaming=true() t=20 p=0 g=35 tr=-1 score=54 -> performance
+[2026-06-17 15:17:31] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:17:31] [INFO] AI: cur=47°C pred=47°C gpu=15% gaming=true() t=20 p=0 g=35 tr=-1 score=54 -> performance
+[2026-06-17 15:17:35] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:17:35] [INFO] AI: cur=48°C pred=48°C gpu=21% gaming=true() t=-20 p=0 g=35 tr=0 score=15 -> balanced
+[2026-06-17 15:17:35] [INFO] Applying policy: balanced (gaming=true)
+[2026-06-17 15:17:35] [INFO] Policy BALANCED applied (gaming=true)
+[2026-06-17 15:17:40] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:17:40] [INFO] AI: cur=47°C pred=47°C gpu=14% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> balanced
+[2026-06-17 15:17:44] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:17:44] [INFO] AI: cur=47°C pred=47°C gpu=23% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> balanced
+[2026-06-17 15:17:48] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:17:48] [INFO] AI: cur=48°C pred=48°C gpu=23% gaming=true() t=-20 p=0 g=35 tr=0 score=15 -> balanced
+[2026-06-17 15:17:52] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:17:52] [INFO] AI: cur=46°C pred=46°C gpu=13% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:17:52] [INFO] Applying policy: performance (gaming=true)
+[2026-06-17 15:17:52] [INFO] Policy PERFORMANCE applied (gaming=true)
+[2026-06-17 15:17:56] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:17:56] [INFO] AI: cur=47°C pred=47°C gpu=20% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:18:00] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:18:00] [INFO] AI: cur=46°C pred=46°C gpu=12% gaming=true() t=20 p=0 g=35 tr=-1 score=54 -> performance
+[2026-06-17 15:18:04] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:18:04] [INFO] AI: cur=47°C pred=47°C gpu=15% gaming=true() t=20 p=0 g=35 tr=-1 score=54 -> performance
+[2026-06-17 15:18:07] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:18:08] [INFO] AI: cur=47°C pred=47°C gpu=14% gaming=true() t=20 p=0 g=35 tr=-1 score=54 -> performance
+[2026-06-17 15:18:11] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:18:12] [INFO] AI: cur=47°C pred=47°C gpu=19% gaming=true() t=20 p=0 g=35 tr=-1 score=54 -> performance
+[2026-06-17 15:18:15] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:18:15] [INFO] AI: cur=47°C pred=47°C gpu=15% gaming=true() t=20 p=0 g=35 tr=-1 score=54 -> performance
+[2026-06-17 15:18:19] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:18:20] [INFO] AI: cur=48°C pred=48°C gpu=18% gaming=true() t=-20 p=0 g=35 tr=0 score=15 -> balanced
+[2026-06-17 15:18:20] [INFO] Applying policy: balanced (gaming=true)
+[2026-06-17 15:18:20] [INFO] Policy BALANCED applied (gaming=true)
+[2026-06-17 15:18:23] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:18:24] [INFO] AI: cur=47°C pred=47°C gpu=19% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> balanced
+[2026-06-17 15:18:28] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:18:28] [INFO] AI: cur=47°C pred=47°C gpu=15% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> balanced
+[2026-06-17 15:18:32] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:18:32] [INFO] AI: cur=47°C pred=47°C gpu=21% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:18:32] [INFO] Applying policy: performance (gaming=true)
+[2026-06-17 15:18:32] [INFO] Policy PERFORMANCE applied (gaming=true)
+[2026-06-17 15:18:35] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:18:35] [INFO] AI: cur=47°C pred=47°C gpu=17% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:18:39] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:18:40] [INFO] AI: cur=46°C pred=46°C gpu=15% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:18:44] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:18:44] [INFO] AI: cur=47°C pred=47°C gpu=13% gaming=true() t=20 p=0 g=35 tr=-1 score=54 -> performance
+[2026-06-17 15:18:47] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:18:47] [INFO] AI: cur=47°C pred=47°C gpu=16% gaming=true() t=20 p=0 g=35 tr=-1 score=54 -> performance
+[2026-06-17 15:18:51] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:18:51] [INFO] AI: cur=46°C pred=46°C gpu=11% gaming=true() t=20 p=0 g=35 tr=-1 score=54 -> performance
+[2026-06-17 15:18:55] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:18:55] [INFO] AI: cur=47°C pred=47°C gpu=18% gaming=true() t=20 p=0 g=35 tr=-2 score=53 -> performance
+[2026-06-17 15:18:59] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:18:59] [INFO] AI: cur=47°C pred=47°C gpu=11% gaming=true() t=20 p=0 g=35 tr=-1 score=54 -> performance
+[2026-06-17 15:19:03] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:19:03] [INFO] AI: cur=47°C pred=47°C gpu=10% gaming=true() t=20 p=0 g=35 tr=-1 score=54 -> performance
+[2026-06-17 15:19:07] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:19:07] [INFO] AI: cur=47°C pred=47°C gpu=18% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:19:11] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:19:11] [INFO] AI: cur=47°C pred=47°C gpu=17% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:19:14] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:19:14] [INFO] AI: cur=47°C pred=47°C gpu=12% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:19:18] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:19:18] [INFO] AI: cur=47°C pred=47°C gpu=11% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:19:21] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:19:21] [INFO] AI: cur=46°C pred=46°C gpu=12% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:19:25] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:19:25] [INFO] AI: cur=46°C pred=46°C gpu=13% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:19:28] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:19:28] [INFO] AI: cur=46°C pred=46°C gpu=12% gaming=true() t=20 p=0 g=35 tr=-1 score=54 -> performance
+[2026-06-17 15:19:31] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:19:32] [INFO] AI: cur=47°C pred=47°C gpu=11% gaming=true() t=20 p=0 g=35 tr=-1 score=54 -> performance
+[2026-06-17 15:19:35] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:19:35] [INFO] AI: cur=47°C pred=47°C gpu=14% gaming=true() t=20 p=0 g=35 tr=-1 score=54 -> performance
+[2026-06-17 15:19:39] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:19:39] [INFO] AI: cur=46°C pred=46°C gpu=11% gaming=true() t=20 p=0 g=35 tr=-1 score=54 -> performance
+[2026-06-17 15:19:42] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:19:43] [INFO] AI: cur=47°C pred=47°C gpu=15% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:19:46] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:19:46] [INFO] AI: cur=46°C pred=46°C gpu=11% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:19:50] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:19:50] [INFO] AI: cur=45°C pred=45°C gpu=10% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:19:54] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:19:54] [INFO] AI: cur=47°C pred=47°C gpu=18% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:19:58] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:19:58] [INFO] AI: cur=47°C pred=47°C gpu=13% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:20:01] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:20:01] [INFO] AI: cur=46°C pred=46°C gpu=10% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:20:05] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:20:05] [INFO] AI: cur=47°C pred=47°C gpu=11% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:20:09] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:20:09] [INFO] AI: cur=46°C pred=46°C gpu=10% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:20:13] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:20:13] [INFO] AI: cur=47°C pred=47°C gpu=10% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:20:17] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:20:17] [INFO] AI: cur=46°C pred=46°C gpu=10% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:20:21] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:20:21] [INFO] AI: cur=46°C pred=46°C gpu=10% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:20:24] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:20:24] [INFO] AI: cur=46°C pred=46°C gpu=11% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:20:28] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:20:28] [INFO] AI: cur=46°C pred=46°C gpu=10% gaming=true() t=20 p=0 g=35 tr=-1 score=54 -> performance
+[2026-06-17 15:20:31] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:20:32] [INFO] AI: cur=46°C pred=46°C gpu=13% gaming=true() t=20 p=0 g=35 tr=-1 score=54 -> performance
+[2026-06-17 15:20:35] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:20:35] [INFO] AI: cur=46°C pred=46°C gpu=11% gaming=true() t=20 p=0 g=35 tr=-1 score=54 -> performance
+[2026-06-17 15:20:39] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:20:39] [INFO] AI: cur=46°C pred=46°C gpu=11% gaming=true() t=20 p=0 g=35 tr=-1 score=54 -> performance
+[2026-06-17 15:20:42] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:20:42] [INFO] AI: cur=46°C pred=46°C gpu=11% gaming=true() t=20 p=0 g=35 tr=-1 score=54 -> performance
+[2026-06-17 15:20:46] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:20:46] [INFO] AI: cur=46°C pred=46°C gpu=11% gaming=true() t=20 p=0 g=35 tr=-1 score=54 -> performance
+[2026-06-17 15:20:50] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:20:50] [INFO] AI: cur=47°C pred=47°C gpu=12% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:20:54] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:20:54] [INFO] AI: cur=47°C pred=47°C gpu=13% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:20:58] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:20:58] [INFO] AI: cur=47°C pred=47°C gpu=19% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:21:02] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:21:02] [INFO] AI: cur=47°C pred=47°C gpu=16% gaming=true() t=20 p=0 g=35 tr=1 score=56 -> performance
+[2026-06-17 15:21:06] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:21:06] [INFO] AI: cur=48°C pred=49°C gpu=21% gaming=true() t=-20 p=0 g=35 tr=3 score=18 -> balanced
+[2026-06-17 15:21:06] [INFO] Applying policy: balanced (gaming=true)
+[2026-06-17 15:21:06] [INFO] Policy BALANCED applied (gaming=true)
+[2026-06-17 15:21:10] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:21:10] [INFO] AI: cur=47°C pred=47°C gpu=17% gaming=true() t=20 p=0 g=35 tr=3 score=58 -> balanced
+[2026-06-17 15:21:14] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:21:14] [INFO] AI: cur=47°C pred=47°C gpu=18% gaming=true() t=20 p=0 g=35 tr=3 score=58 -> balanced
+[2026-06-17 15:21:18] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:21:18] [INFO] AI: cur=47°C pred=47°C gpu=17% gaming=true() t=20 p=0 g=35 tr=3 score=58 -> performance
+[2026-06-17 15:21:18] [INFO] Applying policy: performance (gaming=true)
+[2026-06-17 15:21:18] [INFO] Policy PERFORMANCE applied (gaming=true)
+[2026-06-17 15:21:21] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:21:21] [INFO] AI: cur=46°C pred=46°C gpu=10% gaming=true() t=20 p=0 g=35 tr=1 score=56 -> performance
+[2026-06-17 15:21:24] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:21:25] [INFO] AI: cur=45°C pred=45°C gpu=10% gaming=true() t=20 p=0 g=35 tr=-1 score=54 -> performance
+[2026-06-17 15:21:28] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:21:28] [INFO] AI: cur=46°C pred=46°C gpu=10% gaming=true() t=20 p=0 g=35 tr=-2 score=53 -> performance
+[2026-06-17 15:21:32] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:21:32] [INFO] AI: cur=47°C pred=47°C gpu=17% gaming=true() t=20 p=0 g=35 tr=-3 score=52 -> performance
+[2026-06-17 15:21:36] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:21:36] [INFO] AI: cur=46°C pred=46°C gpu=13% gaming=true() t=20 p=0 g=35 tr=-3 score=52 -> performance
+[2026-06-17 15:21:40] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:21:40] [INFO] AI: cur=47°C pred=47°C gpu=17% gaming=true() t=20 p=0 g=35 tr=-3 score=52 -> performance
+[2026-06-17 15:21:44] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:21:44] [INFO] AI: cur=47°C pred=47°C gpu=15% gaming=true() t=20 p=0 g=35 tr=-2 score=53 -> performance
+[2026-06-17 15:21:47] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:21:47] [INFO] AI: cur=47°C pred=47°C gpu=14% gaming=true() t=20 p=0 g=35 tr=-1 score=54 -> performance
+[2026-06-17 15:21:51] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:21:52] [INFO] AI: cur=47°C pred=47°C gpu=11% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 15:21:55] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:21:56] [INFO] AI: cur=47°C pred=47°C gpu=14% gaming=true() t=20 p=0 g=35 tr=2 score=57 -> performance
+[2026-06-17 15:21:59] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:21:59] [INFO] AI: cur=47°C pred=47°C gpu=15% gaming=true() t=20 p=0 g=35 tr=3 score=58 -> performance
+[2026-06-17 15:22:03] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:22:03] [INFO] AI: cur=47°C pred=47°C gpu=16% gaming=true() t=20 p=0 g=35 tr=2 score=57 -> performance
+[2026-06-17 15:22:06] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:22:07] [INFO] AI: cur=47°C pred=47°C gpu=15% gaming=true() t=20 p=0 g=35 tr=1 score=56 -> performance
+[2026-06-17 15:22:10] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:22:10] [INFO] AI: cur=47°C pred=47°C gpu=16% gaming=true() t=20 p=0 g=35 tr=1 score=56 -> performance
+[2026-06-17 15:22:13] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:22:13] [INFO] AI: cur=49°C pred=49°C gpu=10% gaming=true() t=-20 p=0 g=35 tr=1 score=16 -> balanced
+[2026-06-17 15:22:13] [INFO] Applying policy: balanced (gaming=true)
+[2026-06-17 15:22:13] [INFO] Policy BALANCED applied (gaming=true)
+[2026-06-17 15:22:20] [INFO] AI: cur=49°C pred=49°C gpu=11% gaming=false() t=-20 p=0 g=0 tr=3 score=-17 -> balanced
+[2026-06-17 15:22:26] [INFO] AI: cur=48°C pred=49°C gpu=13% gaming=false() t=-20 p=0 g=0 tr=4 score=-16 -> conservative
+[2026-06-17 15:22:26] [INFO] Applying policy: conservative (gaming=false)
+[2026-06-17 15:22:26] [INFO] Policy CONSERVATIVE applied (gaming=false)
+[2026-06-17 15:22:31] [INFO] AI: cur=49°C pred=50°C gpu=3% gaming=false() t=-20 p=0 g=0 tr=5 score=-15 -> conservative
+[2026-06-17 15:22:38] [INFO] AI: cur=48°C pred=49°C gpu=8% gaming=false() t=-20 p=0 g=0 tr=5 score=-15 -> conservative
+[2026-06-17 15:22:44] [INFO] AI: cur=43°C pred=43°C gpu=2% gaming=false() t=20 p=0 g=0 tr=1 score=21 -> conservative
+[2026-06-17 15:22:46] [INFO] Log rotated
+[2026-06-17 15:22:51] [INFO] AI: cur=42°C pred=40°C gpu=2% gaming=false() t=20 p=0 g=0 tr=-5 score=15 -> conservative
+[2026-06-17 15:22:57] [INFO] AI: cur=44°C pred=42°C gpu=6% gaming=false() t=20 p=0 g=0 tr=-9 score=11 -> conservative
+[2026-06-17 15:23:03] [INFO] AI: cur=42°C pred=39°C gpu=3% gaming=false() t=20 p=10 g=0 tr=-12 score=18 -> conservative
+[2026-06-17 15:23:09] [INFO] AI: cur=42°C pred=38°C gpu=3% gaming=false() t=20 p=10 g=0 tr=-12 score=18 -> conservative
+[2026-06-17 15:23:16] [INFO] AI: cur=43°C pred=39°C gpu=21% gaming=false() t=20 p=10 g=0 tr=-12 score=18 -> conservative
+[2026-06-17 15:23:21] [INFO] AI: cur=44°C pred=41°C gpu=4% gaming=false() t=20 p=10 g=0 tr=-12 score=18 -> conservative
+[2026-06-17 15:23:27] [INFO] AI: cur=43°C pred=41°C gpu=2% gaming=false() t=20 p=0 g=0 tr=-12 score=8 -> conservative
+[2026-06-17 15:23:35] [INFO] AI: cur=47°C pred=47°C gpu=5% gaming=false() t=20 p=0 g=0 tr=-9 score=11 -> conservative
+[2026-06-17 15:23:42] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-6 score=34 -> balanced
+[2026-06-17 15:23:42] [INFO] Applying policy: balanced (gaming=false)
+[2026-06-17 15:23:42] [INFO] Policy BALANCED applied (gaming=false)
+[2026-06-17 15:23:48] [INFO] AI: cur=47°C pred=48°C gpu=3% gaming=false() t=20 p=0 g=0 tr=1 score=21 -> balanced
+[2026-06-17 15:23:54] [INFO] AI: cur=47°C pred=48°C gpu=7% gaming=false() t=20 p=0 g=0 tr=6 score=26 -> balanced
+[2026-06-17 15:24:01] [INFO] AI: cur=46°C pred=48°C gpu=41% gaming=false() t=20 p=0 g=0 tr=9 score=29 -> balanced
+[2026-06-17 15:24:05] [INFO] AI: cur=48°C pred=42°C gpu=9% gaming=false() t=-20 p=20 g=0 tr=12 score=12 -> conservative
+[2026-06-17 15:24:05] [INFO] Applying policy: conservative (gaming=false)
+[2026-06-17 15:24:05] [INFO] Policy CONSERVATIVE applied (gaming=false)
+[2026-06-17 15:24:11] [INFO] AI: cur=44°C pred=45°C gpu=4% gaming=false() t=20 p=0 g=0 tr=10 score=30 -> conservative
+[2026-06-17 15:24:20] [INFO] AI: cur=46°C pred=47°C gpu=34% gaming=false() t=20 p=0 g=0 tr=8 score=28 -> balanced
+[2026-06-17 15:24:20] [INFO] Applying policy: balanced (gaming=false)
+[2026-06-17 15:24:20] [INFO] Policy BALANCED applied (gaming=false)
+[2026-06-17 15:24:26] [INFO] AI: cur=43°C pred=43°C gpu=3% gaming=false() t=20 p=0 g=0 tr=4 score=24 -> balanced
+[2026-06-17 15:24:32] [INFO] AI: cur=44°C pred=44°C gpu=29% gaming=false() t=20 p=0 g=0 tr=0 score=20 -> balanced
+[2026-06-17 15:24:37] [INFO] AI: cur=44°C pred=44°C gpu=16% gaming=false() t=20 p=0 g=0 tr=0 score=20 -> balanced
+[2026-06-17 15:24:42] [INFO] AI: cur=43°C pred=41°C gpu=1% gaming=false() t=20 p=0 g=0 tr=-6 score=14 -> conservative
+[2026-06-17 15:24:42] [INFO] Applying policy: conservative (gaming=false)
+[2026-06-17 15:24:42] [INFO] Policy CONSERVATIVE applied (gaming=false)
+[2026-06-17 15:24:48] [INFO] AI: cur=43°C pred=41°C gpu=6% gaming=false() t=20 p=0 g=0 tr=-9 score=11 -> conservative
+[2026-06-17 15:24:55] [INFO] AI: cur=42°C pred=40°C gpu=5% gaming=false() t=20 p=0 g=0 tr=-10 score=10 -> conservative
+[2026-06-17 15:25:01] [INFO] AI: cur=41°C pred=39°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-12 score=28 -> balanced
+[2026-06-17 15:25:01] [INFO] Applying policy: balanced (gaming=false)
+[2026-06-17 15:25:01] [INFO] Policy BALANCED applied (gaming=false)
+[2026-06-17 15:25:08] [INFO] AI: cur=42°C pred=41°C gpu=0% gaming=false() t=20 p=0 g=0 tr=-11 score=9 -> balanced
+[2026-06-17 15:25:15] [INFO] AI: cur=40°C pred=38°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-11 score=29 -> balanced
+[2026-06-17 15:25:21] [INFO] AI: cur=41°C pred=40°C gpu=3% gaming=false() t=40 p=0 g=0 tr=-10 score=30 -> balanced
+[2026-06-17 15:25:28] [INFO] AI: cur=40°C pred=38°C gpu=3% gaming=false() t=40 p=0 g=0 tr=-11 score=29 -> balanced
+[2026-06-17 15:25:34] [INFO] AI: cur=41°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-10 score=30 -> balanced
+[2026-06-17 15:25:40] [INFO] AI: cur=40°C pred=39°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-9 score=31 -> balanced
+[2026-06-17 15:25:46] [INFO] AI: cur=41°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-8 score=32 -> balanced
+[2026-06-17 15:25:52] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-7 score=33 -> balanced
+[2026-06-17 15:25:58] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-6 score=34 -> balanced
+[2026-06-17 15:26:03] [INFO] AI: cur=43°C pred=43°C gpu=10% gaming=false() t=20 p=0 g=0 tr=-4 score=16 -> balanced
+[2026-06-17 15:26:09] [INFO] AI: cur=41°C pred=41°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-2 score=38 -> balanced
+[2026-06-17 15:26:15] [INFO] AI: cur=41°C pred=41°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:26:21] [INFO] AI: cur=41°C pred=41°C gpu=0% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:26:27] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:26:33] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:26:39] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:26:45] [INFO] AI: cur=41°C pred=41°C gpu=2% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:26:51] [INFO] AI: cur=41°C pred=41°C gpu=12% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:26:58] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-2 score=38 -> balanced
+[2026-06-17 15:27:04] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-2 score=38 -> balanced
+[2026-06-17 15:27:11] [INFO] AI: cur=39°C pred=39°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-2 score=38 -> balanced
+[2026-06-17 15:27:17] [INFO] AI: cur=40°C pred=40°C gpu=6% gaming=false() t=40 p=0 g=0 tr=-2 score=38 -> balanced
+[2026-06-17 15:27:23] [INFO] AI: cur=40°C pred=40°C gpu=4% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:27:29] [INFO] AI: cur=42°C pred=42°C gpu=13% gaming=false() t=20 p=0 g=0 tr=-1 score=19 -> balanced
+[2026-06-17 15:27:36] [INFO] AI: cur=41°C pred=41°C gpu=9% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:27:43] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:27:49] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:27:55] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:28:02] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:28:09] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:28:15] [INFO] AI: cur=39°C pred=39°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:28:22] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-2 score=38 -> balanced
+[2026-06-17 15:28:28] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-3 score=37 -> balanced
+[2026-06-17 15:28:35] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-2 score=38 -> balanced
+[2026-06-17 15:28:42] [INFO] AI: cur=39°C pred=39°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:28:49] [INFO] AI: cur=39°C pred=39°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:28:55] [INFO] AI: cur=39°C pred=39°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:29:02] [INFO] AI: cur=40°C pred=40°C gpu=12% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:29:09] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:29:15] [INFO] AI: cur=39°C pred=39°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:29:22] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:29:28] [INFO] AI: cur=40°C pred=40°C gpu=12% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:29:35] [INFO] AI: cur=39°C pred=39°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:29:41] [INFO] AI: cur=39°C pred=39°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:29:48] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:29:55] [INFO] AI: cur=39°C pred=39°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:30:01] [INFO] AI: cur=39°C pred=39°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:30:08] [INFO] AI: cur=39°C pred=39°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:30:15] [INFO] AI: cur=39°C pred=39°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:30:21] [INFO] AI: cur=39°C pred=39°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:30:28] [INFO] AI: cur=39°C pred=39°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:30:34] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:30:41] [INFO] AI: cur=39°C pred=39°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:30:48] [INFO] AI: cur=39°C pred=39°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:30:54] [INFO] AI: cur=39°C pred=39°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:31:01] [INFO] AI: cur=39°C pred=39°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:31:08] [INFO] AI: cur=39°C pred=39°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:31:14] [INFO] AI: cur=39°C pred=39°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:31:20] [INFO] AI: cur=41°C pred=41°C gpu=16% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:31:27] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:31:32] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:31:38] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=2 score=42 -> balanced
+[2026-06-17 15:31:44] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=2 score=42 -> balanced
+[2026-06-17 15:31:50] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=2 score=42 -> balanced
+[2026-06-17 15:31:56] [INFO] AI: cur=42°C pred=43°C gpu=5% gaming=false() t=20 p=0 g=0 tr=4 score=24 -> balanced
+[2026-06-17 15:32:01] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=3 score=43 -> balanced
+[2026-06-17 15:32:07] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=2 score=42 -> balanced
+[2026-06-17 15:32:13] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=1 score=41 -> balanced
+[2026-06-17 15:32:19] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=1 score=41 -> balanced
+[2026-06-17 15:32:25] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:32:31] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:32:36] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:32:42] [INFO] AI: cur=41°C pred=41°C gpu=3% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:32:48] [INFO] AI: cur=41°C pred=41°C gpu=7% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:32:53] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:33:00] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:33:05] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:33:11] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:33:17] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:33:23] [INFO] AI: cur=40°C pred=40°C gpu=4% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:33:29] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:33:35] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:33:40] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:33:46] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:33:52] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:33:58] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:34:07] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:34:13] [INFO] AI: cur=43°C pred=43°C gpu=5% gaming=false() t=20 p=0 g=0 tr=2 score=22 -> balanced
+[2026-06-17 15:34:21] [INFO] AI: cur=43°C pred=44°C gpu=5% gaming=false() t=20 p=0 g=0 tr=5 score=25 -> balanced
+[2026-06-17 15:34:27] [INFO] AI: cur=42°C pred=43°C gpu=5% gaming=false() t=20 p=0 g=0 tr=6 score=26 -> balanced
+[2026-06-17 15:34:33] [INFO] AI: cur=41°C pred=42°C gpu=5% gaming=false() t=40 p=0 g=0 tr=5 score=45 -> balanced
+[2026-06-17 15:34:39] [INFO] AI: cur=41°C pred=42°C gpu=5% gaming=false() t=40 p=0 g=0 tr=5 score=45 -> balanced
+[2026-06-17 15:34:45] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=4 score=44 -> balanced
+[2026-06-17 15:34:51] [INFO] AI: cur=41°C pred=41°C gpu=0% gaming=false() t=40 p=0 g=0 tr=2 score=42 -> balanced
+[2026-06-17 15:34:57] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:35:02] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:35:08] [INFO] AI: cur=40°C pred=39°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-4 score=36 -> balanced
+[2026-06-17 15:35:14] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-4 score=36 -> balanced
+[2026-06-17 15:35:20] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-3 score=37 -> balanced
+[2026-06-17 15:35:25] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-3 score=37 -> balanced
+[2026-06-17 15:35:31] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-2 score=38 -> balanced
+[2026-06-17 15:35:37] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-2 score=38 -> balanced
+[2026-06-17 15:35:43] [INFO] AI: cur=41°C pred=41°C gpu=3% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:35:49] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:35:54] [INFO] AI: cur=41°C pred=41°C gpu=6% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:36:00] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:36:06] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:36:11] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:36:17] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:36:22] [INFO] AI: cur=41°C pred=41°C gpu=3% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:36:28] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:36:34] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:36:40] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:36:46] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:36:51] [INFO] AI: cur=42°C pred=42°C gpu=5% gaming=false() t=20 p=0 g=0 tr=1 score=21 -> balanced
+[2026-06-17 15:36:57] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=1 score=41 -> balanced
+[2026-06-17 15:37:03] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:37:09] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:37:15] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:37:21] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:37:26] [INFO] AI: cur=40°C pred=40°C gpu=3% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:37:32] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-2 score=38 -> balanced
+[2026-06-17 15:37:38] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-2 score=38 -> balanced
+[2026-06-17 15:37:44] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-2 score=38 -> balanced
+[2026-06-17 15:37:49] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:37:55] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:38:01] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:38:06] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:38:12] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:38:18] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:38:24] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:38:30] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:38:35] [INFO] AI: cur=41°C pred=41°C gpu=4% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:38:42] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:38:47] [INFO] AI: cur=41°C pred=41°C gpu=11% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:38:53] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:38:59] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:39:05] [INFO] AI: cur=40°C pred=40°C gpu=4% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:39:11] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:39:17] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:39:23] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:39:28] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:39:34] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:39:40] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:39:46] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:39:52] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:39:58] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:40:04] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:40:10] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:40:15] [INFO] AI: cur=40°C pred=40°C gpu=4% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:40:22] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:40:27] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:40:33] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:40:39] [INFO] AI: cur=41°C pred=41°C gpu=0% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:40:45] [INFO] AI: cur=45°C pred=46°C gpu=14% gaming=false() t=20 p=0 g=0 tr=2 score=22 -> balanced
+[2026-06-17 15:40:51] [INFO] AI: cur=42°C pred=43°C gpu=4% gaming=false() t=20 p=0 g=0 tr=5 score=25 -> balanced
+[2026-06-17 15:40:57] [INFO] AI: cur=43°C pred=44°C gpu=5% gaming=false() t=20 p=0 g=0 tr=6 score=26 -> balanced
+[2026-06-17 15:41:03] [INFO] AI: cur=42°C pred=43°C gpu=5% gaming=false() t=20 p=0 g=0 tr=7 score=27 -> balanced
+[2026-06-17 15:41:09] [INFO] AI: cur=41°C pred=42°C gpu=5% gaming=false() t=40 p=0 g=0 tr=7 score=47 -> balanced
+[2026-06-17 15:41:15] [INFO] AI: cur=41°C pred=41°C gpu=4% gaming=false() t=40 p=0 g=0 tr=5 score=45 -> balanced
+[2026-06-17 15:41:21] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=2 score=42 -> balanced
+[2026-06-17 15:41:26] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:41:32] [INFO] AI: cur=41°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-4 score=36 -> balanced
+[2026-06-17 15:41:38] [INFO] AI: cur=41°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-6 score=34 -> balanced
+[2026-06-17 15:41:44] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-5 score=35 -> balanced
+[2026-06-17 15:41:50] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-5 score=35 -> balanced
+[2026-06-17 15:41:56] [INFO] AI: cur=41°C pred=41°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-4 score=36 -> balanced
+[2026-06-17 15:42:01] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-3 score=37 -> balanced
+[2026-06-17 15:42:07] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-2 score=38 -> balanced
+[2026-06-17 15:42:13] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:42:19] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:42:25] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:42:31] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:42:36] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:42:43] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:42:48] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:42:54] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:43:00] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:43:06] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:43:12] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:43:18] [INFO] AI: cur=41°C pred=41°C gpu=4% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:43:24] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:43:30] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:43:36] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:43:42] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:43:47] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:43:53] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:43:59] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:44:05] [INFO] AI: cur=41°C pred=41°C gpu=4% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:44:11] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:44:17] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:44:23] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:44:29] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:44:35] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:44:41] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:44:47] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:44:53] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:44:59] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:45:05] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:45:11] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:45:17] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:45:22] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:45:29] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:45:35] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:45:41] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:45:47] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:45:52] [INFO] AI: cur=40°C pred=40°C gpu=4% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:45:58] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:46:04] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:46:10] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:46:16] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:46:22] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:46:28] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:46:34] [INFO] AI: cur=40°C pred=40°C gpu=4% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:46:40] [INFO] AI: cur=40°C pred=40°C gpu=5% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:46:46] [INFO] AI: cur=43°C pred=43°C gpu=14% gaming=false() t=20 p=0 g=0 tr=2 score=22 -> balanced
+[2026-06-17 15:46:51] [INFO] AI: cur=41°C pred=41°C gpu=0% gaming=false() t=40 p=0 g=0 tr=3 score=43 -> balanced
+[2026-06-17 15:46:58] [INFO] AI: cur=41°C pred=41°C gpu=0% gaming=false() t=40 p=0 g=0 tr=3 score=43 -> balanced
+[2026-06-17 15:47:04] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=2 score=42 -> balanced
+[2026-06-17 15:47:10] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=1 score=41 -> balanced
+[2026-06-17 15:47:16] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:47:22] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:47:28] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-2 score=38 -> balanced
+[2026-06-17 15:47:34] [INFO] AI: cur=40°C pred=40°C gpu=1% gaming=false() t=40 p=0 g=0 tr=-3 score=37 -> balanced
+[2026-06-17 15:47:40] [INFO] AI: cur=40°C pred=39°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-4 score=36 -> balanced
+[2026-06-17 15:47:46] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-3 score=37 -> balanced
+[2026-06-17 15:47:52] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-2 score=38 -> balanced
+[2026-06-17 15:47:58] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-2 score=38 -> balanced
+[2026-06-17 15:48:04] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:48:10] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:48:16] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:48:22] [INFO] AI: cur=39°C pred=39°C gpu=0% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:48:28] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:48:34] [INFO] AI: cur=40°C pred=40°C gpu=1% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:48:40] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:48:46] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:48:52] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:48:58] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:49:04] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:49:10] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:49:17] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:49:23] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:49:30] [INFO] AI: cur=40°C pred=40°C gpu=17% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:49:37] [INFO] AI: cur=39°C pred=39°C gpu=0% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 15:49:45] [INFO] AI: cur=39°C pred=39°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:49:51] [INFO] AI: cur=38°C pred=38°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-2 score=38 -> balanced
+[2026-06-17 15:49:59] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-2 score=38 -> balanced
+[2026-06-17 15:50:06] [INFO] AI: cur=39°C pred=39°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-2 score=38 -> balanced
+[2026-06-17 15:50:14] [INFO] AI: cur=39°C pred=39°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-2 score=38 -> balanced
+[2026-06-17 15:50:21] [INFO] AI: cur=39°C pred=39°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-2 score=38 -> balanced
+[2026-06-17 15:50:29] [INFO] AI: cur=39°C pred=39°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-2 score=38 -> balanced
+[2026-06-17 15:50:37] [INFO] AI: cur=39°C pred=39°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:50:44] [INFO] AI: cur=38°C pred=38°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:50:52] [INFO] AI: cur=38°C pred=38°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 15:50:58] [INFO] AI: cur=43°C pred=43°C gpu=17% gaming=false() t=20 p=0 g=0 tr=0 score=20 -> balanced
+[2026-06-17 15:51:04] [INFO] AI: cur=41°C pred=41°C gpu=19% gaming=false() t=40 p=0 g=0 tr=2 score=42 -> balanced
+[2026-06-17 15:51:19] [INFO] Applying policy: suspend (gaming=false)
+[2026-06-17 15:51:19] [INFO] Policy SUSPEND applied (Screen Off)
+[2026-06-17 15:56:20] [INFO] AI: cur=33°C pred=32°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-4 score=36 -> balanced
+[2026-06-17 15:56:21] [INFO] Applying policy: balanced (gaming=false)
+[2026-06-17 15:56:21] [INFO] Policy BALANCED applied (gaming=false)
+[2026-06-17 15:56:27] [INFO] AI: cur=44°C pred=44°C gpu=13% gaming=false() t=20 p=0 g=0 tr=-3 score=17 -> balanced
+[2026-06-17 15:56:33] [INFO] AI: cur=39°C pred=39°C gpu=4% gaming=false() t=40 p=0 g=0 tr=-2 score=38 -> balanced
+[2026-06-17 15:56:41] [INFO] AI: cur=38°C pred=38°C gpu=2% gaming=false() t=40 p=0 g=0 tr=-2 score=38 -> balanced
+[2026-06-17 15:56:47] [INFO] AI: cur=41°C pred=41°C gpu=19% gaming=false() t=40 p=0 g=0 tr=-2 score=38 -> balanced
+[2026-06-17 15:56:52] [INFO] AI: cur=43°C pred=43°C gpu=14% gaming=false() t=20 p=0 g=0 tr=-1 score=19 -> balanced
+[2026-06-17 15:57:03] [INFO] AI: cur=44°C pred=39°C gpu=19% gaming=false() t=20 p=10 g=0 tr=7 score=37 -> balanced
+[2026-06-17 15:57:07] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:57:07] [INFO] AI: cur=47°C pred=44°C gpu=22% gaming=true() t=20 p=10 g=35 tr=12 score=77 -> performance
+[2026-06-17 15:57:07] [INFO] Applying policy: performance (gaming=true)
+[2026-06-17 15:57:07] [INFO] Policy PERFORMANCE applied (gaming=true)
+[2026-06-17 15:57:10] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:57:10] [INFO] AI: cur=42°C pred=39°C gpu=1% gaming=true() t=20 p=10 g=35 tr=12 score=77 -> performance
+[2026-06-17 15:57:13] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:57:13] [INFO] AI: cur=43°C pred=39°C gpu=1% gaming=true() t=20 p=10 g=35 tr=12 score=77 -> performance
+[2026-06-17 15:57:16] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:57:16] [INFO] AI: cur=46°C pred=40°C gpu=1% gaming=true() t=20 p=20 g=35 tr=12 score=87 -> performance
+[2026-06-17 15:57:19] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:57:19] [INFO] AI: cur=48°C pred=44°C gpu=2% gaming=true() t=-20 p=10 g=35 tr=12 score=37 -> balanced
+[2026-06-17 15:57:19] [INFO] Applying policy: balanced (gaming=true)
+[2026-06-17 15:57:19] [INFO] Policy BALANCED applied (gaming=true)
+[2026-06-17 15:57:22] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:57:22] [INFO] AI: cur=46°C pred=41°C gpu=3% gaming=true() t=20 p=10 g=35 tr=12 score=77 -> balanced
+[2026-06-17 15:57:26] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:57:26] [INFO] AI: cur=49°C pred=44°C gpu=2% gaming=true() t=-20 p=10 g=35 tr=12 score=37 -> balanced
+[2026-06-17 15:57:29] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:57:29] [INFO] AI: cur=49°C pred=44°C gpu=3% gaming=true() t=-20 p=10 g=35 tr=12 score=37 -> balanced
+[2026-06-17 15:57:32] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:57:32] [INFO] AI: cur=48°C pred=42°C gpu=1% gaming=true() t=-20 p=20 g=35 tr=12 score=47 -> balanced
+[2026-06-17 15:57:35] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:57:35] [INFO] AI: cur=45°C pred=46°C gpu=4% gaming=true() t=20 p=0 g=35 tr=10 score=65 -> performance
+[2026-06-17 15:57:35] [INFO] Applying policy: performance (gaming=true)
+[2026-06-17 15:57:35] [INFO] Policy PERFORMANCE applied (gaming=true)
+[2026-06-17 15:57:38] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:57:38] [INFO] AI: cur=45°C pred=46°C gpu=4% gaming=true() t=20 p=0 g=35 tr=9 score=64 -> performance
+[2026-06-17 15:57:41] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:57:41] [INFO] AI: cur=44°C pred=44°C gpu=3% gaming=true() t=20 p=0 g=35 tr=3 score=58 -> performance
+[2026-06-17 15:57:44] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:57:45] [INFO] AI: cur=46°C pred=45°C gpu=4% gaming=true() t=20 p=0 g=35 tr=-2 score=53 -> performance
+[2026-06-17 15:57:48] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:57:48] [INFO] AI: cur=44°C pred=42°C gpu=3% gaming=true() t=20 p=0 g=35 tr=-7 score=48 -> performance
+[2026-06-17 15:57:51] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:57:51] [INFO] AI: cur=43°C pred=41°C gpu=3% gaming=true() t=20 p=0 g=35 tr=-10 score=45 -> performance
+[2026-06-17 15:57:54] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:57:54] [INFO] AI: cur=43°C pred=40°C gpu=2% gaming=true() t=20 p=10 g=35 tr=-12 score=53 -> performance
+[2026-06-17 15:57:57] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:57:57] [INFO] AI: cur=42°C pred=39°C gpu=3% gaming=true() t=20 p=10 g=35 tr=-12 score=53 -> performance
+[2026-06-17 15:58:00] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:58:00] [INFO] AI: cur=42°C pred=40°C gpu=3% gaming=true() t=20 p=0 g=35 tr=-12 score=43 -> balanced
+[2026-06-17 15:58:00] [INFO] Applying policy: balanced (gaming=true)
+[2026-06-17 15:58:00] [INFO] Policy BALANCED applied (gaming=true)
+[2026-06-17 15:58:03] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:58:03] [INFO] AI: cur=42°C pred=40°C gpu=3% gaming=true() t=20 p=0 g=35 tr=-11 score=44 -> balanced
+[2026-06-17 15:58:06] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:58:06] [INFO] AI: cur=42°C pred=40°C gpu=6% gaming=true() t=20 p=0 g=35 tr=-11 score=44 -> balanced
+[2026-06-17 15:58:09] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:58:09] [INFO] AI: cur=42°C pred=41°C gpu=4% gaming=true() t=20 p=0 g=35 tr=-10 score=45 -> balanced
+[2026-06-17 15:58:12] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:58:13] [INFO] AI: cur=43°C pred=42°C gpu=6% gaming=true() t=20 p=0 g=35 tr=-9 score=46 -> balanced
+[2026-06-17 15:58:16] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:58:16] [INFO] AI: cur=43°C pred=43°C gpu=4% gaming=true() t=20 p=0 g=35 tr=-7 score=48 -> balanced
+[2026-06-17 15:58:19] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:58:19] [INFO] AI: cur=41°C pred=41°C gpu=3% gaming=true() t=40 p=0 g=35 tr=-5 score=70 -> performance
+[2026-06-17 15:58:19] [INFO] Applying policy: performance (gaming=true)
+[2026-06-17 15:58:19] [INFO] Policy PERFORMANCE applied (gaming=true)
+[2026-06-17 15:58:22] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:58:22] [INFO] AI: cur=41°C pred=41°C gpu=4% gaming=true() t=40 p=0 g=35 tr=-4 score=71 -> performance
+[2026-06-17 15:58:25] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:58:25] [INFO] AI: cur=41°C pred=41°C gpu=2% gaming=true() t=40 p=0 g=35 tr=-4 score=71 -> performance
+[2026-06-17 15:58:28] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:58:28] [INFO] AI: cur=41°C pred=41°C gpu=2% gaming=true() t=40 p=0 g=35 tr=-3 score=72 -> performance
+[2026-06-17 15:58:31] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:58:32] [INFO] AI: cur=41°C pred=41°C gpu=2% gaming=true() t=40 p=0 g=35 tr=-3 score=72 -> performance
+[2026-06-17 15:58:35] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:58:35] [INFO] AI: cur=41°C pred=41°C gpu=2% gaming=true() t=40 p=0 g=35 tr=-4 score=71 -> performance
+[2026-06-17 15:58:38] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:58:38] [INFO] AI: cur=41°C pred=40°C gpu=2% gaming=true() t=40 p=0 g=35 tr=-4 score=71 -> performance
+[2026-06-17 15:58:41] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:58:41] [INFO] AI: cur=41°C pred=41°C gpu=2% gaming=true() t=40 p=0 g=35 tr=-4 score=71 -> performance
+[2026-06-17 15:58:44] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:58:44] [INFO] AI: cur=40°C pred=40°C gpu=1% gaming=true() t=40 p=0 g=35 tr=-4 score=71 -> performance
+[2026-06-17 15:58:47] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:58:47] [INFO] AI: cur=42°C pred=42°C gpu=2% gaming=true() t=20 p=0 g=35 tr=-3 score=52 -> performance
+[2026-06-17 15:58:50] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:58:50] [INFO] AI: cur=43°C pred=43°C gpu=1% gaming=true() t=20 p=0 g=35 tr=-1 score=54 -> performance
+[2026-06-17 15:58:54] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:58:54] [INFO] AI: cur=41°C pred=41°C gpu=2% gaming=true() t=40 p=0 g=35 tr=0 score=75 -> performance
+[2026-06-17 15:58:57] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:58:57] [INFO] AI: cur=40°C pred=40°C gpu=3% gaming=true() t=40 p=0 g=35 tr=0 score=75 -> performance
+[2026-06-17 15:59:00] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:59:00] [INFO] AI: cur=40°C pred=40°C gpu=3% gaming=true() t=40 p=0 g=35 tr=0 score=75 -> performance
+[2026-06-17 15:59:03] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:59:03] [INFO] AI: cur=41°C pred=41°C gpu=1% gaming=true() t=40 p=0 g=35 tr=0 score=75 -> performance
+[2026-06-17 15:59:06] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:59:06] [INFO] AI: cur=41°C pred=41°C gpu=1% gaming=true() t=40 p=0 g=35 tr=0 score=75 -> performance
+[2026-06-17 15:59:09] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:59:09] [INFO] AI: cur=40°C pred=40°C gpu=1% gaming=true() t=40 p=0 g=35 tr=-1 score=74 -> performance
+[2026-06-17 15:59:12] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:59:12] [INFO] AI: cur=40°C pred=40°C gpu=1% gaming=true() t=40 p=0 g=35 tr=-2 score=73 -> performance
+[2026-06-17 15:59:16] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:59:16] [INFO] AI: cur=40°C pred=39°C gpu=2% gaming=true() t=40 p=0 g=35 tr=-4 score=71 -> performance
+[2026-06-17 15:59:19] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:59:19] [INFO] AI: cur=41°C pred=41°C gpu=1% gaming=true() t=40 p=0 g=35 tr=-3 score=72 -> performance
+[2026-06-17 15:59:22] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:59:22] [INFO] AI: cur=41°C pred=41°C gpu=3% gaming=true() t=40 p=0 g=35 tr=-2 score=73 -> performance
+[2026-06-17 15:59:25] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:59:25] [INFO] AI: cur=41°C pred=41°C gpu=3% gaming=true() t=40 p=0 g=35 tr=-1 score=74 -> performance
+[2026-06-17 15:59:28] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:59:28] [INFO] AI: cur=40°C pred=40°C gpu=1% gaming=true() t=40 p=0 g=35 tr=-1 score=74 -> performance
+[2026-06-17 15:59:31] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:59:31] [INFO] AI: cur=40°C pred=40°C gpu=1% gaming=true() t=40 p=0 g=35 tr=-1 score=74 -> performance
+[2026-06-17 15:59:35] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:59:35] [INFO] AI: cur=40°C pred=40°C gpu=2% gaming=true() t=40 p=0 g=35 tr=0 score=75 -> performance
+[2026-06-17 15:59:38] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:59:38] [INFO] AI: cur=40°C pred=40°C gpu=1% gaming=true() t=40 p=0 g=35 tr=0 score=75 -> performance
+[2026-06-17 15:59:41] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:59:41] [INFO] AI: cur=40°C pred=40°C gpu=1% gaming=true() t=40 p=0 g=35 tr=0 score=75 -> performance
+[2026-06-17 15:59:45] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:59:45] [INFO] AI: cur=41°C pred=41°C gpu=4% gaming=true() t=40 p=0 g=35 tr=0 score=75 -> performance
+[2026-06-17 15:59:48] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:59:48] [INFO] AI: cur=41°C pred=41°C gpu=1% gaming=true() t=40 p=0 g=35 tr=0 score=75 -> performance
+[2026-06-17 15:59:51] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:59:51] [INFO] AI: cur=45°C pred=46°C gpu=15% gaming=true() t=20 p=0 g=35 tr=3 score=58 -> performance
+[2026-06-17 15:59:54] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:59:54] [INFO] AI: cur=42°C pred=43°C gpu=1% gaming=true() t=20 p=0 g=35 tr=5 score=60 -> performance
+[2026-06-17 15:59:57] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 15:59:58] [INFO] AI: cur=41°C pred=42°C gpu=1% gaming=true() t=40 p=0 g=35 tr=6 score=81 -> performance
+[2026-06-17 16:00:01] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:00:01] [INFO] AI: cur=41°C pred=42°C gpu=1% gaming=true() t=40 p=0 g=35 tr=6 score=81 -> performance
+[2026-06-17 16:00:04] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:00:04] [INFO] AI: cur=41°C pred=41°C gpu=1% gaming=true() t=40 p=0 g=35 tr=4 score=79 -> performance
+[2026-06-17 16:00:07] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:00:07] [INFO] AI: cur=41°C pred=41°C gpu=3% gaming=true() t=40 p=0 g=35 tr=2 score=77 -> performance
+[2026-06-17 16:00:10] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:00:10] [INFO] AI: cur=41°C pred=41°C gpu=3% gaming=true() t=40 p=0 g=35 tr=0 score=75 -> performance
+[2026-06-17 16:00:13] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:00:13] [INFO] AI: cur=42°C pred=42°C gpu=3% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 16:00:16] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:00:16] [INFO] AI: cur=42°C pred=42°C gpu=1% gaming=true() t=20 p=0 g=35 tr=-1 score=54 -> performance
+[2026-06-17 16:00:19] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:00:20] [INFO] AI: cur=42°C pred=42°C gpu=1% gaming=true() t=20 p=0 g=35 tr=-2 score=53 -> performance
+[2026-06-17 16:00:22] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:00:22] [INFO] AI: cur=42°C pred=42°C gpu=3% gaming=true() t=20 p=0 g=35 tr=-1 score=54 -> performance
+[2026-06-17 16:00:26] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:00:26] [INFO] AI: cur=42°C pred=42°C gpu=1% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 16:00:29] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:00:29] [INFO] AI: cur=41°C pred=41°C gpu=3% gaming=true() t=40 p=0 g=35 tr=0 score=75 -> performance
+[2026-06-17 16:00:32] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:00:32] [INFO] AI: cur=41°C pred=41°C gpu=1% gaming=true() t=40 p=0 g=35 tr=0 score=75 -> performance
+[2026-06-17 16:00:35] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:00:35] [INFO] AI: cur=41°C pred=41°C gpu=2% gaming=true() t=40 p=0 g=35 tr=0 score=75 -> performance
+[2026-06-17 16:00:38] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:00:39] [INFO] AI: cur=40°C pred=40°C gpu=2% gaming=true() t=40 p=0 g=35 tr=-1 score=74 -> performance
+[2026-06-17 16:00:42] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:00:42] [INFO] AI: cur=40°C pred=39°C gpu=2% gaming=true() t=40 p=0 g=35 tr=-4 score=71 -> performance
+[2026-06-17 16:00:45] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:00:45] [INFO] AI: cur=40°C pred=39°C gpu=2% gaming=true() t=40 p=0 g=35 tr=-5 score=70 -> performance
+[2026-06-17 16:00:48] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:00:48] [INFO] AI: cur=40°C pred=39°C gpu=2% gaming=true() t=40 p=0 g=35 tr=-5 score=70 -> performance
+[2026-06-17 16:00:51] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:00:51] [INFO] AI: cur=40°C pred=39°C gpu=2% gaming=true() t=40 p=0 g=35 tr=-5 score=70 -> performance
+[2026-06-17 16:00:54] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:00:54] [INFO] AI: cur=41°C pred=41°C gpu=2% gaming=true() t=40 p=0 g=35 tr=-5 score=70 -> performance
+[2026-06-17 16:00:57] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:00:57] [INFO] AI: cur=42°C pred=42°C gpu=2% gaming=true() t=20 p=0 g=35 tr=-3 score=52 -> performance
+[2026-06-17 16:01:01] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:01:01] [INFO] AI: cur=41°C pred=41°C gpu=2% gaming=true() t=40 p=0 g=35 tr=-2 score=73 -> performance
+[2026-06-17 16:01:04] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:01:04] [INFO] AI: cur=41°C pred=41°C gpu=1% gaming=true() t=40 p=0 g=35 tr=-1 score=74 -> performance
+[2026-06-17 16:01:07] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:01:07] [INFO] AI: cur=41°C pred=41°C gpu=4% gaming=true() t=40 p=0 g=35 tr=2 score=77 -> performance
+[2026-06-17 16:01:10] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:01:10] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=true() t=40 p=0 g=35 tr=2 score=77 -> performance
+[2026-06-17 16:01:13] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:01:13] [INFO] AI: cur=41°C pred=41°C gpu=4% gaming=true() t=40 p=0 g=35 tr=2 score=77 -> performance
+[2026-06-17 16:01:16] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:01:16] [INFO] AI: cur=41°C pred=41°C gpu=4% gaming=true() t=40 p=0 g=35 tr=1 score=76 -> performance
+[2026-06-17 16:01:19] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:01:20] [INFO] AI: cur=41°C pred=41°C gpu=4% gaming=true() t=40 p=0 g=35 tr=1 score=76 -> performance
+[2026-06-17 16:01:23] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:01:23] [INFO] AI: cur=41°C pred=41°C gpu=4% gaming=true() t=40 p=0 g=35 tr=0 score=75 -> performance
+[2026-06-17 16:01:26] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:01:26] [INFO] AI: cur=41°C pred=41°C gpu=4% gaming=true() t=40 p=0 g=35 tr=0 score=75 -> performance
+[2026-06-17 16:01:29] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:01:29] [INFO] AI: cur=42°C pred=42°C gpu=3% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 16:01:32] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:01:33] [INFO] AI: cur=43°C pred=43°C gpu=0% gaming=true() t=20 p=0 g=35 tr=0 score=55 -> performance
+[2026-06-17 16:01:36] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:01:36] [INFO] AI: cur=47°C pred=49°C gpu=23% gaming=true() t=20 p=0 g=35 tr=6 score=61 -> performance
+[2026-06-17 16:01:40] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:01:40] [INFO] AI: cur=50°C pred=45°C gpu=19% gaming=true() t=-20 p=10 g=35 tr=12 score=37 -> balanced
+[2026-06-17 16:01:40] [INFO] Applying policy: balanced (gaming=true)
+[2026-06-17 16:01:40] [INFO] Policy BALANCED applied (gaming=true)
+[2026-06-17 16:01:44] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:01:44] [INFO] AI: cur=49°C pred=45°C gpu=17% gaming=true() t=-20 p=10 g=35 tr=12 score=37 -> balanced
+[2026-06-17 16:01:47] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:01:47] [INFO] AI: cur=50°C pred=47°C gpu=14% gaming=true() t=-20 p=10 g=35 tr=12 score=37 -> balanced
+[2026-06-17 16:01:51] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:01:51] [INFO] AI: cur=51°C pred=48°C gpu=19% gaming=true() t=-20 p=10 g=35 tr=12 score=37 -> balanced
+[2026-06-17 16:01:55] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:01:55] [INFO] AI: cur=52°C pred=49°C gpu=18% gaming=true() t=-20 p=10 g=35 tr=12 score=37 -> balanced
+[2026-06-17 16:01:59] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:01:59] [INFO] AI: cur=52°C pred=49°C gpu=16% gaming=true() t=-20 p=10 g=35 tr=12 score=37 -> balanced
+[2026-06-17 16:02:03] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:02:03] [INFO] AI: cur=52°C pred=48°C gpu=18% gaming=true() t=-20 p=10 g=35 tr=12 score=37 -> balanced
+[2026-06-17 16:02:07] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:02:07] [INFO] AI: cur=51°C pred=45°C gpu=17% gaming=true() t=-20 p=20 g=35 tr=12 score=47 -> balanced
+[2026-06-17 16:02:11] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:02:11] [INFO] AI: cur=51°C pred=52°C gpu=14% gaming=true() t=-20 p=0 g=35 tr=10 score=25 -> balanced
+[2026-06-17 16:02:14] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:02:14] [INFO] AI: cur=52°C pred=53°C gpu=17% gaming=true() t=-20 p=0 g=35 tr=8 score=23 -> balanced
+[2026-06-17 16:02:18] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:02:18] [INFO] AI: cur=52°C pred=53°C gpu=14% gaming=true() t=-20 p=0 g=35 tr=6 score=21 -> balanced
+[2026-06-17 16:02:22] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:02:22] [INFO] AI: cur=52°C pred=52°C gpu=18% gaming=true() t=-20 p=0 g=35 tr=4 score=19 -> balanced
+[2026-06-17 16:02:26] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:02:26] [INFO] AI: cur=53°C pred=53°C gpu=21% gaming=true() t=-20 p=0 g=35 tr=3 score=18 -> balanced
+[2026-06-17 16:02:30] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:02:30] [INFO] AI: cur=54°C pred=54°C gpu=23% gaming=true() t=-20 p=0 g=35 tr=3 score=18 -> balanced
+[2026-06-17 16:02:33] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:02:33] [INFO] AI: cur=53°C pred=54°C gpu=24% gaming=true() t=-20 p=0 g=35 tr=4 score=19 -> balanced
+[2026-06-17 16:02:37] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:02:37] [INFO] AI: cur=54°C pred=55°C gpu=23% gaming=true() t=-20 p=0 g=35 tr=6 score=21 -> balanced
+[2026-06-17 16:02:40] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:02:41] [INFO] AI: cur=53°C pred=54°C gpu=24% gaming=true() t=-20 p=0 g=35 tr=6 score=21 -> balanced
+[2026-06-17 16:02:44] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:02:44] [INFO] AI: cur=54°C pred=55°C gpu=22% gaming=true() t=-20 p=0 g=35 tr=6 score=21 -> balanced
+[2026-06-17 16:02:48] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:02:48] [INFO] AI: cur=54°C pred=55°C gpu=16% gaming=true() t=-20 p=0 g=35 tr=6 score=21 -> balanced
+[2026-06-17 16:02:52] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:02:52] [INFO] AI: cur=54°C pred=55°C gpu=22% gaming=true() t=-20 p=0 g=35 tr=5 score=20 -> balanced
+[2026-06-17 16:02:55] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:02:55] [INFO] AI: cur=53°C pred=53°C gpu=19% gaming=true() t=-20 p=0 g=35 tr=3 score=18 -> balanced
+[2026-06-17 16:02:59] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:02:59] [INFO] AI: cur=53°C pred=53°C gpu=17% gaming=true() t=-20 p=0 g=35 tr=1 score=16 -> balanced
+[2026-06-17 16:03:02] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:03:02] [INFO] AI: cur=52°C pred=52°C gpu=17% gaming=true() t=-20 p=0 g=35 tr=-1 score=14 -> conservative
+[2026-06-17 16:03:02] [INFO] Applying policy: conservative (gaming=true)
+[2026-06-17 16:03:02] [INFO] Policy CONSERVATIVE applied (gaming=true)
+[2026-06-17 16:03:06] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:03:06] [INFO] AI: cur=53°C pred=53°C gpu=24% gaming=true() t=-20 p=0 g=35 tr=-1 score=14 -> conservative
+[2026-06-17 16:03:09] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:03:09] [INFO] AI: cur=53°C pred=53°C gpu=30% gaming=true() t=-20 p=0 g=35 tr=-2 score=13 -> conservative
+[2026-06-17 16:03:13] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:03:13] [INFO] AI: cur=53°C pred=53°C gpu=26% gaming=true() t=-20 p=0 g=35 tr=-2 score=13 -> conservative
+[2026-06-17 16:03:17] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:03:17] [INFO] AI: cur=54°C pred=54°C gpu=22% gaming=true() t=-20 p=0 g=35 tr=-1 score=14 -> conservative
+[2026-06-17 16:03:20] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:03:20] [INFO] AI: cur=54°C pred=54°C gpu=19% gaming=true() t=-20 p=0 g=35 tr=-1 score=14 -> conservative
+[2026-06-17 16:03:24] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:03:24] [INFO] AI: cur=55°C pred=55°C gpu=22% gaming=true() t=-20 p=0 g=35 tr=0 score=15 -> conservative
+[2026-06-17 16:03:28] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:03:28] [INFO] AI: cur=55°C pred=56°C gpu=19% gaming=true() t=-20 p=0 g=35 tr=4 score=19 -> conservative
+[2026-06-17 16:03:32] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:03:32] [INFO] AI: cur=55°C pred=56°C gpu=17% gaming=true() t=-20 p=0 g=35 tr=6 score=21 -> conservative
+[2026-06-17 16:03:36] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:03:36] [INFO] AI: cur=58°C pred=60°C gpu=24% gaming=true() t=-50 p=0 g=35 tr=10 score=-5 -> conservative
+[2026-06-17 16:03:40] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:03:40] [INFO] AI: cur=55°C pred=57°C gpu=15% gaming=true() t=-20 p=0 g=35 tr=10 score=25 -> balanced
+[2026-06-17 16:03:40] [INFO] Applying policy: balanced (gaming=true)
+[2026-06-17 16:03:40] [INFO] Policy BALANCED applied (gaming=true)
+[2026-06-17 16:03:44] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:03:44] [INFO] AI: cur=55°C pred=56°C gpu=22% gaming=true() t=-20 p=0 g=35 tr=9 score=24 -> balanced
+[2026-06-17 16:03:47] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:03:48] [INFO] AI: cur=56°C pred=57°C gpu=20% gaming=true() t=-20 p=0 g=35 tr=7 score=22 -> balanced
+[2026-06-17 16:03:51] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:03:51] [INFO] AI: cur=55°C pred=55°C gpu=19% gaming=true() t=-20 p=0 g=35 tr=5 score=20 -> balanced
+[2026-06-17 16:03:55] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:03:55] [INFO] AI: cur=55°C pred=55°C gpu=20% gaming=true() t=-20 p=0 g=35 tr=3 score=18 -> balanced
+[2026-06-17 16:03:59] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:03:59] [INFO] AI: cur=55°C pred=55°C gpu=24% gaming=true() t=-20 p=0 g=35 tr=1 score=16 -> balanced
+[2026-06-17 16:04:03] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:04:03] [INFO] AI: cur=57°C pred=57°C gpu=21% gaming=true() t=-20 p=0 g=35 tr=0 score=15 -> balanced
+[2026-06-17 16:04:07] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:04:07] [INFO] AI: cur=54°C pred=54°C gpu=15% gaming=true() t=-20 p=0 g=35 tr=-1 score=14 -> conservative
+[2026-06-17 16:04:07] [INFO] Applying policy: conservative (gaming=true)
+[2026-06-17 16:04:07] [INFO] Policy CONSERVATIVE applied (gaming=true)
+[2026-06-17 16:04:10] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:04:10] [INFO] AI: cur=54°C pred=53°C gpu=16% gaming=true() t=-20 p=0 g=35 tr=-3 score=12 -> conservative
+[2026-06-17 16:04:14] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:04:14] [INFO] AI: cur=55°C pred=55°C gpu=19% gaming=true() t=-20 p=0 g=35 tr=-2 score=13 -> conservative
+[2026-06-17 16:04:18] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:04:18] [INFO] AI: cur=55°C pred=55°C gpu=19% gaming=true() t=-20 p=0 g=35 tr=-2 score=13 -> conservative
+[2026-06-17 16:04:22] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:04:22] [INFO] AI: cur=54°C pred=54°C gpu=15% gaming=true() t=-20 p=0 g=35 tr=-2 score=13 -> conservative
+[2026-06-17 16:04:25] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:04:25] [INFO] AI: cur=55°C pred=55°C gpu=19% gaming=true() t=-20 p=0 g=35 tr=-2 score=13 -> conservative
+[2026-06-17 16:04:29] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:04:29] [INFO] AI: cur=54°C pred=54°C gpu=19% gaming=true() t=-20 p=0 g=35 tr=-2 score=13 -> conservative
+[2026-06-17 16:04:32] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:04:32] [INFO] AI: cur=54°C pred=54°C gpu=17% gaming=true() t=-20 p=0 g=35 tr=-3 score=12 -> conservative
+[2026-06-17 16:04:36] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:04:36] [INFO] AI: cur=55°C pred=55°C gpu=17% gaming=true() t=-20 p=0 g=35 tr=-2 score=13 -> conservative
+[2026-06-17 16:04:40] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:04:40] [INFO] AI: cur=55°C pred=55°C gpu=16% gaming=true() t=-20 p=0 g=35 tr=-1 score=14 -> conservative
+[2026-06-17 16:04:44] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:04:44] [INFO] AI: cur=54°C pred=54°C gpu=16% gaming=true() t=-20 p=0 g=35 tr=-1 score=14 -> conservative
+[2026-06-17 16:04:48] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:04:48] [INFO] AI: cur=54°C pred=54°C gpu=20% gaming=true() t=-20 p=0 g=35 tr=-1 score=14 -> conservative
+[2026-06-17 16:04:52] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:04:52] [INFO] AI: cur=56°C pred=56°C gpu=20% gaming=true() t=-20 p=0 g=35 tr=0 score=15 -> conservative
+[2026-06-17 16:04:55] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:04:55] [INFO] AI: cur=56°C pred=56°C gpu=21% gaming=true() t=-20 p=0 g=35 tr=0 score=15 -> conservative
+[2026-06-17 16:04:59] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:04:59] [INFO] AI: cur=57°C pred=58°C gpu=21% gaming=true() t=-20 p=0 g=35 tr=3 score=18 -> conservative
+[2026-06-17 16:05:03] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:05:03] [INFO] AI: cur=56°C pred=57°C gpu=18% gaming=true() t=-20 p=0 g=35 tr=5 score=20 -> conservative
+[2026-06-17 16:05:07] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:05:07] [INFO] AI: cur=55°C pred=56°C gpu=14% gaming=true() t=-20 p=0 g=35 tr=5 score=20 -> conservative
+[2026-06-17 16:05:11] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:05:11] [INFO] AI: cur=57°C pred=58°C gpu=20% gaming=true() t=-20 p=0 g=35 tr=5 score=20 -> conservative
+[2026-06-17 16:05:15] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:05:15] [INFO] AI: cur=56°C pred=57°C gpu=16% gaming=true() t=-20 p=0 g=35 tr=5 score=20 -> conservative
+[2026-06-17 16:05:18] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:05:19] [INFO] AI: cur=55°C pred=55°C gpu=24% gaming=true() t=-20 p=0 g=35 tr=4 score=19 -> conservative
+[2026-06-17 16:05:22] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:05:22] [INFO] AI: cur=55°C pred=55°C gpu=17% gaming=true() t=-20 p=0 g=35 tr=1 score=16 -> conservative
+[2026-06-17 16:05:26] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:05:26] [INFO] AI: cur=55°C pred=55°C gpu=15% gaming=true() t=-20 p=0 g=35 tr=-1 score=14 -> conservative
+[2026-06-17 16:05:29] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:05:29] [INFO] AI: cur=54°C pred=53°C gpu=16% gaming=true() t=-20 p=0 g=35 tr=-3 score=12 -> conservative
+[2026-06-17 16:05:33] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:05:33] [INFO] AI: cur=54°C pred=53°C gpu=16% gaming=true() t=-20 p=0 g=35 tr=-5 score=10 -> conservative
+[2026-06-17 16:05:37] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:05:37] [INFO] AI: cur=55°C pred=54°C gpu=19% gaming=true() t=-20 p=0 g=35 tr=-5 score=10 -> conservative
+[2026-06-17 16:05:40] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:05:40] [INFO] AI: cur=55°C pred=55°C gpu=19% gaming=true() t=-20 p=0 g=35 tr=-4 score=11 -> conservative
+[2026-06-17 16:05:44] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:05:44] [INFO] AI: cur=56°C pred=56°C gpu=19% gaming=true() t=-20 p=0 g=35 tr=-4 score=11 -> conservative
+[2026-06-17 16:05:48] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:05:48] [INFO] AI: cur=57°C pred=57°C gpu=17% gaming=true() t=-20 p=0 g=35 tr=-2 score=13 -> conservative
+[2026-06-17 16:05:52] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:05:52] [INFO] AI: cur=56°C pred=56°C gpu=21% gaming=true() t=-20 p=0 g=35 tr=1 score=16 -> conservative
+[2026-06-17 16:05:56] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:05:56] [INFO] AI: cur=57°C pred=58°C gpu=31% gaming=true() t=-20 p=0 g=35 tr=4 score=19 -> conservative
+[2026-06-17 16:06:00] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:06:00] [INFO] AI: cur=58°C pred=59°C gpu=21% gaming=true() t=-50 p=0 g=35 tr=7 score=-8 -> conservative
+[2026-06-17 16:06:03] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:06:03] [INFO] AI: cur=57°C pred=59°C gpu=18% gaming=true() t=-20 p=0 g=35 tr=9 score=24 -> conservative
+[2026-06-17 16:06:07] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:06:07] [INFO] AI: cur=56°C pred=57°C gpu=19% gaming=true() t=-20 p=0 g=35 tr=7 score=22 -> conservative
+[2026-06-17 16:06:12] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:06:12] [INFO] AI: cur=57°C pred=58°C gpu=16% gaming=true() t=-20 p=0 g=35 tr=6 score=21 -> conservative
+[2026-06-17 16:06:15] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:06:15] [INFO] AI: cur=56°C pred=56°C gpu=18% gaming=true() t=-20 p=0 g=35 tr=3 score=18 -> conservative
+[2026-06-17 16:06:19] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:06:19] [INFO] AI: cur=56°C pred=56°C gpu=20% gaming=true() t=-20 p=0 g=35 tr=1 score=16 -> conservative
+[2026-06-17 16:06:23] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:06:23] [INFO] AI: cur=56°C pred=56°C gpu=16% gaming=true() t=-20 p=0 g=35 tr=0 score=15 -> conservative
+[2026-06-17 16:06:27] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:06:27] [INFO] AI: cur=57°C pred=57°C gpu=19% gaming=true() t=-20 p=0 g=35 tr=-1 score=14 -> conservative
+[2026-06-17 16:06:31] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:06:31] [INFO] AI: cur=58°C pred=58°C gpu=18% gaming=true() t=-50 p=0 g=35 tr=0 score=-15 -> conservative
+[2026-06-17 16:06:35] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:06:35] [INFO] AI: cur=57°C pred=57°C gpu=18% gaming=true() t=-20 p=0 g=35 tr=0 score=15 -> conservative
+[2026-06-17 16:06:39] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:06:39] [INFO] AI: cur=57°C pred=57°C gpu=19% gaming=true() t=-20 p=0 g=35 tr=0 score=15 -> conservative
+[2026-06-17 16:06:43] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:06:43] [INFO] AI: cur=57°C pred=57°C gpu=23% gaming=true() t=-20 p=0 g=35 tr=0 score=15 -> conservative
+[2026-06-17 16:06:46] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:06:46] [INFO] AI: cur=59°C pred=60°C gpu=18% gaming=true() t=-50 p=0 g=35 tr=3 score=-12 -> conservative
+[2026-06-17 16:06:50] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:06:50] [INFO] AI: cur=56°C pred=56°C gpu=21% gaming=true() t=-20 p=0 g=35 tr=3 score=18 -> conservative
+[2026-06-17 16:06:54] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:06:54] [INFO] AI: cur=57°C pred=57°C gpu=17% gaming=true() t=-20 p=0 g=35 tr=2 score=17 -> conservative
+[2026-06-17 16:06:58] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:06:58] [INFO] AI: cur=55°C pred=55°C gpu=13% gaming=true() t=-20 p=0 g=35 tr=0 score=15 -> conservative
+[2026-06-17 16:07:01] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:07:02] [INFO] AI: cur=55°C pred=54°C gpu=17% gaming=true() t=-20 p=0 g=35 tr=-3 score=12 -> conservative
+[2026-06-17 16:07:05] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:07:05] [INFO] AI: cur=57°C pred=56°C gpu=18% gaming=true() t=-20 p=0 g=35 tr=-4 score=11 -> conservative
+[2026-06-17 16:07:09] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:07:09] [INFO] AI: cur=57°C pred=57°C gpu=14% gaming=true() t=-20 p=0 g=35 tr=-3 score=12 -> conservative
+[2026-06-17 16:07:13] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:07:13] [INFO] AI: cur=56°C pred=56°C gpu=17% gaming=true() t=-20 p=0 g=35 tr=-3 score=12 -> conservative
+[2026-06-17 16:07:18] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:07:18] [INFO] AI: cur=58°C pred=58°C gpu=24% gaming=true() t=-50 p=0 g=35 tr=-2 score=-17 -> powersave
+[2026-06-17 16:07:18] [INFO] Applying policy: powersave (gaming=true)
+[2026-06-17 16:07:18] [INFO] Policy POWERSAVE applied (gaming=true)
+[2026-06-17 16:07:22] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:07:22] [INFO] AI: cur=59°C pred=59°C gpu=18% gaming=true() t=-50 p=0 g=35 tr=-1 score=-16 -> powersave
+[2026-06-17 16:07:26] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:07:26] [INFO] AI: cur=57°C pred=58°C gpu=25% gaming=true() t=-20 p=0 g=35 tr=3 score=18 -> powersave
+[2026-06-17 16:07:30] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:07:30] [INFO] AI: cur=57°C pred=58°C gpu=20% gaming=true() t=-20 p=0 g=35 tr=4 score=19 -> conservative
+[2026-06-17 16:07:30] [INFO] Applying policy: conservative (gaming=true)
+[2026-06-17 16:07:30] [INFO] Policy CONSERVATIVE applied (gaming=true)
+[2026-06-17 16:07:34] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:07:34] [INFO] AI: cur=56°C pred=56°C gpu=19% gaming=true() t=-20 p=0 g=35 tr=4 score=19 -> conservative
+[2026-06-17 16:07:38] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:07:38] [INFO] AI: cur=57°C pred=57°C gpu=18% gaming=true() t=-20 p=0 g=35 tr=2 score=17 -> conservative
+[2026-06-17 16:07:41] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:07:41] [INFO] AI: cur=57°C pred=57°C gpu=17% gaming=true() t=-20 p=0 g=35 tr=0 score=15 -> conservative
+[2026-06-17 16:07:45] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:07:45] [INFO] AI: cur=55°C pred=55°C gpu=16% gaming=true() t=-20 p=0 g=35 tr=-1 score=14 -> conservative
+[2026-06-17 16:07:48] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:07:48] [INFO] AI: cur=55°C pred=54°C gpu=15% gaming=true() t=-20 p=0 g=35 tr=-4 score=11 -> conservative
+[2026-06-17 16:07:52] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:07:52] [INFO] AI: cur=56°C pred=55°C gpu=20% gaming=true() t=-20 p=0 g=35 tr=-6 score=9 -> conservative
+[2026-06-17 16:07:56] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:07:56] [INFO] AI: cur=56°C pred=55°C gpu=19% gaming=true() t=-20 p=0 g=35 tr=-6 score=9 -> conservative
+[2026-06-17 16:07:59] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:07:59] [INFO] AI: cur=56°C pred=56°C gpu=25% gaming=true() t=-20 p=0 g=35 tr=-5 score=10 -> conservative
+[2026-06-17 16:08:03] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:08:03] [INFO] AI: cur=57°C pred=57°C gpu=18% gaming=true() t=-20 p=0 g=35 tr=-4 score=11 -> conservative
+[2026-06-17 16:08:07] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:08:07] [INFO] AI: cur=57°C pred=57°C gpu=23% gaming=true() t=-20 p=0 g=35 tr=-2 score=13 -> conservative
+[2026-06-17 16:08:10] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:08:10] [INFO] AI: cur=57°C pred=57°C gpu=33% gaming=true() t=-20 p=0 g=35 tr=-1 score=14 -> conservative
+[2026-06-17 16:08:14] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:08:14] [INFO] AI: cur=57°C pred=57°C gpu=19% gaming=true() t=-20 p=0 g=35 tr=1 score=16 -> conservative
+[2026-06-17 16:08:17] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:08:17] [INFO] AI: cur=57°C pred=58°C gpu=18% gaming=true() t=-20 p=0 g=35 tr=4 score=19 -> conservative
+[2026-06-17 16:08:21] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:08:21] [INFO] AI: cur=58°C pred=59°C gpu=19% gaming=true() t=-50 p=0 g=35 tr=5 score=-10 -> conservative
+[2026-06-17 16:08:25] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:08:25] [INFO] AI: cur=58°C pred=59°C gpu=20% gaming=true() t=-50 p=0 g=35 tr=5 score=-10 -> conservative
+[2026-06-17 16:08:29] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:08:29] [INFO] AI: cur=57°C pred=57°C gpu=20% gaming=true() t=-20 p=0 g=35 tr=4 score=19 -> conservative
+[2026-06-17 16:08:32] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:08:33] [INFO] AI: cur=57°C pred=57°C gpu=20% gaming=true() t=-20 p=0 g=35 tr=3 score=18 -> conservative
+[2026-06-17 16:08:36] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:08:36] [INFO] AI: cur=56°C pred=56°C gpu=23% gaming=true() t=-20 p=0 g=35 tr=1 score=16 -> conservative
+[2026-06-17 16:08:40] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:08:40] [INFO] AI: cur=57°C pred=57°C gpu=16% gaming=true() t=-20 p=0 g=35 tr=0 score=15 -> conservative
+[2026-06-17 16:08:44] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:08:44] [INFO] AI: cur=58°C pred=58°C gpu=22% gaming=true() t=-50 p=0 g=35 tr=0 score=-15 -> conservative
+[2026-06-17 16:08:48] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:08:48] [INFO] AI: cur=58°C pred=58°C gpu=24% gaming=true() t=-50 p=0 g=35 tr=0 score=-15 -> conservative
+[2026-06-17 16:08:52] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:08:52] [INFO] AI: cur=58°C pred=58°C gpu=18% gaming=true() t=-50 p=0 g=35 tr=0 score=-15 -> conservative
+[2026-06-17 16:08:55] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:08:55] [INFO] AI: cur=56°C pred=56°C gpu=15% gaming=true() t=-20 p=0 g=35 tr=0 score=15 -> conservative
+[2026-06-17 16:08:59] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:08:59] [INFO] AI: cur=56°C pred=56°C gpu=15% gaming=true() t=-20 p=0 g=35 tr=0 score=15 -> conservative
+[2026-06-17 16:09:02] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:09:02] [INFO] AI: cur=57°C pred=57°C gpu=17% gaming=true() t=-20 p=0 g=35 tr=0 score=15 -> conservative
+[2026-06-17 16:09:06] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:09:06] [INFO] AI: cur=57°C pred=57°C gpu=17% gaming=true() t=-20 p=0 g=35 tr=0 score=15 -> conservative
+[2026-06-17 16:09:10] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:09:10] [INFO] AI: cur=57°C pred=57°C gpu=17% gaming=true() t=-20 p=0 g=35 tr=0 score=15 -> conservative
+[2026-06-17 16:09:13] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:09:13] [INFO] AI: cur=56°C pred=56°C gpu=17% gaming=true() t=-20 p=0 g=35 tr=-1 score=14 -> conservative
+[2026-06-17 16:09:17] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:09:17] [INFO] AI: cur=57°C pred=57°C gpu=17% gaming=true() t=-20 p=0 g=35 tr=-2 score=13 -> conservative
+[2026-06-17 16:09:21] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:09:22] [INFO] AI: cur=57°C pred=57°C gpu=17% gaming=true() t=-20 p=0 g=35 tr=-2 score=13 -> conservative
+[2026-06-17 16:09:25] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:09:26] [INFO] AI: cur=58°C pred=58°C gpu=15% gaming=true() t=-50 p=0 g=35 tr=-1 score=-16 -> powersave
+[2026-06-17 16:09:26] [INFO] Applying policy: powersave (gaming=true)
+[2026-06-17 16:09:26] [INFO] Policy POWERSAVE applied (gaming=true)
+[2026-06-17 16:09:30] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:09:30] [INFO] AI: cur=58°C pred=58°C gpu=26% gaming=true() t=-50 p=0 g=35 tr=2 score=-13 -> powersave
+[2026-06-17 16:09:34] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:09:34] [INFO] AI: cur=58°C pred=58°C gpu=28% gaming=true() t=-50 p=0 g=35 tr=3 score=-12 -> powersave
+[2026-06-17 16:09:37] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:09:37] [INFO] AI: cur=57°C pred=57°C gpu=32% gaming=true() t=-20 p=0 g=35 tr=2 score=17 -> conservative
+[2026-06-17 16:09:37] [INFO] Applying policy: conservative (gaming=true)
+[2026-06-17 16:09:37] [INFO] Policy CONSERVATIVE applied (gaming=true)
+[2026-06-17 16:09:41] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:09:41] [INFO] AI: cur=57°C pred=57°C gpu=26% gaming=true() t=-20 p=0 g=35 tr=2 score=17 -> conservative
+[2026-06-17 16:09:45] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:09:45] [INFO] AI: cur=58°C pred=58°C gpu=24% gaming=true() t=-50 p=0 g=35 tr=2 score=-13 -> conservative
+[2026-06-17 16:09:49] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:09:49] [INFO] AI: cur=58°C pred=58°C gpu=19% gaming=true() t=-50 p=0 g=35 tr=2 score=-13 -> conservative
+[2026-06-17 16:09:53] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:09:53] [INFO] AI: cur=58°C pred=58°C gpu=22% gaming=true() t=-50 p=0 g=35 tr=1 score=-14 -> conservative
+[2026-06-17 16:09:57] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:09:57] [INFO] AI: cur=59°C pred=59°C gpu=21% gaming=true() t=-50 p=0 g=35 tr=1 score=-14 -> conservative
+[2026-06-17 16:10:01] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:10:01] [INFO] AI: cur=58°C pred=58°C gpu=21% gaming=true() t=-50 p=0 g=35 tr=1 score=-14 -> conservative
+[2026-06-17 16:10:04] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:10:04] [INFO] AI: cur=57°C pred=57°C gpu=16% gaming=true() t=-20 p=0 g=35 tr=0 score=15 -> conservative
+[2026-06-17 16:10:08] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:10:08] [INFO] AI: cur=58°C pred=58°C gpu=15% gaming=true() t=-50 p=0 g=35 tr=0 score=-15 -> conservative
+[2026-06-17 16:10:12] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:10:12] [INFO] AI: cur=58°C pred=58°C gpu=17% gaming=true() t=-50 p=0 g=35 tr=0 score=-15 -> conservative
+[2026-06-17 16:10:15] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:10:15] [INFO] AI: cur=57°C pred=57°C gpu=17% gaming=true() t=-20 p=0 g=35 tr=0 score=15 -> conservative
+[2026-06-17 16:10:19] [INFO] Gaming confirmed (L1/oom):  latch=45s
+[2026-06-17 16:10:19] [INFO] AI: cur=58°C pred=58°C gpu=20% gaming=true() t=-50 p=0 g=35 tr=0 score=-15 -> conservative
+[2026-06-17 16:10:27] [INFO] AI: cur=59°C pred=59°C gpu=21% gaming=false() t=-50 p=0 g=0 tr=0 score=-50 -> powersave
+[2026-06-17 16:10:27] [INFO] Applying policy: powersave (gaming=false)
+[2026-06-17 16:10:27] [INFO] Policy POWERSAVE applied (gaming=false)
+[2026-06-17 16:10:34] [INFO] AI: cur=53°C pred=52°C gpu=0% gaming=false() t=-20 p=0 g=0 tr=-3 score=-23 -> powersave
+[2026-06-17 16:10:42] [INFO] AI: cur=50°C pred=47°C gpu=17% gaming=false() t=-20 p=10 g=0 tr=-10 score=-20 -> powersave
+[2026-06-17 16:10:48] [INFO] AI: cur=46°C pred=41°C gpu=8% gaming=false() t=20 p=10 g=0 tr=-12 score=18 -> conservative
+[2026-06-17 16:10:48] [INFO] Applying policy: conservative (gaming=false)
+[2026-06-17 16:10:48] [INFO] Policy CONSERVATIVE applied (gaming=false)
+[2026-06-17 16:10:54] [INFO] AI: cur=46°C pred=39°C gpu=4% gaming=false() t=20 p=20 g=0 tr=-12 score=28 -> conservative
+[2026-06-17 16:11:00] [INFO] AI: cur=46°C pred=38°C gpu=4% gaming=false() t=20 p=20 g=0 tr=-12 score=28 -> balanced
+[2026-06-17 16:11:00] [INFO] Applying policy: balanced (gaming=false)
+[2026-06-17 16:11:00] [INFO] Policy BALANCED applied (gaming=false)
+[2026-06-17 16:11:06] [INFO] AI: cur=46°C pred=38°C gpu=4% gaming=false() t=20 p=20 g=0 tr=-12 score=28 -> balanced
+[2026-06-17 16:11:12] [INFO] AI: cur=46°C pred=38°C gpu=4% gaming=false() t=20 p=20 g=0 tr=-12 score=28 -> balanced
+[2026-06-17 16:11:21] [INFO] AI: cur=46°C pred=39°C gpu=5% gaming=false() t=20 p=20 g=0 tr=-12 score=28 -> balanced
+[2026-06-17 16:11:27] [INFO] AI: cur=48°C pred=43°C gpu=30% gaming=false() t=-20 p=10 g=0 tr=-12 score=-22 -> conservative
+[2026-06-17 16:11:27] [INFO] Applying policy: conservative (gaming=false)
+[2026-06-17 16:11:27] [INFO] Policy CONSERVATIVE applied (gaming=false)
+[2026-06-17 16:11:41] [INFO] AI: cur=52°C pred=52°C gpu=22% gaming=false() t=-20 p=0 g=0 tr=-10 score=-30 -> powersave
+[2026-06-17 16:11:41] [INFO] Applying policy: powersave (gaming=false)
+[2026-06-17 16:11:41] [INFO] Policy POWERSAVE applied (gaming=false)
+[2026-06-17 16:11:47] [INFO] AI: cur=56°C pred=50°C gpu=3% gaming=false() t=-20 p=20 g=0 tr=5 score=5 -> powersave
+[2026-06-17 16:11:54] [INFO] AI: cur=49°C pred=45°C gpu=8% gaming=false() t=-20 p=10 g=0 tr=12 score=2 -> conservative
+[2026-06-17 16:11:54] [INFO] Applying policy: conservative (gaming=false)
+[2026-06-17 16:11:54] [INFO] Policy CONSERVATIVE applied (gaming=false)
+[2026-06-17 16:11:59] [INFO] AI: cur=48°C pred=43°C gpu=1% gaming=false() t=-20 p=10 g=0 tr=12 score=2 -> conservative
+[2026-06-17 16:12:05] [INFO] AI: cur=47°C pred=49°C gpu=1% gaming=false() t=20 p=0 g=0 tr=11 score=31 -> balanced
+[2026-06-17 16:12:05] [INFO] Applying policy: balanced (gaming=false)
+[2026-06-17 16:12:05] [INFO] Policy BALANCED applied (gaming=false)
+[2026-06-17 16:12:11] [INFO] AI: cur=47°C pred=48°C gpu=1% gaming=false() t=20 p=0 g=0 tr=7 score=27 -> balanced
+[2026-06-17 16:12:17] [INFO] AI: cur=47°C pred=47°C gpu=1% gaming=false() t=20 p=0 g=0 tr=2 score=22 -> balanced
+[2026-06-17 16:12:23] [INFO] AI: cur=48°C pred=47°C gpu=1% gaming=false() t=-20 p=0 g=0 tr=-2 score=-22 -> conservative
+[2026-06-17 16:12:23] [INFO] Applying policy: conservative (gaming=false)
+[2026-06-17 16:12:23] [INFO] Policy CONSERVATIVE applied (gaming=false)
+[2026-06-17 16:12:29] [INFO] AI: cur=48°C pred=46°C gpu=5% gaming=false() t=-20 p=0 g=0 tr=-7 score=-27 -> conservative
+[2026-06-17 16:12:35] [INFO] AI: cur=46°C pred=43°C gpu=1% gaming=false() t=20 p=10 g=0 tr=-12 score=18 -> conservative
+[2026-06-17 16:12:42] [INFO] AI: cur=47°C pred=44°C gpu=3% gaming=false() t=20 p=10 g=0 tr=-12 score=18 -> conservative
+[2026-06-17 16:12:48] [INFO] AI: cur=44°C pred=43°C gpu=3% gaming=false() t=20 p=0 g=0 tr=-11 score=9 -> conservative
+[2026-06-17 16:12:54] [INFO] AI: cur=45°C pred=44°C gpu=1% gaming=false() t=20 p=0 g=0 tr=-10 score=10 -> conservative
+[2026-06-17 16:13:00] [INFO] AI: cur=48°C pred=48°C gpu=1% gaming=false() t=-20 p=0 g=0 tr=-8 score=-28 -> powersave
+[2026-06-17 16:13:00] [INFO] Applying policy: powersave (gaming=false)
+[2026-06-17 16:13:00] [INFO] Policy POWERSAVE applied (gaming=false)
+[2026-06-17 16:13:06] [INFO] AI: cur=46°C pred=46°C gpu=6% gaming=false() t=20 p=0 g=0 tr=-7 score=13 -> powersave
+[2026-06-17 16:13:13] [INFO] AI: cur=45°C pred=44°C gpu=2% gaming=false() t=20 p=0 g=0 tr=-6 score=14 -> conservative
+[2026-06-17 16:13:13] [INFO] Applying policy: conservative (gaming=false)
+[2026-06-17 16:13:13] [INFO] Policy CONSERVATIVE applied (gaming=false)
+[2026-06-17 16:13:18] [INFO] AI: cur=45°C pred=44°C gpu=1% gaming=false() t=20 p=0 g=0 tr=-6 score=14 -> conservative
+[2026-06-17 16:13:25] [INFO] AI: cur=47°C pred=47°C gpu=10% gaming=false() t=20 p=0 g=0 tr=-5 score=15 -> conservative
+[2026-06-17 16:13:31] [INFO] AI: cur=44°C pred=44°C gpu=2% gaming=false() t=20 p=0 g=0 tr=-4 score=16 -> conservative
+[2026-06-17 16:13:38] [INFO] AI: cur=43°C pred=42°C gpu=0% gaming=false() t=20 p=0 g=0 tr=-4 score=16 -> conservative
+[2026-06-17 16:13:45] [INFO] AI: cur=43°C pred=42°C gpu=0% gaming=false() t=20 p=0 g=0 tr=-5 score=15 -> conservative
+[2026-06-17 16:13:50] [INFO] AI: cur=44°C pred=43°C gpu=1% gaming=false() t=20 p=0 g=0 tr=-7 score=13 -> conservative
+[2026-06-17 16:13:56] [INFO] AI: cur=46°C pred=45°C gpu=1% gaming=false() t=20 p=0 g=0 tr=-7 score=13 -> conservative
+[2026-06-17 16:14:02] [INFO] AI: cur=44°C pred=44°C gpu=4% gaming=false() t=20 p=0 g=0 tr=-6 score=14 -> conservative
+[2026-06-17 16:14:09] [INFO] AI: cur=44°C pred=44°C gpu=4% gaming=false() t=20 p=0 g=0 tr=-5 score=15 -> conservative
+[2026-06-17 16:14:16] [INFO] AI: cur=44°C pred=44°C gpu=4% gaming=false() t=20 p=0 g=0 tr=-4 score=16 -> conservative
+[2026-06-17 16:14:22] [INFO] AI: cur=42°C pred=41°C gpu=0% gaming=false() t=20 p=0 g=0 tr=-4 score=16 -> conservative
+[2026-06-17 16:14:29] [INFO] AI: cur=42°C pred=42°C gpu=0% gaming=false() t=20 p=0 g=0 tr=-4 score=16 -> conservative
+[2026-06-17 16:14:35] [INFO] AI: cur=44°C pred=44°C gpu=1% gaming=false() t=20 p=0 g=0 tr=-3 score=17 -> conservative
+[2026-06-17 16:14:42] [INFO] AI: cur=41°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-5 score=35 -> balanced
+[2026-06-17 16:14:42] [INFO] Applying policy: balanced (gaming=false)
+[2026-06-17 16:14:42] [INFO] Policy BALANCED applied (gaming=false)
+[2026-06-17 16:14:49] [INFO] AI: cur=42°C pred=41°C gpu=0% gaming=false() t=20 p=0 g=0 tr=-7 score=13 -> balanced
+[2026-06-17 16:14:55] [INFO] AI: cur=43°C pred=42°C gpu=10% gaming=false() t=20 p=0 g=0 tr=-7 score=13 -> conservative
+[2026-06-17 16:14:55] [INFO] Applying policy: conservative (gaming=false)
+[2026-06-17 16:14:56] [INFO] Policy CONSERVATIVE applied (gaming=false)
+[2026-06-17 16:15:02] [INFO] AI: cur=45°C pred=45°C gpu=3% gaming=false() t=20 p=0 g=0 tr=-5 score=15 -> conservative
+[2026-06-17 16:15:08] [INFO] AI: cur=46°C pred=46°C gpu=5% gaming=false() t=20 p=0 g=0 tr=0 score=20 -> conservative
+[2026-06-17 16:15:15] [INFO] AI: cur=46°C pred=47°C gpu=7% gaming=false() t=20 p=0 g=0 tr=5 score=25 -> balanced
+[2026-06-17 16:15:15] [INFO] Applying policy: balanced (gaming=false)
+[2026-06-17 16:15:15] [INFO] Policy BALANCED applied (gaming=false)
+[2026-06-17 16:15:27] [INFO] AI: cur=46°C pred=40°C gpu=6% gaming=false() t=20 p=20 g=0 tr=9 score=49 -> balanced
+[2026-06-17 16:15:34] [INFO] AI: cur=44°C pred=46°C gpu=35% gaming=false() t=20 p=0 g=0 tr=10 score=30 -> balanced
+[2026-06-17 16:15:40] [INFO] AI: cur=46°C pred=48°C gpu=7% gaming=false() t=20 p=0 g=0 tr=10 score=30 -> balanced
+[2026-06-17 16:15:49] [INFO] AI: cur=48°C pred=43°C gpu=5% gaming=false() t=-20 p=10 g=0 tr=12 score=2 -> conservative
+[2026-06-17 16:15:49] [INFO] Applying policy: conservative (gaming=false)
+[2026-06-17 16:15:49] [INFO] Policy CONSERVATIVE applied (gaming=false)
+[2026-06-17 16:15:56] [INFO] AI: cur=44°C pred=45°C gpu=13% gaming=false() t=20 p=0 g=0 tr=9 score=29 -> conservative
+[2026-06-17 16:16:02] [INFO] AI: cur=44°C pred=44°C gpu=0% gaming=false() t=20 p=0 g=0 tr=5 score=25 -> balanced
+[2026-06-17 16:16:02] [INFO] Applying policy: balanced (gaming=false)
+[2026-06-17 16:16:02] [INFO] Policy BALANCED applied (gaming=false)
+[2026-06-17 16:16:09] [INFO] AI: cur=44°C pred=44°C gpu=7% gaming=false() t=20 p=0 g=0 tr=0 score=20 -> balanced
+[2026-06-17 16:16:15] [INFO] AI: cur=44°C pred=43°C gpu=4% gaming=false() t=20 p=0 g=0 tr=-3 score=17 -> balanced
+[2026-06-17 16:16:21] [INFO] AI: cur=44°C pred=43°C gpu=8% gaming=false() t=20 p=0 g=0 tr=-4 score=16 -> balanced
+[2026-06-17 16:16:28] [INFO] AI: cur=47°C pred=47°C gpu=12% gaming=false() t=20 p=0 g=0 tr=-3 score=17 -> balanced
+[2026-06-17 16:16:34] [INFO] AI: cur=45°C pred=45°C gpu=1% gaming=false() t=20 p=0 g=0 tr=-2 score=18 -> balanced
+[2026-06-17 16:16:39] [INFO] AI: cur=44°C pred=44°C gpu=1% gaming=false() t=20 p=0 g=0 tr=-2 score=18 -> balanced
+[2026-06-17 16:16:45] [INFO] AI: cur=44°C pred=44°C gpu=1% gaming=false() t=20 p=0 g=0 tr=-2 score=18 -> balanced
+[2026-06-17 16:16:51] [INFO] AI: cur=44°C pred=44°C gpu=1% gaming=false() t=20 p=0 g=0 tr=-2 score=18 -> balanced
+[2026-06-17 16:16:57] [INFO] AI: cur=44°C pred=44°C gpu=1% gaming=false() t=20 p=0 g=0 tr=-1 score=19 -> balanced
+[2026-06-17 16:17:03] [INFO] AI: cur=44°C pred=44°C gpu=1% gaming=false() t=20 p=0 g=0 tr=-1 score=19 -> balanced
+[2026-06-17 16:17:09] [INFO] AI: cur=44°C pred=44°C gpu=1% gaming=false() t=20 p=0 g=0 tr=-1 score=19 -> balanced
+[2026-06-17 16:17:15] [INFO] AI: cur=44°C pred=44°C gpu=1% gaming=false() t=20 p=0 g=0 tr=-2 score=18 -> balanced
+[2026-06-17 16:17:20] [INFO] AI: cur=44°C pred=43°C gpu=1% gaming=false() t=20 p=0 g=0 tr=-3 score=17 -> balanced
+[2026-06-17 16:17:26] [INFO] AI: cur=44°C pred=44°C gpu=1% gaming=false() t=20 p=0 g=0 tr=-3 score=17 -> balanced
+[2026-06-17 16:17:32] [INFO] AI: cur=43°C pred=43°C gpu=1% gaming=false() t=20 p=0 g=0 tr=-2 score=18 -> balanced
+[2026-06-17 16:17:38] [INFO] AI: cur=43°C pred=43°C gpu=1% gaming=false() t=20 p=0 g=0 tr=-2 score=18 -> balanced
+[2026-06-17 16:17:44] [INFO] AI: cur=44°C pred=44°C gpu=1% gaming=false() t=20 p=0 g=0 tr=-1 score=19 -> balanced
+[2026-06-17 16:17:49] [INFO] AI: cur=43°C pred=43°C gpu=1% gaming=false() t=20 p=0 g=0 tr=-2 score=18 -> balanced
+[2026-06-17 16:17:55] [INFO] AI: cur=43°C pred=43°C gpu=1% gaming=false() t=20 p=0 g=0 tr=-2 score=18 -> balanced
+[2026-06-17 16:18:01] [INFO] AI: cur=43°C pred=43°C gpu=1% gaming=false() t=20 p=0 g=0 tr=-2 score=18 -> balanced
+[2026-06-17 16:18:07] [INFO] AI: cur=44°C pred=44°C gpu=1% gaming=false() t=20 p=0 g=0 tr=-2 score=18 -> balanced
+[2026-06-17 16:18:13] [INFO] AI: cur=45°C pred=45°C gpu=9% gaming=false() t=20 p=0 g=0 tr=-1 score=19 -> balanced
+[2026-06-17 16:18:19] [INFO] AI: cur=46°C pred=47°C gpu=5% gaming=false() t=20 p=0 g=0 tr=2 score=22 -> balanced
+[2026-06-17 16:18:26] [INFO] AI: cur=45°C pred=46°C gpu=1% gaming=false() t=20 p=0 g=0 tr=5 score=25 -> balanced
+[2026-06-17 16:18:33] [INFO] AI: cur=44°C pred=45°C gpu=8% gaming=false() t=20 p=0 g=0 tr=5 score=25 -> balanced
+[2026-06-17 16:18:40] [INFO] AI: cur=42°C pred=42°C gpu=0% gaming=false() t=20 p=0 g=0 tr=2 score=22 -> balanced
+[2026-06-17 16:18:47] [INFO] AI: cur=42°C pred=42°C gpu=0% gaming=false() t=20 p=0 g=0 tr=0 score=20 -> balanced
+[2026-06-17 16:18:55] [INFO] AI: cur=42°C pred=42°C gpu=6% gaming=false() t=20 p=0 g=0 tr=-2 score=18 -> balanced
+[2026-06-17 16:19:02] [INFO] AI: cur=41°C pred=40°C gpu=6% gaming=false() t=40 p=0 g=0 tr=-5 score=35 -> balanced
+[2026-06-17 16:19:10] [INFO] AI: cur=41°C pred=39°C gpu=6% gaming=false() t=40 p=0 g=0 tr=-9 score=31 -> balanced
+[2026-06-17 16:19:17] [INFO] AI: cur=40°C pred=37°C gpu=6% gaming=false() t=40 p=10 g=0 tr=-12 score=38 -> balanced
+[2026-06-17 16:19:23] [INFO] AI: cur=43°C pred=41°C gpu=1% gaming=false() t=20 p=0 g=0 tr=-12 score=8 -> conservative
+[2026-06-17 16:19:23] [INFO] Applying policy: conservative (gaming=false)
+[2026-06-17 16:19:23] [INFO] Policy CONSERVATIVE applied (gaming=false)
+[2026-06-17 16:19:29] [INFO] AI: cur=44°C pred=44°C gpu=5% gaming=false() t=20 p=0 g=0 tr=-10 score=10 -> conservative
+[2026-06-17 16:19:36] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-8 score=32 -> balanced
+[2026-06-17 16:19:37] [INFO] Applying policy: balanced (gaming=false)
+[2026-06-17 16:19:37] [INFO] Policy BALANCED applied (gaming=false)
+[2026-06-17 16:19:43] [INFO] AI: cur=42°C pred=42°C gpu=5% gaming=false() t=20 p=0 g=0 tr=-5 score=15 -> balanced
+[2026-06-17 16:19:50] [INFO] AI: cur=42°C pred=42°C gpu=0% gaming=false() t=20 p=0 g=0 tr=-4 score=16 -> balanced
+[2026-06-17 16:19:58] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-3 score=37 -> balanced
+[2026-06-17 16:20:05] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-2 score=38 -> balanced
+[2026-06-17 16:20:13] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-3 score=37 -> balanced
+[2026-06-17 16:20:20] [INFO] AI: cur=40°C pred=39°C gpu=3% gaming=false() t=40 p=0 g=0 tr=-4 score=36 -> balanced
+[2026-06-17 16:20:28] [INFO] AI: cur=40°C pred=38°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-7 score=33 -> balanced
+[2026-06-17 16:20:36] [INFO] AI: cur=39°C pred=37°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-8 score=32 -> balanced
+[2026-06-17 16:20:42] [INFO] AI: cur=40°C pred=39°C gpu=8% gaming=false() t=40 p=0 g=0 tr=-8 score=32 -> balanced
+[2026-06-17 16:20:48] [INFO] AI: cur=43°C pred=43°C gpu=0% gaming=false() t=20 p=0 g=0 tr=-6 score=14 -> conservative
+[2026-06-17 16:20:48] [INFO] Applying policy: conservative (gaming=false)
+[2026-06-17 16:20:48] [INFO] Policy CONSERVATIVE applied (gaming=false)
+[2026-06-17 16:20:55] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-4 score=36 -> conservative
+[2026-06-17 16:21:12] [INFO] AI: cur=43°C pred=44°C gpu=24% gaming=false() t=20 p=0 g=0 tr=1 score=21 -> conservative
+[2026-06-17 16:21:18] [INFO] AI: cur=41°C pred=42°C gpu=31% gaming=false() t=40 p=0 g=0 tr=4 score=44 -> balanced
+[2026-06-17 16:21:18] [INFO] Applying policy: balanced (gaming=false)
+[2026-06-17 16:21:18] [INFO] Policy BALANCED applied (gaming=false)
+[2026-06-17 16:21:28] [INFO] AI: cur=40°C pred=40°C gpu=0% gaming=false() t=40 p=0 g=0 tr=3 score=43 -> balanced
+[2026-06-17 16:21:34] [INFO] AI: cur=42°C pred=43°C gpu=29% gaming=false() t=20 p=0 g=0 tr=4 score=24 -> balanced
+[2026-06-17 16:21:41] [INFO] AI: cur=43°C pred=44°C gpu=3% gaming=false() t=20 p=0 g=0 tr=5 score=25 -> balanced
+[2026-06-17 16:21:48] [INFO] AI: cur=40°C pred=40°C gpu=3% gaming=false() t=40 p=0 g=0 tr=4 score=44 -> balanced
+[2026-06-17 16:21:54] [INFO] AI: cur=39°C pred=39°C gpu=1% gaming=false() t=40 p=0 g=0 tr=0 score=40 -> balanced
+[2026-06-17 16:22:00] [INFO] AI: cur=39°C pred=38°C gpu=2% gaming=false() t=40 p=0 g=0 tr=-4 score=36 -> balanced
+[2026-06-17 16:22:07] [INFO] AI: cur=42°C pred=42°C gpu=7% gaming=false() t=20 p=0 g=0 tr=-3 score=17 -> balanced
+[2026-06-17 16:22:17] [INFO] AI: cur=39°C pred=38°C gpu=0% gaming=false() t=40 p=0 g=0 tr=-5 score=35 -> balanced
+[2026-06-17 16:22:22] [INFO] AI: cur=41°C pred=41°C gpu=1% gaming=false() t=40 p=0 g=0 tr=-4 score=36 -> balanced
+[2026-06-17 16:22:28] [INFO] AI: cur=43°C pred=43°C gpu=2% gaming=false() t=20 p=0 g=0 tr=-3 score=17 -> balanced
+[2026-06-17 16:22:34] [INFO] AI: cur=41°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-2 score=38 -> balanced
+[2026-06-17 16:22:42] [INFO] AI: cur=41°C pred=41°C gpu=7% gaming=false() t=40 p=0 g=0 tr=-1 score=39 -> balanced
+[2026-06-17 16:22:50] [INFO] AI: cur=41°C pred=42°C gpu=2% gaming=false() t=40 p=0 g=0 tr=2 score=42 -> balanced
+[2026-06-17 16:23:00] [INFO] Applying policy: suspend (gaming=false)
+[2026-06-17 16:23:00] [INFO] Policy SUSPEND applied (Screen Off)
+[2026-06-17 16:33:54] [INFO] AI: cur=36°C pred=31°C gpu=0% gaming=false() t=40 p=10 g=0 tr=-12 score=38 -> balanced
+[2026-06-17 16:33:54] [INFO] Applying policy: balanced (gaming=false)
+[2026-06-17 16:33:54] [INFO] Policy BALANCED applied (gaming=false)
+[2026-06-17 16:34:04] [INFO] AI: cur=37°C pred=33°C gpu=28% gaming=false() t=40 p=10 g=0 tr=-12 score=38 -> balanced
+[2026-06-17 16:38:05] [INFO] Applying policy: suspend (gaming=false)
+[2026-06-17 16:38:05] [INFO] Policy SUSPEND applied (Screen Off)
+[2026-06-17 16:40:17] [INFO] AI: cur=34°C pred=30°C gpu=0% gaming=false() t=40 p=10 g=0 tr=-12 score=38 -> balanced
+[2026-06-17 16:40:17] [INFO] Applying policy: balanced (gaming=false)
+[2026-06-17 16:40:17] [INFO] Policy BALANCED applied (gaming=false)
+[2026-06-17 16:40:23] [INFO] AI: cur=39°C pred=37°C gpu=4% gaming=false() t=40 p=0 g=0 tr=-11 score=29 -> balanced
+[2026-06-17 16:40:29] [INFO] AI: cur=39°C pred=39°C gpu=5% gaming=false() t=40 p=0 g=0 tr=-2 score=38 -> balanced
+[2026-06-17 16:40:35] [INFO] AI: cur=39°C pred=41°C gpu=5% gaming=false() t=40 p=0 g=0 tr=5 score=45 -> balanced
