@@ -213,7 +213,7 @@ ai_decide_policy() {
 
     # Incorporate dynamic context weighting
     local context_weight=$(get_context_score)
-    local comfort_weight=$(get_thermal_comfort_score)
+    local comfort_weight=$(get_thermal_comfort_score 2>/dev/null || echo 0)
     s=$((s + comfort_weight))
     s=$((s + context_weight))
 

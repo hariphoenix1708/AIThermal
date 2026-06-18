@@ -43,6 +43,10 @@ keeping your device safe.
 - **Suspend Cooling**: Drops CPU and GPU to absolute minimal power states instantly when the screen is turned off.
 - **Background isolation**: Pushes non-game processes to little cores via cpuset during gaming conserve/powersave modes.
 
+### Changelog v2.3.0
+- Fixed critical charging heating issue by drastically reducing charge current when battery hits 41C.
+- Added universal kernel compatibility fallbacks for TCP, CPU, GPU, and Charging across generic Android trees (Mediatek, Exynos, custom Snapdragons).
+
 ### Changelog v2.2.0
 - Implemented App-Switch Transition Engine with Residual State Cleaner to prevent lag when switching games.
 - Added Dynamic Post-Game Cool-Down Profile.

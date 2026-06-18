@@ -236,11 +236,11 @@ _constrain_background_to_little() {
     local little_cpu_range="0-2"  # peridot LITTLE cluster range
 
     if [ -w "/dev/cpuset/background/cpus" ]; then
-        echo "$little_cpu_range" > /dev/cpuset/background/cpus 2>/dev/null
+        sysfs_write "$little_cpu_range" "/dev/cpuset/background/cpus"
         log_debug "Background cpuset constrained to $little_cpu_range"
     fi
     if [ -w "/dev/cpuset/system-background/cpus" ]; then
-        echo "$little_cpu_range" > /dev/cpuset/system-background/cpus 2>/dev/null
+        sysfs_write "$little_cpu_range" "/dev/cpuset/system-background/cpus"
     fi
 }
 
@@ -249,11 +249,11 @@ _constrain_background_to_little() {
 #   foreground: 0-5  (LITTLE + BIG, not PRIME)
 #   top-app: 0-7  (all cores)
 _restore_cpusets() {
-    [ -w /dev/cpuset/background/cpus ]        && echo "0-1" > /dev/cpuset/background/cpus        2>/dev/null || true
-    [ -w /dev/cpuset/system-background/cpus ] && echo "0-1" > /dev/cpuset/system-background/cpus 2>/dev/null || true
-    [ -w /dev/cpuset/foreground/cpus ]        && echo "0-5" > /dev/cpuset/foreground/cpus        2>/dev/null || true
+    [ -w /dev/cpuset/background/cpus ]        && sysfs_write "0-1" "/dev/cpuset/background/cpus" || true
+    [ -w /dev/cpuset/system-background/cpus ] && sysfs_write "0-1" "/dev/cpuset/system-background/cpus" || true
+    [ -w /dev/cpuset/foreground/cpus ]        && sysfs_write "0-5" "/dev/cpuset/foreground/cpus" || true
     # top-app always gets all cores
-    [ -w /dev/cpuset/top-app/cpus ]           && echo "0-7" > /dev/cpuset/top-app/cpus           2>/dev/null || true
+    [ -w /dev/cpuset/top-app/cpus ]           && sysfs_write "0-7" "/dev/cpuset/top-app/cpus" || true
 }
 
 # Drop page cache only (safe during gaming — no app data lost)
@@ -288,7 +288,7 @@ _apply_vm_params() {
         balanced)
             local swap_val=40
             $gaming && swap_val=20
-            echo "$swap_val" > /proc/sys/vm/swappiness        2>/dev/null || true
+            sysfs_write "$swap_val" "/proc/sys/vm/swappiness" || true
             echo 50  > /proc/sys/vm/vfs_cache_pressure        2>/dev/null || true
             echo 3000 > /proc/sys/vm/dirty_expire_centisecs   2>/dev/null || true
             echo 0   > /proc/sys/vm/compaction_proactiveness  2>/dev/null || true
@@ -296,7 +296,7 @@ _apply_vm_params() {
         conservative)
             local swap_val=60
             $gaming && swap_val=30
-            echo "$swap_val" > /proc/sys/vm/swappiness        2>/dev/null || true
+            sysfs_write "$swap_val" "/proc/sys/vm/swappiness" || true
             echo 75  > /proc/sys/vm/vfs_cache_pressure        2>/dev/null || true
             echo 2000 > /proc/sys/vm/dirty_expire_centisecs   2>/dev/null || true
             ;;
@@ -329,7 +329,7 @@ _apply_io_scheduler() {
 
     for block in /sys/block/sda /sys/block/sdb; do
         local sched_path="$block/queue/scheduler"
-        [ -w "$sched_path" ] && echo "$scheduler" > "$sched_path" 2>/dev/null || true
+        [ -w "$sched_path" ] && sysfs_write "$scheduler" "$sched_path" || true
     done
     log_debug "I/O scheduler -> $scheduler"
 }
@@ -352,4 +352,38 @@ _apply_cpuset() {
             _restore_cpusets
             ;;
     esac
+}
+
+# ─── Universal GPU Control Fallbacks ──────────────────────────────────────────
+# Standard paths for generic kernels / Exynos / MediaTek / Older Adreno
+GPU_GOVERNOR_NODES="
+/sys/class/kgsl/kgsl-3d0/devfreq/governor
+/sys/class/devfreq/1c00000.qcom,kgsl-3d0/governor
+/sys/class/devfreq/gpufreq/governor
+/sys/devices/platform/g3d/devfreq/g3d/governor
+"
+
+GPU_MIN_FREQ_NODES="
+/sys/class/kgsl/kgsl-3d0/devfreq/min_freq
+/sys/class/devfreq/1c00000.qcom,kgsl-3d0/min_freq
+/sys/class/devfreq/gpufreq/min_freq
+/sys/devices/platform/g3d/devfreq/g3d/min_freq
+"
+
+GPU_MAX_FREQ_NODES="
+/sys/class/kgsl/kgsl-3d0/devfreq/max_freq
+/sys/class/devfreq/1c00000.qcom,kgsl-3d0/max_freq
+/sys/class/devfreq/gpufreq/max_freq
+/sys/devices/platform/g3d/devfreq/g3d/max_freq
+"
+
+apply_universal_gpu_control() {
+    local target_gov="$1"
+
+    # Try generic governor writes
+    for node in $GPU_GOVERNOR_NODES; do
+        if [ -w "$node" ]; then
+             sysfs_write "$target_gov" "$node"
+        fi
+    done
 }
