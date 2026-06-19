@@ -93,9 +93,15 @@ apply_charging_control() {
     local current_plugged=$(cat /sys/class/power_supply/battery/status 2>/dev/null || echo "Unknown")
 
     if [ "$is_gaming" = "true" ] && [ "$current_plugged" = "Charging" ]; then
-        log_warn "Compound Guard: Gaming + Charging detected. Proactively capping charge at 1A."
-        sysfs_write "1000000" "$BATT_CURRENT_MAX"
-        apply_universal_charging_control "1000000"
+        if [ "$batt_temp" -ge 35 ]; then
+            log_warn "Compound Guard: Gaming + Charging (batt_temp=${batt_temp}°C). Capping charge at 1A."
+            sysfs_write "1000000" "$BATT_CURRENT_MAX"
+            apply_universal_charging_control "1000000"
+        else
+            log_warn "Compound Guard: Gaming + Charging (batt_temp=${batt_temp}°C). Capping charge at 2A."
+            sysfs_write "2000000" "$BATT_CURRENT_MAX"
+            apply_universal_charging_control "2000000"
+        fi
         return 0
     fi
 

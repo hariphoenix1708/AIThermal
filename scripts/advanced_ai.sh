@@ -95,9 +95,16 @@ update_game_profile() {
         local max_temp=$(grep MAX_TEMP "$profile_file" | cut -d= -f2)
         if [ "$current_temp" -gt "$max_temp" ]; then
             sed -i "s/MAX_TEMP=$max_temp/MAX_TEMP=$current_temp/" "$profile_file"
-        fi
 
-        # We can use this data later to pre-throttle if the game is known to get very hot
+            # If temp exceeds 46, mark it as KNOWN_HOT for future runs
+            if [ "$current_temp" -gt 46 ]; then
+                if grep -q "KNOWN_HOT=" "$profile_file"; then
+                    sed -i "s/KNOWN_HOT=.*/KNOWN_HOT=true/" "$profile_file"
+                else
+                    echo "KNOWN_HOT=true" >> "$profile_file"
+                fi
+            fi
+        fi
     fi
 }
 
@@ -141,6 +148,12 @@ get_game_profile_modifier() {
     local modifier=0
 
     if [ -f "$profile_file" ]; then
+        local known_hot=$(grep KNOWN_HOT "$profile_file" 2>/dev/null | cut -d= -f2)
+        if [ "$known_hot" = "true" ]; then
+             echo "-12"
+             return
+        fi
+
         local max_temp=$(grep MAX_TEMP "$profile_file" 2>/dev/null | cut -d= -f2)
         if [ -n "$max_temp" ] && [ "$max_temp" -gt 45 ]; then
              # If game is known to run hot, pre-emptively be more conservative to prevent runaway

@@ -72,6 +72,8 @@ WATCHDOG_FAILURES=0
 WATCHDOG_LIMIT=5
 GAME_EXIT_COOLDOWN_UNTIL=0
 LAST_GAMING_STATE="false"
+COOLDOWN_SOURCE_PKG=""
+LAST_GAME_PKG=""
 
 # ─── Thermal zones ────────────────────────────────────────────────────────────
 _zone_weight() {
@@ -113,9 +115,21 @@ init_thermal_zones() {
 get_composite_temp() {
     local tw=0 wt=0
     local reads_succeeded=0
+    local current_gpu_load=$(get_gpu_load 2>/dev/null || echo 0)
+
     for entry in $ACTIVE_ZONES; do
         local zid="${entry%%:*}" w="${entry##*:}"
         local t
+
+        # Determine zone type
+        local ztype=$(cat "/sys/class/thermal/thermal_zone${zid}/type" 2>/dev/null || echo "unknown")
+
+        # Scale gpuss- weights based on current gpu load
+        if case "$ztype" in gpuss-*) true;; *) false;; esac; then
+            w=$(( (w * current_gpu_load) / 100 ))
+            [ "$w" -lt 1 ] && w=1
+        fi
+
         t=$(cat "/sys/class/thermal/thermal_zone${zid}/temp" 2>/dev/null) || continue
         [ "$t" -gt 1000 ] 2>/dev/null && t=$((t/1000))
         [ "$t" -lt 0 ] 2>/dev/null && continue
@@ -192,7 +206,7 @@ calculate_confidence() {
 
 # ─── AI Scoring ───────────────────────────────────────────────────────────────
 ai_decide_policy() {
-    local cur="$1" gpu="$2" gaming="$3" pred="$4" conf="$5"
+    local cur="$1" gpu="$2" gaming="$3" pred="$4" conf="$5" game_pkg="$6"
     local s=0 s_temp=0 s_pred=0 s_game=0 s_trend=0
 
     # Temp component
@@ -235,7 +249,6 @@ ai_decide_policy() {
     log_debug "VERBOSE AI CALC: s_temp=$s_temp s_pred=$s_pred s_game=$s_game s_trend=$s_trend context_weight=$context_weight comfort_weight=$comfort_weight"
 
     if $gaming; then
-        local game_pkg=$(get_current_game)
         if [ -n "$game_pkg" ]; then
             local game_mod=$(get_game_profile_modifier "$game_pkg")
             s=$((s + game_mod))
@@ -297,7 +310,6 @@ ai_decide_policy() {
     fi
 
     # [FIX-4] Include confirmed game pkg in log line
-    local game_pkg; game_pkg=$(get_current_game)
     log_debug "AI: cur=${cur}°C pred=${pred}°C gpu=${gpu}% gaming=${gaming}(${game_pkg}) t=${s_temp} p=${s_pred} g=${s_game} tr=${s_trend} ctx=${context_weight} comf=${comfort_weight} score=${s} -> ${policy}"
     echo "$policy"
 }
@@ -475,9 +487,24 @@ main_loop() {
         local now_time=$(date +%s)
         if [ "$LAST_GAMING_STATE" = "true" ] && [ "$gaming" = "false" ]; then
             GAME_EXIT_COOLDOWN_UNTIL=$((now_time + 90))
-            log_info "Game exit detected. Post-game cooldown started for 90 seconds."
+            COOLDOWN_SOURCE_PKG=$(get_current_game)
+            log_info "Game exit detected. Post-game cooldown started for 90 seconds. Source: $COOLDOWN_SOURCE_PKG"
         fi
         LAST_GAMING_STATE="$gaming"
+
+        local current_game_pkg=""
+        if [ "$gaming" = "true" ]; then
+            current_game_pkg=$(get_current_game)
+            if [ -n "$current_game_pkg" ]; then
+                if [ "$current_game_pkg" != "$LAST_GAME_PKG" ]; then
+                    load_game_profile "$current_game_pkg"
+                    LAST_GAME_PKG="$current_game_pkg"
+                fi
+                update_game_profile "$current_game_pkg" "$temp"
+            fi
+        else
+            LAST_GAME_PKG=""
+        fi
 
         local screen_state; screen_state=$(get_screen_state)
         local new_policy
@@ -485,12 +512,24 @@ main_loop() {
         if [ "$screen_state" = "off" ]; then
             new_policy="suspend"
         else
-            new_policy=$(ai_decide_policy "$temp" "$gpu" "$gaming" "$pred" "$conf")
+            new_policy=$(ai_decide_policy "$temp" "$gpu" "$gaming" "$pred" "$conf" "$current_game_pkg")
 
             if [ "$now_time" -lt "$GAME_EXIT_COOLDOWN_UNTIL" ]; then
-                local remaining=$((GAME_EXIT_COOLDOWN_UNTIL - now_time))
-                new_policy="balanced"
-                log_debug "Cooling down: forcing balanced (${remaining}s remaining)"
+                if [ "$gaming" = "true" ]; then
+                    local cur_pkg="$current_game_pkg"
+                    if [ "$cur_pkg" != "$COOLDOWN_SOURCE_PKG" ]; then
+                        GAME_EXIT_COOLDOWN_UNTIL=0
+                        log_info "Game switch detected ($COOLDOWN_SOURCE_PKG -> $cur_pkg). Cancelling cooldown."
+                    else
+                        local remaining=$((GAME_EXIT_COOLDOWN_UNTIL - now_time))
+                        new_policy="balanced"
+                        log_debug "Cooling down: forcing balanced (${remaining}s remaining)"
+                    fi
+                else
+                    local remaining=$((GAME_EXIT_COOLDOWN_UNTIL - now_time))
+                    new_policy="balanced"
+                    log_debug "Cooling down: forcing balanced (${remaining}s remaining)"
+                fi
             fi
         fi
 
@@ -517,9 +556,19 @@ main_loop() {
         if [ "$screen_state" = "off" ]; then
             sleep "$((POLL_INTERVAL * 2))" # Poll slower when screen is off
         elif $gaming || [ "$gpu" -ge "$GPU_GAMING_THRESHOLD" ]; then
-            sleep "$GAME_POLL_INTERVAL"
+            if [ "$TREND_SCORE" -gt 15 ]; then
+                sleep 0 # Skip sleep entirely
+            elif [ "$TREND_SCORE" -gt 8 ]; then
+                sleep 1
+            else
+                sleep "$GAME_POLL_INTERVAL"
+            fi
         else
-            sleep "$POLL_INTERVAL"
+            if [ "$TREND_SCORE" -ge -2 ] && [ "$TREND_SCORE" -le 2 ]; then
+                sleep 4
+            else
+                sleep "$POLL_INTERVAL"
+            fi
         fi
     done
 }
