@@ -4,7 +4,7 @@
 SKIPUNZIP=1
 
 ui_print "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-ui_print "   ThermalAI v1.1.0 - Intelligent Thermal Manager"
+ui_print "   ThermalAI v2.3.0 - Intelligent Thermal Manager"
 ui_print "   Device Edition: POCO F6 (peridot)"
 ui_print "   AOSP Android 16 / GlaciumKernel"
 ui_print "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -19,6 +19,11 @@ if [ "$DEVICE" != "peridot" ] || [ "$SOC" != "pineapple" ]; then
     ui_print "  [!] Module will still install — WALT & kgsl paths may differ"
     ui_print ""
 fi
+
+ui_print "  Clearing old logs..."
+rm -f /data/local/tmp/thermalai.log
+rm -f /data/local/tmp/thermalai.log.1
+
 
 ui_print "  Extracting files..."
 unzip -o "$ZIPFILE" -x "META-INF/*" -d "$MODPATH" >&2
