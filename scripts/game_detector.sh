@@ -165,14 +165,14 @@ _scan_oom_for_game() {
         if [ "$result" = "true" ]; then
             log_debug "Layer1(oom): foreground game=$pkg pid=$pid"
             _CONFIRMED_GAME_PKG="$pkg"
-            echo "true"
+            _LAST_DETECTION_RESULT="true"
             return
         fi
 
         # Log what we actually found (helps debug future games not in list)
         log_debug "Layer1(oom): foreground pkg=$pkg (not a known game)"
     done
-    echo "false"
+    _LAST_DETECTION_RESULT="false"
 }
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -187,7 +187,10 @@ _scan_renderthreads_for_game() {
     gpu_load=$(get_gpu_load)
 
     # Layer 2 only useful when GPU is actually active
-    [ "$gpu_load" -lt "$GPU_GAMING_THRESHOLD" ] && echo "false" && return
+    if [ "$gpu_load" -lt "$GPU_GAMING_THRESHOLD" ]; then
+        _LAST_DETECTION_RESULT="false"
+        return
+    fi
 
     # Scan all app_process64 / app_process32 processes
     for status_path in /proc/[0-9]*/status; do
@@ -223,20 +226,20 @@ _scan_renderthreads_for_game() {
                 if [ "$game_result" = "true" ] || [ "$game_result" = "maybe" ]; then
                     log_debug "Layer2(render): game=$pkg gpu=${gpu_load}% pid=$pid"
                     _CONFIRMED_GAME_PKG="$pkg"
-                    echo "true"
+                    _LAST_DETECTION_RESULT="true"
                     return
                 fi
                 # Unknown package with RenderThread + high GPU — still flag it
                 if [ "$gpu_load" -ge 40 ]; then
                     log_debug "Layer2(render): unknown+highgpu pkg=$pkg gpu=${gpu_load}%"
                     _CONFIRMED_GAME_PKG="$pkg"
-                    echo "true"
+                    _LAST_DETECTION_RESULT="true"
                     return
                 fi
                 ;;
         esac
     done
-    echo "false"
+    _LAST_DETECTION_RESULT="false"
 }
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -266,14 +269,15 @@ _dumpsys_fallback() {
           | grep -m1 "^  ACTIVITY " \
           | awk '{print $2}' | cut -d'/' -f1)
 
-    [ -n "$pkg" ] && {
+    if [ -n "$pkg" ]; then
         _CACHED_PKG="$pkg"
         _LAST_PKG_CACHE_TIME="$now"
         log_debug "Layer4(dumpsys): pkg=$pkg"
-        is_known_game_package "$pkg"
+        _LAST_DETECTION_RESULT=$(is_known_game_package "$pkg")
+        [ "$_LAST_DETECTION_RESULT" = "maybe" ] && _LAST_DETECTION_RESULT="true"
         return
-    }
-    echo "false"
+    fi
+    _LAST_DETECTION_RESULT="false"
 }
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -298,9 +302,8 @@ detect_gaming_context() {
         _LAST_PROC_SCAN="$now"
 
         # Layer 1: oom_score_adj (foreground pkg detection)
-        local l1_result
-        l1_result=$(_scan_oom_for_game)
-        if [ "$l1_result" = "true" ]; then
+        _scan_oom_for_game
+        if [ "$_LAST_DETECTION_RESULT" = "true" ]; then
             _GAME_LATCH_UNTIL=$((now + GAME_LATCH_SEC))
             log_info "Gaming confirmed (L1/oom): ${_CONFIRMED_GAME_PKG} latch=${GAME_LATCH_SEC}s"
             echo "true"
@@ -308,9 +311,8 @@ detect_gaming_context() {
         fi
 
         # Layer 2: RenderThread + GPU scan
-        local l2_result
-        l2_result=$(_scan_renderthreads_for_game)
-        if [ "$l2_result" = "true" ]; then
+        _scan_renderthreads_for_game
+        if [ "$_LAST_DETECTION_RESULT" = "true" ]; then
             _GAME_LATCH_UNTIL=$((now + GAME_LATCH_SEC))
             log_info "Gaming confirmed (L2/render+gpu): ${_CONFIRMED_GAME_PKG} latch=${GAME_LATCH_SEC}s"
             echo "true"
@@ -319,16 +321,15 @@ detect_gaming_context() {
     fi
 
     # Layer 4: dumpsys fallback (infrequent)
-    local l4_result
-    l4_result=$(_dumpsys_fallback)
-    if [ "$l4_result" = "true" ]; then
+    _dumpsys_fallback
+    if [ "$_LAST_DETECTION_RESULT" = "true" ]; then
         _GAME_LATCH_UNTIL=$((now + GAME_LATCH_SEC))
         log_info "Gaming confirmed (L4/dumpsys): ${_CACHED_PKG} latch=${GAME_LATCH_SEC}s"
         echo "true"
         return
     fi
 
-    log_debug "No game detected (L1=false L2=false L4=$l4_result)"
+    log_debug "No game detected"
     echo "false"
 }
 
