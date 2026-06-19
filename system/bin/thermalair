@@ -56,8 +56,8 @@ cmd_status() {
         echo "  Blacklist   : CLEAN"
     fi
 
-    # Parse last log line for comprehensive state
-    local last_ai=$(grep "AI: cur=" "$LOG_FILE" 2>/dev/null | tail -1)
+    # Parse last AI state from log file (verbose holds the detailed per-tick AI output now)
+    local last_ai=$(grep "AI: cur=" "/data/local/tmp/thermalai_verbose.log" 2>/dev/null | tail -1)
     if [ -n "$last_ai" ]; then
         local cur=$(echo "$last_ai" | grep -o "cur=[0-9]*" | cut -d= -f2)
         local pred=$(echo "$last_ai" | grep -o "pred=[0-9]*" | cut -d= -f2)

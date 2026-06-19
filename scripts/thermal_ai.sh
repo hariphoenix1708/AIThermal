@@ -232,6 +232,8 @@ ai_decide_policy() {
     s=$((s + comfort_weight))
     s=$((s + context_weight))
 
+    log_debug "VERBOSE AI CALC: s_temp=$s_temp s_pred=$s_pred s_game=$s_game s_trend=$s_trend context_weight=$context_weight comfort_weight=$comfort_weight"
+
     if $gaming; then
         local game_pkg=$(get_current_game)
         if [ -n "$game_pkg" ]; then

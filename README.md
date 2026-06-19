@@ -43,6 +43,11 @@ keeping your device safe.
 - **Suspend Cooling**: Drops CPU and GPU to absolute minimal power states instantly when the screen is turned off.
 - **Background isolation**: Pushes non-game processes to little cores via cpuset during gaming conserve/powersave modes.
 
+### Changelog v2.3.2
+- Fixed blank `p=` and `comf=` variables in `thermalai.log` and added verbose calculation logs for better debugging.
+- Broadened universal fast-charging limitation paths to cover specific AOSP variants and deeply nested `power_supply` nodes.
+- Rebuilt battery temperature fetching logic to use a robust dynamic fallback array across multiple thermal zones, preventing false 0°C readings on custom kernels.
+
 ### Changelog v2.3.1
 - Fixed state snapshot variable collision preventing GPU power level restoration.
 - Fixed thermal watchdog to properly catch thermal sensor failures.
