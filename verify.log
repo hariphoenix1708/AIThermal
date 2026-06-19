@@ -1,0 +1,432 @@
+========================================
+ThermalAI Verification Report
+Date: Fri Jun 19 18:16:05 IST 2026
+========================================
+
+
+========================================
+DEVICE INFO
+========================================
+Kernel: Linux localhost 6.1.170-GlaciumKernel-4.2-g5ca71d27cda5 #1 SMP PREEMPT Tue Jun 16 03:22:29 UTC 2026 aarch64 Toybox
+Android: 16
+SDK: 36
+ROM: BP4A.251205.006
+Device: peridot
+
+========================================
+BATTERY POWER_SUPPLY NODES
+========================================
+
+========================================
+BMS RELATED NODES
+========================================
+/sys/class/qcom-battery/max_life_temp = 48
+/sys/class/qcom-battery/afp_temp = 34
+/sys/class/qcom-battery/bq2597x_battery_temp = 0
+/sys/class/qcom-battery/fg1_fcc_soh = 99
+/sys/class/qcom-battery/fg1_current_max = 0
+/sys/class/qcom-battery/remove_temp_limit = 0
+/sys/class/qcom-battery/connector_temp2 = 330
+/sys/class/qcom-battery/fg1_temp_max = 0
+/sys/class/qcom-battery/connector_temp = 330
+/sys/class/qcom-battery/maxtemp_occurtime = 0
+/sys/class/qcom-battery/fg1_fcc = 1908000
+/sys/class/qcom-battery/fg2_temp_max = 48
+/sys/class/qcom-battery/maxtemptime = 0
+/sys/class/qcom-battery/average_temp = 415
+/sys/class/qcom-battery/thermal_board_temp = 0
+/sys/class/qcom-battery/fake_temp = 0
+/sys/class/qcom-battery/fg1_oritemp = 0
+/sys/devices/platform/soc/soc:qcom,pmic_glink/soc:qcom,pmic_glink:qcom,battery_charger/power_supply/battery/temp = 340
+/sys/devices/platform/soc/soc:qcom,pmic_glink/soc:qcom,pmic_glink:qcom,battery_charger/power_supply/battery/constant_charge_current = 6000000
+/sys/devices/platform/soc/soc:qcom,pmic_glink/soc:qcom,pmic_glink:qcom,battery_charger/power_supply/wireless/current_max = 0
+/sys/devices/platform/soc/soc:qcom,pmic_glink/soc:qcom,pmic_glink:qcom,battery_charger/power_supply/wireless/temp = 0
+/sys/devices/platform/soc/soc:qcom,pmic_glink/soc:qcom,pmic_glink:qcom,battery_charger/power_supply/usb/current_max = 0
+/sys/devices/platform/soc/soc:qcom,pmic_glink/soc:qcom,pmic_glink:qcom,battery_charger/power_supply/usb/temp = 330
+/sys/devices/platform/soc/soc:qcom,pmic_glink/soc:qcom,pmic_glink:qcom,ucsi/power_supply/ucsi-source-psy-soc:qcom,pmic_glink:qcom,ucsi1/current_max = 0
+
+========================================
+CHARGING CURRENT CONTROL NODES
+========================================
+/sys/class/qcom-battery/fg1_fcc_soh = 99
+/sys/class/qcom-battery/fg1_fcc = 1907000
+/sys/devices/platform/soc/c42d000.qcom,spmi/spmi-0/0-01/c42d000.qcom,spmi:qcom,pmxr2230@1:qcom,flash_led@ee00/leds/led:switch_0/max_current = 2000
+/sys/devices/platform/soc/c42d000.qcom,spmi/spmi-0/0-01/c42d000.qcom,spmi:qcom,pmxr2230@1:qcom,flash_led@ee00/leds/led:switch_1/max_current = 2000
+/sys/devices/platform/soc/c42d000.qcom,spmi/spmi-0/0-01/c42d000.qcom,spmi:qcom,pmxr2230@1:qcom,flash_led@ee00/leds/led:switch_2/max_current = 2000
+/sys/devices/platform/soc/soc:qcom,pmic_glink/soc:qcom,pmic_glink:qcom,battery_charger/power_supply/battery/constant_charge_current = 6000000
+/sys/devices/platform/soc/soc:qcom,pmic_glink/soc:qcom,pmic_glink:qcom,battery_charger/power_supply/wireless/input_current_limit = 0
+/sys/devices/platform/soc/soc:qcom,pmic_glink/soc:qcom,pmic_glink:qcom,battery_charger/power_supply/usb/input_current_limit = 0
+
+========================================
+THERMAL ZONES
+========================================
+/sys/class/thermal/thermal_zone0
+type=pmxr2230-bcl-lvl0
+temp=0
+
+/sys/class/thermal/thermal_zone1
+type=pmxr2230-bcl-lvl1
+temp=0
+
+/sys/class/thermal/thermal_zone10
+type=cpuss-0
+temp=48400
+
+/sys/class/thermal/thermal_zone11
+type=cpuss-1
+temp=48000
+
+/sys/class/thermal/thermal_zone12
+type=cpu-1-0-0
+temp=47600
+
+/sys/class/thermal/thermal_zone13
+type=cpu-1-0-1
+temp=46800
+
+/sys/class/thermal/thermal_zone14
+type=cpu-1-1-0
+temp=46000
+
+/sys/class/thermal/thermal_zone15
+type=cpu-1-1-1
+temp=46800
+
+/sys/class/thermal/thermal_zone16
+type=cpu-1-2-0
+temp=46000
+
+/sys/class/thermal/thermal_zone17
+type=cpu-1-2-1
+temp=45600
+
+/sys/class/thermal/thermal_zone18
+type=cpu-1-3-0
+temp=46400
+
+/sys/class/thermal/thermal_zone19
+type=cpu-1-3-1
+temp=46400
+
+/sys/class/thermal/thermal_zone2
+type=pmxr2230-bcl-lvl2
+temp=0
+
+/sys/class/thermal/thermal_zone20
+type=cpu-2-0-0
+temp=46800
+
+/sys/class/thermal/thermal_zone21
+type=cpu-2-0-1
+temp=46400
+
+/sys/class/thermal/thermal_zone22
+type=cpu-2-0-2
+temp=46000
+
+/sys/class/thermal/thermal_zone23
+type=aoss-1
+temp=44000
+
+/sys/class/thermal/thermal_zone24
+type=cpu-0-0-0
+temp=46400
+
+/sys/class/thermal/thermal_zone25
+type=cpu-0-1-0
+temp=46800
+
+/sys/class/thermal/thermal_zone26
+type=cpu-0-2-0
+temp=46000
+
+/sys/class/thermal/thermal_zone27
+type=nsphvx-0
+temp=43600
+
+/sys/class/thermal/thermal_zone28
+type=nsphvx-1
+temp=42000
+
+/sys/class/thermal/thermal_zone29
+type=nsphmx-0
+temp=42000
+
+/sys/class/thermal/thermal_zone3
+type=vbat
+temp=3786
+
+/sys/class/thermal/thermal_zone30
+type=nsphmx-1
+temp=42400
+
+/sys/class/thermal/thermal_zone31
+type=gpuss-0
+temp=41600
+
+/sys/class/thermal/thermal_zone32
+type=gpuss-1
+temp=40800
+
+/sys/class/thermal/thermal_zone33
+type=gpuss-2
+temp=42400
+
+/sys/class/thermal/thermal_zone34
+type=gpuss-3
+temp=41600
+
+/sys/class/thermal/thermal_zone35
+type=video
+temp=43200
+
+/sys/class/thermal/thermal_zone36
+type=ddr
+temp=43200
+
+/sys/class/thermal/thermal_zone37
+type=camera-0
+temp=42800
+
+/sys/class/thermal/thermal_zone38
+type=camera-1
+temp=41600
+
+/sys/class/thermal/thermal_zone39
+type=aoss-2
+temp=43000
+
+/sys/class/thermal/thermal_zone4
+type=pm7550ba-ibat-lvl0
+temp=281
+
+/sys/class/thermal/thermal_zone40
+type=mdmss-0
+temp=42200
+
+/sys/class/thermal/thermal_zone41
+type=mdmss-1
+temp=41800
+
+/sys/class/thermal/thermal_zone42
+type=mdmss-2
+temp=41000
+
+/sys/class/thermal/thermal_zone43
+type=mdmss-3
+temp=42200
+
+/sys/class/thermal/thermal_zone44
+type=socd
+temp=59
+
+/sys/class/thermal/thermal_zone45
+type=pmr735a_tz
+temp=37000
+
+/sys/class/thermal/thermal_zone46
+type=pm8010n_tz
+temp=37000
+
+/sys/class/thermal/thermal_zone47
+type=xo-therm
+temp=37466
+
+/sys/class/thermal/thermal_zone48
+type=cpu_therm
+temp=38820
+
+/sys/class/thermal/thermal_zone49
+type=quiet_therm
+temp=35703
+
+/sys/class/thermal/thermal_zone5
+type=pm7550ba-ibat-lvl1
+temp=375
+
+/sys/class/thermal/thermal_zone50
+type=pa_therm1
+temp=37568
+
+/sys/class/thermal/thermal_zone51
+type=pa_therm0
+temp=36399
+
+/sys/class/thermal/thermal_zone52
+type=flash_therm
+temp=36493
+
+/sys/class/thermal/thermal_zone53
+type=wifi_therm
+temp=39759
+
+/sys/class/thermal/thermal_zone54
+type=charger_therm0
+temp=38009
+
+/sys/class/thermal/thermal_zone55
+type=conn_therm
+temp=34744
+
+/sys/class/thermal/thermal_zone56
+type=pmxr2230_tz
+temp=42165
+
+/sys/class/thermal/thermal_zone57
+type=pm8550vs_c_tz
+temp=37338
+
+/sys/class/thermal/thermal_zone58
+type=pm8550ve_tz
+temp=39812
+
+/sys/class/thermal/thermal_zone59
+type=pm7550ba_tz
+temp=34261
+
+/sys/class/thermal/thermal_zone6
+type=pm7550ba-bcl-lvl0
+temp=0
+
+/sys/class/thermal/thermal_zone60
+type=battery
+temp=34400
+
+/sys/class/thermal/thermal_zone61
+type=usb
+temp=33000
+
+/sys/class/thermal/thermal_zone62
+type=wireless
+temp=0
+
+/sys/class/thermal/thermal_zone63
+type=sub1_modem_cfg
+temp=-273000
+
+/sys/class/thermal/thermal_zone64
+type=sub1_lte_cc
+temp=-273000
+
+/sys/class/thermal/thermal_zone65
+type=sub1_mcg_fr1_cc
+temp=-273000
+
+/sys/class/thermal/thermal_zone66
+type=sub1_mcg_fr2_cc
+temp=-273000
+
+/sys/class/thermal/thermal_zone67
+type=sub1_scg_fr1_cc
+temp=-273000
+
+/sys/class/thermal/thermal_zone68
+type=sub1_scg_fr2_cc
+temp=-273000
+
+/sys/class/thermal/thermal_zone69
+type=sdr0_pa
+temp=-273000
+
+/sys/class/thermal/thermal_zone7
+type=pm7550ba-bcl-lvl1
+temp=0
+
+/sys/class/thermal/thermal_zone70
+type=sdr0
+temp=-273000
+
+/sys/class/thermal/thermal_zone71
+type=mmw_ific0
+temp=-273000
+
+/sys/class/thermal/thermal_zone72
+type=mmw0
+temp=-273000
+
+/sys/class/thermal/thermal_zone73
+type=mmw1
+temp=-273000
+
+/sys/class/thermal/thermal_zone74
+type=mmw2
+temp=-273000
+
+/sys/class/thermal/thermal_zone8
+type=pm7550ba-bcl-lvl2
+temp=0
+
+/sys/class/thermal/thermal_zone9
+type=aoss-0
+temp=40800
+
+
+========================================
+POSSIBLE BATTERY TEMPERATURE SOURCES
+========================================
+/sys/class/thermal/thermal_zone49/type = quiet_therm
+/sys/class/thermal/thermal_zone49/temp = 35818
+/sys/class/thermal/thermal_zone54/type = charger_therm0
+/sys/class/thermal/thermal_zone54/temp = 37831
+/sys/class/thermal/thermal_zone60/type = battery
+/sys/class/thermal/thermal_zone60/temp = 34400
+
+========================================
+USB AND CHARGER NODES
+========================================
+
+========================================
+LIVE BATTERY SAMPLE (30 SECONDS)
+========================================
+18:16:29 temp=340 current_now=624000 voltage_now=3819000
+18:16:31 temp=340 current_now=352000 voltage_now=3816000
+18:16:32 temp=340 current_now=337000 voltage_now=3817000
+18:16:33 temp=340 current_now=327000 voltage_now=3820000
+18:16:34 temp=340 current_now=302000 voltage_now=3819000
+18:16:35 temp=340 current_now=381000 voltage_now=3823000
+18:16:36 temp=340 current_now=896000 voltage_now=3810000
+18:16:37 temp=340 current_now=654000 voltage_now=3801000
+18:16:38 temp=340 current_now=976000 voltage_now=3817000
+18:16:39 temp=340 current_now=674000 voltage_now=3807000
+18:16:41 temp=340 current_now=634000 voltage_now=3816000
+18:16:42 temp=340 current_now=396000 voltage_now=3816000
+18:16:43 temp=340 current_now=579000 voltage_now=3818000
+18:16:44 temp=340 current_now=584000 voltage_now=3815000
+18:16:45 temp=340 current_now=386000 voltage_now=3818000
+18:16:46 temp=340 current_now=406000 voltage_now=3817000
+18:16:47 temp=340 current_now=768000 voltage_now=3814000
+18:16:48 temp=340 current_now=381000 voltage_now=3815000
+18:16:49 temp=340 current_now=456000 voltage_now=3816000
+18:16:50 temp=340 current_now=763000 voltage_now=3818000
+18:16:51 temp=340 current_now=688000 voltage_now=3771000
+18:16:52 temp=340 current_now=525000 voltage_now=3813000
+18:16:53 temp=340 current_now=659000 voltage_now=3806000
+18:16:55 temp=340 current_now=753000 voltage_now=3805000
+18:16:56 temp=340 current_now=381000 voltage_now=3812000
+18:16:57 temp=340 current_now=282000 voltage_now=3818000
+18:16:58 temp=340 current_now=649000 voltage_now=3819000
+18:16:59 temp=340 current_now=525000 voltage_now=3805000
+18:17:00 temp=340 current_now=480000 voltage_now=3803000
+18:17:01 temp=340 current_now=555000 voltage_now=3807000
+
+========================================
+THERMALAI RELATED FILES
+========================================
+FILE: /data/adb/modules/meta-overlayfs/mnt/thermalai/system/bin/thermalair
+FILE: /data/adb/modules/thermalai/config/game_list.conf
+FILE: /data/adb/modules/thermalai/config/profiles.conf
+FILE: /data/adb/modules/thermalai/module.prop
+FILE: /data/adb/modules/thermalai/scripts/advanced_ai.sh
+FILE: /data/adb/modules/thermalai/scripts/charge_control.sh
+FILE: /data/adb/modules/thermalai/scripts/game_detector.sh
+FILE: /data/adb/modules/thermalai/scripts/game_tweaks.sh
+FILE: /data/adb/modules/thermalai/scripts/governor_tuner.sh
+FILE: /data/adb/modules/thermalai/scripts/logger.sh
+FILE: /data/adb/modules/thermalai/scripts/state_manager.sh
+FILE: /data/adb/modules/thermalai/scripts/thermal_ai.sh
+FILE: /data/adb/modules/thermalai/scripts/thermal_policy.sh
+FILE: /data/adb/modules/thermalai/service.sh
+FILE: /data/adb/modules/thermalai/system/bin/thermalair
+FILE: /data/adb/modules/thermalai/uninstall.sh
+
+Verification complete.
