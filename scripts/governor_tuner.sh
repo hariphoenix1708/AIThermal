@@ -169,6 +169,7 @@ apply_cluster_settings() {
         set_cpu_governor "$cpu_num" "$governor"
         set_cpu_freq_limits "$cpu_num" "$target_min" "$target_max"
         tune_walt "$cpu_num" "$walt_hispeed" "$walt_hsload" "$walt_up_us" "$walt_dn_us" ""
+        apply_universal_cpu_tuning "$cpu_num" "$governor"
     done
 
     log_debug "Cluster ${cluster_id} -> gov=${governor} ${target_min}-${target_max}kHz hs=${walt_hispeed}@${walt_hsload}%"
@@ -240,5 +241,32 @@ restore_stock_thermal() {
     # Restore GPU to full range
     set_gpu_power_levels 0 10
 
+    # Restore charging (if charge_control.sh is available)
+    if command -v restore_charging_control >/dev/null 2>&1; then
+        restore_charging_control
+    fi
+
     log_info "Stock thermal (mi_thermald) restored and freq limits reset"
+}
+
+# ─── Universal CPU Tuning Fallbacks ───────────────────────────────────────────
+# If WALT is not available (e.g., standard schedutil, interactive, or MediaTek)
+apply_universal_cpu_tuning() {
+    local cpu_num="$1"
+    local governor="$2"
+
+    local gov_path="/sys/devices/system/cpu/cpu${cpu_num}/cpufreq/scaling_governor"
+    echo "$governor" > "$gov_path" 2>/dev/null
+
+    # Try generic schedutil tuning if WALT is missing
+    local schedutil_path="/sys/devices/system/cpu/cpu${cpu_num}/cpufreq/schedutil"
+    if [ -d "$schedutil_path" ]; then
+        if [ "$governor" = "performance" ] || [ "$governor" = "walt" ]; then
+            sysfs_write 500 "$schedutil_path/up_rate_limit_us"
+            sysfs_write 20000 "$schedutil_path/down_rate_limit_us"
+        else
+            sysfs_write 2000 "$schedutil_path/up_rate_limit_us"
+            sysfs_write 5000 "$schedutil_path/down_rate_limit_us"
+        fi
+    fi
 }
