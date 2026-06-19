@@ -1,0 +1,818 @@
+=============================================================
+THERMALAI v2.3.0 — COMPLETE CHANGE ORDER FOR GPT
+=============================================================
+Project: ThermalAI Magisk/KernelSU Module
+Device:  POCO F6 (peridot) / Snapdragon 8s Gen 3 / AOSP Android 16 / GlaciumKernel
+Root:    KernelSU
+
+This document lists, in order of priority:
+  [BUG]         — confirmed bugs to fix
+  [IMPROVE]     — targeted improvements to existing logic
+  [FEATURE]     — new intelligent functionality to add
+
+Apply changes in the order listed. Each item contains the
+exact file(s) to modify and precise instructions.
+
+=============================================================
+SECTION 1 — BUG FIXES (apply first, highest priority)
+=============================================================
+
+---
+[BUG-1] state_manager.sh — restore_snapshot() overwrites path variables with values, then writes values to themselves
+FILE: scripts/state_manager.sh
+FUNCTION: restore_snapshot()
+
+PROBLEM:
+After `. "$SNAPSHOT_FILE"` is sourced, variables like $GPU_PWR_MIN
+now hold the numeric value read from the file (e.g., "6"), NOT the
+sysfs path. The next lines then do:
+  echo "$GPU_PWR_MIN" > "$GPU_PWR_MIN"   →  echo "6" > "6"
+This silently fails. GPU power levels are never actually restored.
+
+FIX:
+Replace the restore_snapshot() body with hardcoded sysfs paths for
+the GPU writes. Use the constant path strings directly instead of
+the variable names as destination paths:
+
+restore_snapshot() {
+    if [ -f "$SNAPSHOT_FILE" ]; then
+        log_info "Restoring full state snapshot..."
+        . "$SNAPSHOT_FILE"
+        echo "$CPU_GOV"              > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor 2>/dev/null
+        echo "$GPU_PWR_MIN_VAL"      > /sys/class/kgsl/kgsl-3d0/min_pwrlevel 2>/dev/null
+        echo "$GPU_PWR_MAX_VAL"      > /sys/class/kgsl/kgsl-3d0/max_pwrlevel 2>/dev/null
+        echo "$SWAPPINESS"           > /proc/sys/vm/swappiness 2>/dev/null
+        echo "$BATT_CURRENT_MAX_VAL" > /sys/class/power_supply/battery/constant_charge_current_max 2>/dev/null
+        log_info "Snapshot restored."
+    else
+        log_warn "No snapshot file found to restore."
+    fi
+}
+
+Also update take_snapshot() to write key names that do not collide
+with the path variable names:
+
+take_snapshot() {
+    log_info "Taking full state snapshot..."
+    echo "CPU_GOV=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor 2>/dev/null || echo 'schedutil')"         > "$SNAPSHOT_FILE"
+    echo "GPU_PWR_MIN_VAL=$(cat /sys/class/kgsl/kgsl-3d0/min_pwrlevel 2>/dev/null || echo '0')"                        >> "$SNAPSHOT_FILE"
+    echo "GPU_PWR_MAX_VAL=$(cat /sys/class/kgsl/kgsl-3d0/max_pwrlevel 2>/dev/null || echo '0')"                        >> "$SNAPSHOT_FILE"
+    echo "SWAPPINESS=$(cat /proc/sys/vm/swappiness 2>/dev/null || echo '100')"                                          >> "$SNAPSHOT_FILE"
+    echo "BATT_CURRENT_MAX_VAL=$(cat /sys/class/power_supply/battery/constant_charge_current_max 2>/dev/null || echo '5000000')" >> "$SNAPSHOT_FILE"
+    log_debug "Snapshot taken."
+}
+
+---
+[BUG-2] system/bin/thermalair — $mem_score and $stut_score are never defined
+FILE: system/bin/thermalair
+FUNCTION: cmd_status()
+
+PROBLEM:
+Lines:
+  echo "  Mem Pressur : $mem_score"
+  echo "  Stutter Idx : $stut_score"
+Both variables are undefined anywhere in the CLI or sourced scripts.
+They always print empty strings.
+
+FIX:
+Replace those two lines with live computed values:
+
+    local mem_free
+    mem_free=$(awk '/MemAvailable/{printf "%d", $2/1024}' /proc/meminfo 2>/dev/null || echo "?")
+    local mem_total
+    mem_total=$(awk '/MemTotal/{printf "%d", $2/1024}' /proc/meminfo 2>/dev/null || echo "?")
+    local mem_used=$((mem_total - mem_free))
+    local mem_pct=0
+    [ "$mem_total" -gt 0 ] 2>/dev/null && mem_pct=$((mem_used * 100 / mem_total))
+    echo "  Mem Pressure: ${mem_used}MB used / ${mem_total}MB total (${mem_pct}%)"
+    echo "  Stutter Idx : (use 'thermalair logs' — live stutter tracking coming in v2.4)"
+
+---
+[BUG-3] system/bin/thermalair — Blacklist block is inside the wrong branch of an if/else
+FILE: system/bin/thermalair
+FUNCTION: cmd_status()
+
+PROBLEM:
+The blacklist count check is inside the else branch of:
+  if [ -f "$STATE_FILE" ]; then
+      echo "  Game Tweaks : ACTIVE"
+  else
+      echo "  Game Tweaks : INACTIVE"
+      # Blacklist code is here  <-- WRONG
+  fi
+Blacklist status only displays when gaming tweaks are INACTIVE.
+When tweaks are ACTIVE, blacklist is silently skipped.
+
+FIX:
+Move the blacklist block outside and after the fi:
+
+    if [ -f "/data/local/tmp/thermalai.gaming_tweaks_state" ]; then
+        echo "  Game Tweaks : ACTIVE (Net/Touch Boosted)"
+    else
+        echo "  Game Tweaks : INACTIVE"
+    fi
+    local blacklist_count
+    blacklist_count=$(ls /data/local/tmp/thermalai.blacklist/*.blacklisted 2>/dev/null | wc -l)
+    if [ "$blacklist_count" -gt 0 ]; then
+        echo "  Blacklist   : ACTIVE ($blacklist_count nodes)"
+    else
+        echo "  Blacklist   : CLEAN"
+    fi
+
+---
+[BUG-4] thermal_ai.sh — Watchdog condition is effectively always false after init
+FILE: scripts/thermal_ai.sh
+FUNCTION: main_loop()
+
+PROBLEM:
+Current watchdog code:
+  if [ "$temp" -eq 45 ] && [ -z "$ACTIVE_ZONES" ]; then
+ACTIVE_ZONES is populated by init_thermal_zones() at startup and
+is never cleared. So the second condition [ -z "$ACTIVE_ZONES" ]
+is always false after init, meaning the watchdog never triggers
+even when sensors genuinely fail (get_composite_temp returns 45
+as a hardcoded fallback).
+
+FIX:
+Track a dedicated sentinel flag instead. In get_composite_temp(),
+set a flag when the fallback value is returned:
+
+get_composite_temp() {
+    local tw=0 wt=0
+    for entry in $ACTIVE_ZONES; do
+        local zid="${entry%%:*}" w="${entry##*:}"
+        local t
+        t=$(cat "/sys/class/thermal/thermal_zone${zid}/temp" 2>/dev/null) || continue
+        [ "$t" -gt 1000 ] 2>/dev/null && t=$((t/1000))
+        [ "$t" -lt 0 ] 2>/dev/null && continue
+        [ "$t" -gt 120 ] 2>/dev/null && continue
+        tw=$((tw + t*w)); wt=$((wt + w))
+    done
+    if [ "$wt" -eq 0 ]; then
+        TEMP_READ_FAILED=true
+        echo "45"
+        return
+    fi
+    TEMP_READ_FAILED=false
+    echo $((tw/wt))
+}
+
+Then in main_loop(), replace the watchdog check with:
+
+        if $TEMP_READ_FAILED; then
+            WATCHDOG_FAILURES=$((WATCHDOG_FAILURES + 1))
+        else
+            WATCHDOG_FAILURES=0
+        fi
+
+Also add at the top of main_loop(), before the while loop:
+  TEMP_READ_FAILED=false
+
+---
+[BUG-5] game_tweaks.sh — check_network_quality() pings 8.8.8.8 — blocks on no internet
+FILE: scripts/game_tweaks.sh
+FUNCTION: check_network_quality()
+
+PROBLEM:
+  local ping_result=$(ping -c 1 -W 1 8.8.8.8 2>/dev/null)
+This blocks for up to 1 second on every gaming transition.
+Fails silently on: airplane mode, ICMP-blocking networks, mobile
+data with high latency, and offline LAN-only setups.
+
+FIX:
+Replace the entire check_network_quality() function with an
+operstate-based check that is instant and requires no internet:
+
+check_network_quality() {
+    # Check if any network interface is up — no internet required
+    local iface state
+    for iface in wlan0 rmnet_data0 rmnet_data1 ccmni0; do
+        state=$(cat "/sys/class/net/${iface}/operstate" 2>/dev/null)
+        if [ "$state" = "up" ]; then
+            log_debug "Network up via $iface"
+            return 0
+        fi
+    done
+    log_debug "No active network interface found — skipping network tweaks"
+    return 1
+}
+
+---
+[BUG-6] config/profiles.conf — GPU_GAMING_THRESHOLD defined twice with different values
+FILE: config/profiles.conf
+
+PROBLEM:
+Line ~19:  GPU_GAMING_THRESHOLD=60
+Line ~46:  GPU_GAMING_THRESHOLD=20
+The second (20%) silently wins. Any user editing the first entry
+(60%) will see no effect and be confused.
+
+FIX:
+Remove the first definition (GPU_GAMING_THRESHOLD=60) completely.
+Keep only the second definition (GPU_GAMING_THRESHOLD=20) in the
+"Game Detection (v2.0)" section with its comment explaining why
+it is set to 20%.
+
+---
+[BUG-7] system/bin/thermalair — cmd_gaming() calls undefined functions
+FILE: system/bin/thermalair
+FUNCTION: cmd_gaming()
+
+PROBLEM:
+  pkg=$(get_foreground_package)
+  rt=$(has_render_thread "$pkg")
+Both functions were removed in v3.0 when detection was rearchitected
+to the oom_score_adj pipeline. They do not exist anywhere in the
+sourced scripts. The cmd_gaming output always shows empty strings
+for Foreground package and Has RenderThread.
+
+FIX:
+Rewrite cmd_gaming() to use the functions that actually exist:
+
+cmd_gaming() {
+    discover_cpu_topology 2>/dev/null
+
+    # Run a full detection pass to populate internal state
+    local game
+    game=$(detect_gaming_context)
+
+    # After detection, _CONFIRMED_GAME_PKG is populated
+    local pkg
+    pkg=$(get_current_game)
+
+    local gpu
+    gpu=$(get_gpu_load)
+
+    echo "Gaming detected    : $game"
+    echo "Confirmed package  : ${pkg:-<none detected>}"
+    echo "Known game pkg     : $(is_known_game_package "${pkg:-}")"
+    echo "GPU load           : ${gpu}%"
+    echo ""
+    echo "Detection method hint:"
+    echo "  Run 'thermalair logs 30' and grep for 'Gaming confirmed' to see which layer fired."
+}
+
+---
+[BUG-8] scripts/thermal_ai.sh — Self-calibration shift is in-memory only, resets on every reboot
+FILE: scripts/thermal_ai.sh
+FUNCTION: perform_self_calibration()
+
+PROBLEM:
+When the calibration counter reaches 60, thresholds are shifted
+-2 degrees C in memory. The calibration file is reset to 0. On
+the next reboot, the module starts fresh at base thresholds with
+no memory that the device had been running hot. The README
+describes this as learning behavior but it does not persist.
+
+FIX:
+Persist the active threshold offset in a separate offset file so
+it survives reboots. Cap at -6 degrees C total (3 calibration events).
+
+Add near the top of thermal_ai.sh:
+  CALIBRATION_OFFSET_FILE="/data/local/tmp/thermalai.calibration_offset"
+
+In perform_self_calibration(), after counting reaches 60,
+replace the in-memory-only shift with:
+
+                # Read existing offset (cap at -6 degrees C total shift)
+                local current_offset
+                current_offset=$(cat "$CALIBRATION_OFFSET_FILE" 2>/dev/null || echo "0")
+                if [ "$current_offset" -gt -6 ]; then
+                    local new_offset=$((current_offset - 2))
+                    echo "$new_offset" > "$CALIBRATION_OFFSET_FILE"
+                    log_warn "Self-Calibration: Persistent offset now ${new_offset} degrees C"
+                fi
+                # Apply in memory too
+                TEMP_COOL=$((BASE_TEMP_COOL + new_offset))
+                TEMP_WARM=$((BASE_TEMP_WARM + new_offset))
+                TEMP_HOT=$((BASE_TEMP_HOT + new_offset))
+                TEMP_POWERSAVE=$((BASE_TEMP_POWERSAVE + new_offset))
+                TEMP_CRITICAL=$((BASE_TEMP_CRITICAL + new_offset))
+                echo "0" > "$CALIBRATION_FILE"
+
+On daemon startup in main_loop(), after init_thermal_zones(),
+add the following block to load and apply the saved offset:
+
+    local saved_offset
+    saved_offset=$(cat "$CALIBRATION_OFFSET_FILE" 2>/dev/null || echo "0")
+    if [ "$saved_offset" -lt 0 ]; then
+        TEMP_COOL=$((BASE_TEMP_COOL + saved_offset))
+        TEMP_WARM=$((BASE_TEMP_WARM + saved_offset))
+        TEMP_HOT=$((BASE_TEMP_HOT + saved_offset))
+        TEMP_POWERSAVE=$((BASE_TEMP_POWERSAVE + saved_offset))
+        TEMP_CRITICAL=$((BASE_TEMP_CRITICAL + saved_offset))
+        log_info "Self-Calibration: Restored persistent offset of ${saved_offset} degrees C"
+    fi
+
+NOTE: A CLI reset command for this is added in FEATURE-7 below.
+
+=============================================================
+SECTION 2 — TARGETED IMPROVEMENTS TO EXISTING LOGIC
+=============================================================
+
+---
+[IMPROVE-1] All scripts — sysfs_write() is called everywhere but never defined
+FILE: scripts/logger.sh (add definition here — sourced by all scripts)
+
+PROBLEM:
+sysfs_write is called dozens of times across thermal_policy.sh,
+charge_control.sh, and game_tweaks.sh. It is never defined anywhere
+in the module. On any kernel where Magisk/KernelSU does not inject
+it globally, ALL policy enforcement silently fails with no error.
+
+FIX:
+Add this function to the bottom of scripts/logger.sh:
+
+# Safe sysfs write — checks writability before writing, logs on failure
+sysfs_write() {
+    local value="$1"
+    local path="$2"
+    if [ -w "$path" ]; then
+        echo "$value" > "$path" 2>/dev/null
+    else
+        log_debug "sysfs_write: not writable: $path"
+    fi
+}
+
+---
+[IMPROVE-2] thermal_ai.sh — Per-tick AI score log line floods INFO level
+FILE: scripts/thermal_ai.sh
+FUNCTION: ai_decide_policy()
+
+PROBLEM:
+The full AI score breakdown is logged at INFO on every poll cycle
+(every 1-2 seconds during gaming). At 60+ lines/minute and a 200-
+line rotation buffer, the log only retains ~3 minutes of history.
+This makes post-session debugging nearly impossible.
+
+FIX:
+Change the per-tick AI log line from log_info to log_debug.
+Add a separate log_info only when the policy actually changes.
+
+In ai_decide_policy(), change:
+    log_info "AI: cur=${cur}..."
+to:
+    log_debug "AI: cur=${cur}..."
+
+In main_loop(), where the policy change is detected, update to:
+
+        if [ "$new_policy" != "$CURRENT_POLICY" ]; then
+            log_info "Policy change: ${CURRENT_POLICY} -> ${new_policy} | temp=${temp}C gpu=${gpu}% gaming=${gaming}"
+            apply_thermal_policy "$new_policy" "$gaming" "$temp"
+            CURRENT_POLICY="$new_policy"
+            LAST_POLICY_CHANGE=$(date +%s)
+        fi
+
+---
+[IMPROVE-3] thermal_ai.sh — Adaptive poll interval based on thermal rate of change
+FILE: scripts/thermal_ai.sh
+FUNCTION: main_loop() — sleep section at the bottom of the while loop
+
+PROBLEM:
+Poll interval is binary: 1s gaming, 2s non-gaming, 4s screen-off.
+During a stable thermal plateau the 1s gaming poll wastes CPU.
+During a rapid rise the 2s non-gaming poll is too slow to react.
+
+FIX:
+Replace the fixed sleep block at the end of main_loop() with:
+
+        # Adaptive polling: tighten when temp is rising fast, relax when stable
+        local poll_sleep
+        if [ "$screen_state" = "off" ]; then
+            poll_sleep=$((POLL_INTERVAL * 2))
+        elif $gaming || [ "$gpu" -ge "$GPU_GAMING_THRESHOLD" ]; then
+            if [ "$slope" -gt 15 ]; then
+                poll_sleep=0  # Spike — poll immediately next cycle
+            elif [ "$slope" -gt 8 ]; then
+                poll_sleep=1  # Fast rise — 1s
+            else
+                poll_sleep="$GAME_POLL_INTERVAL"  # Normal gaming
+            fi
+        else
+            if [ "$slope" -lt 2 ] && [ "$slope" -gt -2 ]; then
+                poll_sleep=$((POLL_INTERVAL * 2))  # Stable — relax to 4s
+            else
+                poll_sleep="$POLL_INTERVAL"
+            fi
+        fi
+        [ "$poll_sleep" -gt 0 ] && sleep "$poll_sleep"
+
+---
+[IMPROVE-4] thermal_ai.sh — GPU zone weight should scale with actual GPU load
+FILE: scripts/thermal_ai.sh
+FUNCTION: get_composite_temp()
+
+PROBLEM:
+gpuss-* zones always have weight 9 (just below cpuss). During
+screen-off or light CPU work with idle GPU, gpuss readings still
+drive the composite temp. This inflates the AI score unnecessarily
+when the GPU is not contributing heat.
+
+FIX:
+In get_composite_temp(), read current GPU load once and dynamically
+scale the gpuss zone weight before computing the weighted average:
+
+get_composite_temp() {
+    local tw=0 wt=0
+    local gpu_load
+    gpu_load=$(get_gpu_load)
+    for entry in $ACTIVE_ZONES; do
+        local zid="${entry%%:*}" w="${entry##*:}"
+        local ztype
+        ztype=$(cat "/sys/class/thermal/thermal_zone${zid}/type" 2>/dev/null)
+        # Scale GPU zone weight by actual GPU activity
+        case "$ztype" in
+            gpuss-*)
+                w=$((w * gpu_load / 100))
+                [ "$w" -lt 1 ] && w=1  # never fully zero
+                ;;
+        esac
+        local t
+        t=$(cat "/sys/class/thermal/thermal_zone${zid}/temp" 2>/dev/null) || continue
+        [ "$t" -gt 1000 ] 2>/dev/null && t=$((t/1000))
+        [ "$t" -lt 0 ] 2>/dev/null && continue
+        [ "$t" -gt 120 ] 2>/dev/null && continue
+        tw=$((tw + t*w)); wt=$((wt + w))
+    done
+    if [ "$wt" -eq 0 ]; then
+        TEMP_READ_FAILED=true; echo "45"; return
+    fi
+    TEMP_READ_FAILED=false
+    echo $((tw/wt))
+}
+
+---
+[IMPROVE-5] advanced_ai.sh — Per-game profile should pre-apply modifier on first session launch
+FILE: scripts/advanced_ai.sh
+FUNCTIONS: update_game_profile(), get_game_profile_modifier()
+
+PROBLEM:
+The per-game modifier (-10 for historically hot games) only applies
+after a previous session has been recorded. On the first launch of
+a known-hot game the module starts in default state and ramps up
+reactively. Hot games should be treated conservatively from second one.
+
+FIX:
+Store a KNOWN_HOT flag in the profile file after any session where
+the game hit above 46 degrees C. Read and apply it at session start.
+
+Replace update_game_profile() with:
+
+update_game_profile() {
+    local game_pkg="$1"
+    local current_temp="$2"
+    local profile_file="$GAME_PROFILES_DIR/$game_pkg.conf"
+    [ -f "$profile_file" ] || return
+
+    local max_temp
+    max_temp=$(grep "^MAX_TEMP=" "$profile_file" | cut -d= -f2)
+    if [ "$current_temp" -gt "${max_temp:-0}" ]; then
+        sed -i "s/^MAX_TEMP=.*/MAX_TEMP=$current_temp/" "$profile_file"
+        max_temp="$current_temp"
+    fi
+
+    # Mark as known-hot if it has ever hit 46 degrees C
+    if [ "$max_temp" -gt 46 ]; then
+        grep -q "^KNOWN_HOT=" "$profile_file" \
+            && sed -i "s/^KNOWN_HOT=.*/KNOWN_HOT=true/" "$profile_file" \
+            || echo "KNOWN_HOT=true" >> "$profile_file"
+    fi
+}
+
+Replace get_game_profile_modifier() with:
+
+get_game_profile_modifier() {
+    local game_pkg="$1"
+    local profile_file="$GAME_PROFILES_DIR/$game_pkg.conf"
+    local modifier=0
+    [ -f "$profile_file" ] || { echo "0"; return; }
+
+    local known_hot
+    known_hot=$(grep "^KNOWN_HOT=" "$profile_file" | cut -d= -f2)
+    [ "$known_hot" = "true" ] && modifier=$((modifier - 12))
+
+    local start_time
+    start_time=$(grep "^SESSION_START=" "$profile_file" | cut -d= -f2)
+    if [ -n "$start_time" ]; then
+        local duration=$(( $(date +%s) - start_time ))
+        [ "$duration" -gt 1800 ] && modifier=$((modifier - 5))   # 30+ min penalty
+        [ "$duration" -gt 3600 ] && modifier=$((modifier - 5))   # 60+ min penalty
+    fi
+
+    echo "$modifier"
+}
+
+=============================================================
+SECTION 3 — NEW INTELLIGENT FEATURES TO ADD
+=============================================================
+
+---
+[FEATURE-1] Game Exit Cool-Down Sub-Policy
+FILES: scripts/thermal_ai.sh
+
+DESCRIPTION:
+When the gaming latch expires and gaming=false is confirmed, the
+SoC is still thermally saturated. Snapping directly from
+conservative/powersave gaming back to balanced or performance
+causes an immediate heat spike. Add a mandatory 90-second cool-down
+period after every gaming session ends, during which the policy is
+held at "balanced" regardless of AI score.
+
+IMPLEMENTATION:
+Add state variables near the top of thermal_ai.sh (with other state vars):
+
+  GAME_EXIT_COOLDOWN_UNTIL=0
+  LAST_GAMING_STATE=false
+
+In main_loop(), add the following block immediately after
+detect_gaming_context() sets the $gaming variable:
+
+        # Detect gaming->non-gaming transition
+        if $LAST_GAMING_STATE && ! $gaming; then
+            GAME_EXIT_COOLDOWN_UNTIL=$(( $(date +%s) + 90 ))
+            log_info "Game session ended — 90s cool-down started"
+        fi
+        LAST_GAMING_STATE="$gaming"
+
+Then add a cool-down override block immediately after new_policy
+is determined by ai_decide_policy() (but before apply_thermal_policy):
+
+        # Cool-down override — hold balanced after game exits
+        local now_ts
+        now_ts=$(date +%s)
+        if [ "$now_ts" -lt "$GAME_EXIT_COOLDOWN_UNTIL" ]; then
+            local remaining=$((GAME_EXIT_COOLDOWN_UNTIL - now_ts))
+            log_debug "Cool-down active: ${remaining}s remaining — holding balanced"
+            new_policy="balanced"
+        fi
+
+---
+[FEATURE-2] Gaming + Charging Compound Heat Guard
+FILE: scripts/charge_control.sh
+FUNCTION: apply_charging_control()
+
+DESCRIPTION:
+When gaming AND charging are detected simultaneously, the compound
+heat of game CPU/GPU load + fast-charging current causes sustained
+temps above 45 degrees C. Add a proactive guard that hard-caps
+charge current to 1000mA (1A) for the entire gaming session,
+regardless of battery temperature. This is proactive, not reactive.
+
+IMPLEMENTATION:
+Update the function signature to accept a third argument (is_gaming):
+  apply_charging_control() {
+      local policy="$1"
+      local soc_temp="$2"
+      local is_gaming="${3:-false}"
+
+Add the following block at the very top of apply_charging_control(),
+before any existing checks:
+
+    # Compound guard: gaming + actively charging = proactive 1A cap
+    local plugged
+    plugged=$(cat /sys/class/power_supply/battery/status 2>/dev/null)
+    if $is_gaming && [ "$plugged" = "Charging" ]; then
+        log_info "Compound guard: gaming+charging — capping charge at 1A"
+        sysfs_write "1000000" "$BATT_CURRENT_MAX"
+        apply_universal_charging_control "1000000"
+        return 0
+    fi
+
+Update the call site in thermal_policy.sh inside apply_thermal_policy():
+  apply_charging_control "$policy" "$temp" "$is_gaming"
+
+---
+[FEATURE-3] Frame Stutter / Jank Detection via schedstat
+FILE: scripts/advanced_ai.sh (add new function)
+FILE: scripts/thermal_ai.sh (call from main_loop)
+
+DESCRIPTION:
+Read /proc/<game_pid>/schedstat to detect CPU scheduling delays on
+the game's main thread. High wait time = threads queued but not
+scheduled = visible jank. If stutter is detected while the policy
+is "balanced", temporarily boost to "conservative" gaming mode
+to give BIG/PRIME exclusive access to the game threads.
+
+IMPLEMENTATION:
+Add to scripts/advanced_ai.sh:
+
+detect_frame_stutter() {
+    local game_pkg="$1"
+    [ -z "$game_pkg" ] && echo "false" && return
+
+    # Find PID of the game process
+    local game_pid=""
+    for pid_cmdline in /proc/[0-9]*/cmdline; do
+        local pid="${pid_cmdline%/cmdline}"
+        pid="${pid##*/proc/}"
+        local pkg
+        pkg=$(cat "$pid_cmdline" 2>/dev/null | tr '\0' '\n' | head -1)
+        [ "$pkg" = "$game_pkg" ] && game_pid="$pid" && break
+    done
+    [ -z "$game_pid" ] && echo "false" && return
+
+    # schedstat field 2 = total wait time in nanoseconds
+    local wait_ns
+    wait_ns=$(awk '{print $2}' /proc/$game_pid/schedstat 2>/dev/null || echo "0")
+
+    # Threshold: >50ms accumulated wait this tick = scheduling starvation
+    if [ "$wait_ns" -gt 50000000 ]; then
+        log_debug "Stutter detected: game=$game_pkg wait=${wait_ns}ns"
+        echo "true"
+        return
+    fi
+    echo "false"
+}
+
+Add to main_loop() in thermal_ai.sh, after new_policy is set
+and after the cool-down override block:
+
+        # Stutter override: jank during balanced -> force conservative gaming
+        if $gaming && [ "$new_policy" = "balanced" ]; then
+            local game_pkg
+            game_pkg=$(get_current_game)
+            local stutter
+            stutter=$(detect_frame_stutter "$game_pkg")
+            if $stutter; then
+                log_info "Stutter override: balanced -> conservative (jank detected)"
+                new_policy="conservative"
+            fi
+        fi
+
+---
+[FEATURE-4] Ambient Temperature Context Weight
+FILE: scripts/advanced_ai.sh
+FUNCTION: get_context_score()
+
+DESCRIPTION:
+High ambient/room temperature severely limits passive cooling on the
+POCO F6. The device has an IIO ambient temperature sensor. Read it
+and apply a pre-emptive negative score modifier so the AI enters
+conservative mode sooner in hot environments (e.g., outdoor summer
+gaming, hot car, direct sunlight).
+
+IMPLEMENTATION:
+In get_context_score(), add the following block after the existing
+brightness check section:
+
+    # Ambient temperature from IIO sensor (peridot has this sensor)
+    local ambient_temp=0
+    local iio_path
+    for iio_path in /sys/bus/iio/devices/iio:device*/in_temp_input; do
+        [ -f "$iio_path" ] || continue
+        ambient_temp=$(cat "$iio_path" 2>/dev/null | awk '{printf "%d", $1/1000}')
+        break
+    done
+    if [ "$ambient_temp" -gt 35 ]; then
+        context_score=$((context_score - 20))
+        log_debug "Ambient temp=${ambient_temp}C — heavy penalty applied"
+    elif [ "$ambient_temp" -gt 32 ]; then
+        context_score=$((context_score - 10))
+        log_debug "Ambient temp=${ambient_temp}C — moderate penalty applied"
+    fi
+
+---
+[FEATURE-5] thermalair history — Post-session temperature timeline
+FILE: system/bin/thermalair
+
+DESCRIPTION:
+Add a new CLI subcommand "thermalair history [N]" that parses the
+log file and prints a compact timeline of the last N policy changes,
+with timestamp, temp, GPU load, and gaming state. Allows debugging
+of gaming sessions after the fact without real-time ADB.
+
+IMPLEMENTATION:
+Add new function to system/bin/thermalair:
+
+cmd_history() {
+    local n="${1:-30}"
+    echo "── ThermalAI Session History (last $n policy changes) ──"
+    printf "  %-19s  %-6s  %-4s  %-12s  %s\n" "Time" "Temp" "GPU" "Gaming" "Policy"
+    echo "  ─────────────────────────────────────────────────────────────"
+    grep "Policy change:" "$LOG_FILE" 2>/dev/null | tail -n "$n" | while IFS= read -r line; do
+        local ts cur gpu gaming policy
+        ts=$(echo "$line"   | grep -o '\[.*\]' | head -1 | tr -d '[]')
+        cur=$(echo "$line"  | grep -o 'temp=[0-9]*'    | cut -d= -f2)
+        gpu=$(echo "$line"  | grep -o 'gpu=[0-9]*'     | cut -d= -f2)
+        gaming=$(echo "$line" | grep -o 'gaming=[a-z]*' | cut -d= -f2)
+        policy=$(echo "$line" | grep -o '-> .*'         | sed 's/-> //')
+        printf "  %-19s  %-6s  %-4s  %-12s  %s\n" "$ts" "${cur}C" "${gpu}%" "$gaming" "$policy"
+    done
+    echo ""
+    echo "  Tip: run 'thermalair logs' for full verbose output."
+}
+
+Add to the dispatch case block:
+    history) cmd_history "${2:-30}" ;;
+
+Update the usage string to include history:
+    echo "Usage: thermalair [status|temps|logs [N]|history [N]|gaming|stop|start|restart|policy <name>|calibrate reset]"
+
+---
+[FEATURE-6] Property-Based Policy Override via setprop
+FILE: scripts/thermal_ai.sh
+FUNCTION: main_loop()
+
+DESCRIPTION:
+Allow forcing a policy remotely from Tasker, ADB, shell scripts,
+or automated test harnesses without needing the CLI binary in PATH:
+  adb shell setprop thermalai.force_policy conservative
+The daemon reads this Android system property on each poll cycle,
+applies the policy if set, then clears it so it only fires once.
+
+IMPLEMENTATION:
+At the very top of the while loop in main_loop(), before the temp
+read, add:
+
+        # Property-based override (Tasker / ADB / automation)
+        local forced_policy
+        forced_policy=$(getprop thermalai.force_policy 2>/dev/null)
+        if [ -n "$forced_policy" ] && [ "$forced_policy" != "none" ]; then
+            case "$forced_policy" in
+                performance|balanced|conservative|powersave|emergency_cool)
+                    log_info "Property override: thermalai.force_policy=$forced_policy"
+                    apply_thermal_policy "$forced_policy" "$gaming" "$temp"
+                    CURRENT_POLICY="$forced_policy"
+                    LAST_POLICY_CHANGE=$(date +%s)
+                    setprop thermalai.force_policy "none" 2>/dev/null
+                    ;;
+                *)
+                    log_warn "Invalid thermalai.force_policy value: $forced_policy"
+                    setprop thermalai.force_policy "none" 2>/dev/null
+                    ;;
+            esac
+        fi
+
+---
+[FEATURE-7] thermalair calibrate — CLI command for calibration management
+FILE: system/bin/thermalair
+
+DESCRIPTION:
+Expose the persistent calibration system (added in BUG-8) through
+a CLI subcommand. Allows users to check current offset and reset
+calibration data without editing files manually.
+
+IMPLEMENTATION:
+Add new function to system/bin/thermalair:
+
+cmd_calibrate() {
+    local subcmd="${1:-status}"
+    case "$subcmd" in
+        reset)
+            rm -f /data/local/tmp/thermalai.calibration
+            rm -f /data/local/tmp/thermalai.calibration_offset
+            echo "Calibration data cleared."
+            echo "Thresholds will reset to base values on next daemon start."
+            ;;
+        status)
+            local offset
+            offset=$(cat /data/local/tmp/thermalai.calibration_offset 2>/dev/null || echo "0")
+            local counter
+            counter=$(cat /data/local/tmp/thermalai.calibration 2>/dev/null || echo "0")
+            echo "Calibration offset : ${offset} degrees C (max allowed: -6)"
+            echo "Hot-tick counter   : $counter / 60"
+            ;;
+        *)
+            echo "Usage: thermalair calibrate [status|reset]"
+            ;;
+    esac
+}
+
+Add to the dispatch case block:
+    calibrate) cmd_calibrate "$2" ;;
+
+=============================================================
+SUMMARY — APPLY IN THIS ORDER
+=============================================================
+
+Priority 1 — Critical Bugs (broken / silent failures):
+  BUG-1     scripts/state_manager.sh    restore_snapshot variable collision — GPU never restored
+  BUG-4     scripts/thermal_ai.sh       watchdog never fires after init
+  BUG-7     system/bin/thermalair       cmd_gaming() calls undefined functions
+  IMPROVE-1 scripts/logger.sh           sysfs_write() missing — all policy writes silently fail
+
+Priority 2 — Visible Bugs (wrong output):
+  BUG-2  system/bin/thermalair    $mem_score / $stut_score undefined — always blank
+  BUG-3  system/bin/thermalair    blacklist block inside wrong if/else branch
+  BUG-5  scripts/game_tweaks.sh   ping-based network check blocks on no internet
+  BUG-6  config/profiles.conf     GPU_GAMING_THRESHOLD defined twice — first entry silently ignored
+
+Priority 3 — Behavioral Improvements:
+  BUG-8     scripts/thermal_ai.sh   persist calibration offset across reboots
+  IMPROVE-2 scripts/thermal_ai.sh   move per-tick AI score log from INFO to DEBUG
+  IMPROVE-3 scripts/thermal_ai.sh   adaptive poll interval based on slope
+  IMPROVE-4 scripts/thermal_ai.sh   dynamic GPU zone weight scaling
+  IMPROVE-5 scripts/advanced_ai.sh  per-game KNOWN_HOT flag for pre-session modifier
+
+Priority 4 — New Features:
+  FEATURE-1 scripts/thermal_ai.sh      game exit 90-second cool-down sub-policy
+  FEATURE-2 scripts/charge_control.sh  gaming+charging compound heat guard (proactive 1A cap)
+  FEATURE-3 scripts/advanced_ai.sh     frame stutter detection via schedstat
+  FEATURE-4 scripts/advanced_ai.sh     ambient/room temperature IIO context weight
+  FEATURE-5 system/bin/thermalair      thermalair history [N] command
+  FEATURE-6 scripts/thermal_ai.sh      setprop thermalai.force_policy override
+  FEATURE-7 system/bin/thermalair      thermalair calibrate [status|reset] command
+
+=============================================================
+END OF CHANGE ORDER
+=============================================================

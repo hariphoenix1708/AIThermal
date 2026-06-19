@@ -236,11 +236,11 @@ _constrain_background_to_little() {
     local little_cpu_range="0-2"  # peridot LITTLE cluster range
 
     if [ -w "/dev/cpuset/background/cpus" ]; then
-        echo "$little_cpu_range" > /dev/cpuset/background/cpus 2>/dev/null
+        sysfs_write "$little_cpu_range" "/dev/cpuset/background/cpus"
         log_debug "Background cpuset constrained to $little_cpu_range"
     fi
     if [ -w "/dev/cpuset/system-background/cpus" ]; then
-        echo "$little_cpu_range" > /dev/cpuset/system-background/cpus 2>/dev/null
+        sysfs_write "$little_cpu_range" "/dev/cpuset/system-background/cpus"
     fi
 }
 
@@ -329,7 +329,7 @@ _apply_io_scheduler() {
 
     for block in /sys/block/sda /sys/block/sdb; do
         local sched_path="$block/queue/scheduler"
-        [ -w "$sched_path" ] && echo "$scheduler" > "$sched_path" 2>/dev/null || true
+        [ -w "$sched_path" ] && sysfs_write "$scheduler" "$sched_path" || true
     done
     log_debug "I/O scheduler -> $scheduler"
 }
