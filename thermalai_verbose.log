@@ -1,0 +1,705 @@
+[2026-06-20 06:07:49] [INFO] ════════════════════════════════════════
+[2026-06-20 06:07:49] [INFO]  ThermalAI boot service starting
+[2026-06-20 06:07:49] [INFO]  Device  : 24069PC21I (peridot)
+[2026-06-20 06:07:49] [INFO]  ROM     : BP4A.251205.006
+[2026-06-20 06:07:49] [INFO]  Android : 16
+[2026-06-20 06:07:49] [INFO]  SoC     : pineapple
+[2026-06-20 06:07:49] [INFO]  KSU     : ksud 3.2.0
+[2026-06-20 06:07:50] [INFO] ════════════════════════════════════════
+[2026-06-20 06:07:50] [DEBUG] Discovering CPU topology (pineapple/peridot)...
+[2026-06-20 06:07:50] [INFO] Cluster 0 (LITTLE): CPUs=0 1 2  max=2016000
+[2026-06-20 06:07:50] [INFO] Cluster 1 (BIG)   : CPUs=3 4 5 6  max=2803200
+[2026-06-20 06:07:50] [INFO] Cluster 2 (PRIME) : CPUs=7  max=3014400
+[2026-06-20 06:07:50] [INFO] Stock thermal daemon (mi_thermald) disabled
+[2026-06-20 06:07:50] [INFO] Taking full state snapshot...
+[2026-06-20 06:07:50] [DEBUG] Snapshot taken.
+[2026-06-20 06:07:50] [INFO] Launching AI thermal daemon...
+[2026-06-20 06:07:50] [INFO] ThermalAI daemon started (PID=7111)
+[2026-06-20 06:07:50] [INFO] ════════════════════════════════════════
+[2026-06-20 06:07:50] [INFO] Log: /data/local/tmp/thermalai.log
+[2026-06-20 06:07:50] [INFO]  ThermalAI v3.0 daemon starting
+[2026-06-20 06:07:50] [INFO]  Device : POCO F6 (peridot)
+[2026-06-20 06:07:50] [INFO]  SoC    : Snapdragon 8s Gen 3 (pineapple)
+[2026-06-20 06:07:50] [INFO]  Kernel : 6.1.170-GlaciumKernel-4.2-g5ca71d27cda5
+[2026-06-20 06:07:50] [INFO]  Config : poll=2s game_poll=1s
+[2026-06-20 06:07:50] [INFO]           debounce=10s latch=45s
+[2026-06-20 06:07:50] [INFO]           gpu_thresh=20% rotate=60min
+[2026-06-20 06:07:50] [INFO]  Detect : oom_score_adj+RenderThread+dumpsys(fallback)
+[2026-06-20 06:07:50] [INFO] ════════════════════════════════════════
+[2026-06-20 06:07:50] [INFO] Building weighted thermal zone map...
+[2026-06-20 06:07:51] [INFO] Active zones: 63 used, 12 skipped
+[2026-06-20 06:07:51] [DEBUG] Discovering CPU topology (pineapple/peridot)...
+[2026-06-20 06:07:51] [INFO] Cluster 0 (LITTLE): CPUs=0 1 2  max=2016000
+[2026-06-20 06:07:51] [INFO] Cluster 1 (BIG)   : CPUs=3 4 5 6  max=2803200
+[2026-06-20 06:07:51] [INFO] Cluster 2 (PRIME) : CPUs=7  max=3014400
+[2026-06-20 06:07:52] [INFO] Log rotation started (every 60 min)
+[2026-06-20 06:07:52] [INFO] Applying policy: balanced (gaming=false)
+[2026-06-20 06:07:52] [DEBUG] Cluster 0 -> gov=walt 364800-1713600kHz hs=806400@85%
+[2026-06-20 06:07:52] [DEBUG] Cluster 1 -> gov=walt 560640-2242560kHz hs=1267200@85%
+[2026-06-20 06:07:52] [DEBUG] Cluster 2 -> gov=walt 602880-2260800kHz hs=1612800@90%
+[2026-06-20 06:07:52] [DEBUG] GPU power levels -> max(ceil)=3 min(floor)=8
+[2026-06-20 06:07:52] [INFO] Policy BALANCED applied (gaming=false)
+[2026-06-20 06:07:52] [DEBUG] I/O scheduler -> mq-deadline
+[2026-06-20 06:07:53] [DEBUG] VERBOSE AI CALC: s_temp=-50 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:07:53] [DEBUG] AI: cur=61°C pred=°C gpu=0% gaming=() t=-50 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-40 -> conservative
+[2026-06-20 06:07:53] [INFO] Applying policy: conservative (gaming=)
+[2026-06-20 06:07:53] [DEBUG] Cluster 0 -> gov=walt 403200-1512000kHz hs=1209600@90%
+[2026-06-20 06:07:53] [DEBUG] Cluster 1 -> gov=walt 840960-2803200kHz hs=2342400@85%
+[2026-06-20 06:07:53] [DEBUG] Cluster 2 -> gov=walt 904320-2712960kHz hs=2419200@88%
+[2026-06-20 06:07:53] [DEBUG] GPU power levels -> max(ceil)=1 min(floor)=6
+[2026-06-20 06:07:54] [DEBUG] Background cpuset constrained to 0-2
+[2026-06-20 06:07:54] [INFO] Policy CONSERVATIVE applied (gaming=)
+[2026-06-20 06:07:54] [DEBUG] I/O scheduler -> mq-deadline
+[2026-06-20 06:07:54] [DEBUG] Background cpuset constrained to 0-2
+[2026-06-20 06:07:54] [INFO] Policy change: temp= gpu=0 gaming= -> conservative
+[2026-06-20 06:07:56] [DEBUG] VERBOSE AI CALC: s_temp=-50 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:07:56] [DEBUG] Debounce: conservative->powersave (2s)
+[2026-06-20 06:07:56] [DEBUG] AI: cur=60°C pred=°C gpu=27% gaming=() t=-50 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-40 -> conservative
+[2026-06-20 06:07:58] [DEBUG] VERBOSE AI CALC: s_temp=-50 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:07:58] [DEBUG] Debounce: conservative->powersave (4s)
+[2026-06-20 06:07:58] [DEBUG] AI: cur=60°C pred=°C gpu=27% gaming=() t=-50 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-40 -> conservative
+[2026-06-20 06:08:00] [DEBUG] VERBOSE AI CALC: s_temp=-50 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:00] [DEBUG] Debounce: conservative->powersave (6s)
+[2026-06-20 06:08:00] [DEBUG] AI: cur=60°C pred=°C gpu=24% gaming=() t=-50 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-40 -> conservative
+[2026-06-20 06:08:01] [DEBUG] VERBOSE AI CALC: s_temp=-50 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:02] [DEBUG] Debounce: conservative->powersave (8s)
+[2026-06-20 06:08:02] [DEBUG] AI: cur=60°C pred=°C gpu=29% gaming=() t=-50 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-40 -> conservative
+[2026-06-20 06:08:03] [DEBUG] VERBOSE AI CALC: s_temp=-50 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:03] [DEBUG] Debounce: conservative->powersave (9s)
+[2026-06-20 06:08:03] [DEBUG] AI: cur=59°C pred=°C gpu=15% gaming=() t=-50 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-40 -> conservative
+[2026-06-20 06:08:05] [DEBUG] VERBOSE AI CALC: s_temp=-50 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:05] [DEBUG] AI: cur=58°C pred=°C gpu=0% gaming=() t=-50 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-40 -> powersave
+[2026-06-20 06:08:05] [INFO] Applying policy: powersave (gaming=)
+[2026-06-20 06:08:05] [DEBUG] Cluster 0 -> gov=walt 364800-1209600kHz hs=806400@95%
+[2026-06-20 06:08:05] [DEBUG] Cluster 1 -> gov=walt 700800-2242560kHz hs=1881600@88%
+[2026-06-20 06:08:05] [DEBUG] Cluster 2 -> gov=walt 602880-2110080kHz hs=2112000@92%
+[2026-06-20 06:08:05] [DEBUG] GPU power levels -> max(ceil)=3 min(floor)=8
+[2026-06-20 06:08:05] [DEBUG] Background cpuset constrained to 0-2
+[2026-06-20 06:08:05] [DEBUG] Page cache dropped
+[2026-06-20 06:08:05] [INFO] Policy POWERSAVE applied (gaming=)
+[2026-06-20 06:08:05] [DEBUG] I/O scheduler -> bfq
+[2026-06-20 06:08:05] [DEBUG] Background cpuset constrained to 0-2
+[2026-06-20 06:08:06] [INFO] Policy change: temp= gpu=0 gaming= -> powersave
+[2026-06-20 06:08:08] [DEBUG] VERBOSE AI CALC: s_temp=-50 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:08] [DEBUG] AI: cur=58°C pred=°C gpu=30% gaming=() t=-50 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-40 -> powersave
+[2026-06-20 06:08:09] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:09] [DEBUG] AI: cur=57°C pred=°C gpu=3% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> powersave
+[2026-06-20 06:08:11] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:11] [DEBUG] AI: cur=57°C pred=°C gpu=4% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> powersave
+[2026-06-20 06:08:12] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:12] [DEBUG] AI: cur=55°C pred=°C gpu=3% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> powersave
+[2026-06-20 06:08:14] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:14] [DEBUG] AI: cur=53°C pred=°C gpu=5% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> powersave
+[2026-06-20 06:08:15] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:15] [DEBUG] AI: cur=53°C pred=°C gpu=3% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> powersave
+[2026-06-20 06:08:17] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:17] [DEBUG] AI: cur=54°C pred=°C gpu=0% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> powersave
+[2026-06-20 06:08:18] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:18] [DEBUG] AI: cur=54°C pred=°C gpu=0% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> powersave
+[2026-06-20 06:08:20] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:20] [DEBUG] AI: cur=55°C pred=°C gpu=0% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> powersave
+[2026-06-20 06:08:21] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:21] [DEBUG] AI: cur=56°C pred=°C gpu=0% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> powersave
+[2026-06-20 06:08:22] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:22] [DEBUG] AI: cur=52°C pred=°C gpu=0% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> powersave
+[2026-06-20 06:08:24] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:24] [DEBUG] AI: cur=49°C pred=°C gpu=0% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> powersave
+[2026-06-20 06:08:25] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:25] [DEBUG] AI: cur=48°C pred=°C gpu=0% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> powersave
+[2026-06-20 06:08:26] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:26] [DEBUG] AI: cur=46°C pred=°C gpu=0% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> conservative
+[2026-06-20 06:08:26] [INFO] Applying policy: conservative (gaming=)
+[2026-06-20 06:08:26] [DEBUG] Cluster 0 -> gov=walt 403200-1512000kHz hs=1209600@90%
+[2026-06-20 06:08:26] [DEBUG] Cluster 1 -> gov=walt 840960-2803200kHz hs=2342400@85%
+[2026-06-20 06:08:26] [DEBUG] Cluster 2 -> gov=walt 904320-2712960kHz hs=2419200@88%
+[2026-06-20 06:08:27] [DEBUG] GPU power levels -> max(ceil)=1 min(floor)=6
+[2026-06-20 06:08:27] [DEBUG] Background cpuset constrained to 0-2
+[2026-06-20 06:08:27] [INFO] Policy CONSERVATIVE applied (gaming=)
+[2026-06-20 06:08:27] [DEBUG] I/O scheduler -> mq-deadline
+[2026-06-20 06:08:27] [DEBUG] Background cpuset constrained to 0-2
+[2026-06-20 06:08:27] [INFO] Policy change: temp= gpu=0 gaming= -> conservative
+[2026-06-20 06:08:28] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:28] [DEBUG] Debounce: conservative->balanced (1s)
+[2026-06-20 06:08:28] [DEBUG] AI: cur=47°C pred=°C gpu=0% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> conservative
+[2026-06-20 06:08:30] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:30] [DEBUG] AI: cur=48°C pred=°C gpu=0% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:08:31] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:31] [DEBUG] Debounce: conservative->balanced (4s)
+[2026-06-20 06:08:31] [DEBUG] AI: cur=47°C pred=°C gpu=3% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> conservative
+[2026-06-20 06:08:33] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:33] [DEBUG] Debounce: conservative->balanced (6s)
+[2026-06-20 06:08:33] [DEBUG] AI: cur=47°C pred=°C gpu=3% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> conservative
+[2026-06-20 06:08:34] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:34] [DEBUG] Debounce: conservative->balanced (7s)
+[2026-06-20 06:08:34] [DEBUG] AI: cur=45°C pred=°C gpu=0% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> conservative
+[2026-06-20 06:08:36] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:36] [DEBUG] Debounce: conservative->balanced (9s)
+[2026-06-20 06:08:36] [DEBUG] AI: cur=45°C pred=°C gpu=0% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> conservative
+[2026-06-20 06:08:37] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:37] [DEBUG] AI: cur=47°C pred=°C gpu=0% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:08:37] [INFO] Applying policy: balanced (gaming=)
+[2026-06-20 06:08:37] [DEBUG] Cluster 0 -> gov=walt 403200-1814400kHz hs=1209600@80%
+[2026-06-20 06:08:37] [DEBUG] Cluster 1 -> gov=walt 700800-2382720kHz hs=1881600@85%
+[2026-06-20 06:08:37] [DEBUG] Cluster 2 -> gov=walt 753600-2411520kHz hs=2112000@90%
+[2026-06-20 06:08:37] [DEBUG] GPU power levels -> max(ceil)=2 min(floor)=6
+[2026-06-20 06:08:37] [INFO] Policy BALANCED applied (gaming=)
+[2026-06-20 06:08:37] [DEBUG] I/O scheduler -> mq-deadline
+[2026-06-20 06:08:37] [INFO] Policy change: temp= gpu=0 gaming= -> balanced
+[2026-06-20 06:08:38] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:38] [DEBUG] AI: cur=47°C pred=°C gpu=3% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:08:40] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:40] [DEBUG] AI: cur=47°C pred=°C gpu=0% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:08:41] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:41] [DEBUG] Debounce: balanced->conservative (4s)
+[2026-06-20 06:08:41] [DEBUG] AI: cur=48°C pred=°C gpu=4% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> balanced
+[2026-06-20 06:08:43] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:43] [DEBUG] AI: cur=47°C pred=°C gpu=0% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:08:44] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:44] [DEBUG] AI: cur=47°C pred=°C gpu=0% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:08:45] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:45] [DEBUG] AI: cur=46°C pred=°C gpu=0% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:08:47] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:47] [DEBUG] AI: cur=44°C pred=°C gpu=0% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:08:49] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:49] [DEBUG] AI: cur=42°C pred=°C gpu=0% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:08:51] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:51] [DEBUG] AI: cur=40°C pred=°C gpu=0% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:08:53] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:53] [DEBUG] AI: cur=41°C pred=°C gpu=2% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:08:55] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:55] [DEBUG] AI: cur=40°C pred=°C gpu=0% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:08:57] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:57] [DEBUG] AI: cur=40°C pred=°C gpu=3% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:08:59] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:08:59] [DEBUG] AI: cur=41°C pred=°C gpu=5% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:09:01] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:01] [DEBUG] AI: cur=39°C pred=°C gpu=0% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:09:03] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:03] [DEBUG] AI: cur=41°C pred=°C gpu=22% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:09:05] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:05] [DEBUG] AI: cur=42°C pred=°C gpu=19% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:09:07] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:07] [DEBUG] AI: cur=41°C pred=°C gpu=24% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:09:09] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:09] [DEBUG] AI: cur=42°C pred=°C gpu=25% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:09:11] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:11] [DEBUG] AI: cur=39°C pred=°C gpu=0% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:09:13] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:13] [DEBUG] AI: cur=40°C pred=°C gpu=1% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:09:16] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:16] [DEBUG] AI: cur=50°C pred=°C gpu=19% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:09:16] [INFO] Applying policy: conservative (gaming=)
+[2026-06-20 06:09:16] [DEBUG] Cluster 0 -> gov=walt 403200-1512000kHz hs=1209600@90%
+[2026-06-20 06:09:16] [DEBUG] Cluster 1 -> gov=walt 840960-2803200kHz hs=2342400@85%
+[2026-06-20 06:09:16] [DEBUG] Cluster 2 -> gov=walt 904320-2712960kHz hs=2419200@88%
+[2026-06-20 06:09:16] [DEBUG] GPU power levels -> max(ceil)=1 min(floor)=6
+[2026-06-20 06:09:16] [DEBUG] Background cpuset constrained to 0-2
+[2026-06-20 06:09:16] [INFO] Policy CONSERVATIVE applied (gaming=)
+[2026-06-20 06:09:16] [DEBUG] I/O scheduler -> mq-deadline
+[2026-06-20 06:09:16] [DEBUG] Background cpuset constrained to 0-2
+[2026-06-20 06:09:16] [INFO] Policy change: temp= gpu=19 gaming= -> conservative
+[2026-06-20 06:09:18] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:18] [DEBUG] Debounce: conservative->balanced (2s)
+[2026-06-20 06:09:18] [DEBUG] AI: cur=47°C pred=°C gpu=0% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> conservative
+[2026-06-20 06:09:20] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:20] [DEBUG] Debounce: conservative->balanced (4s)
+[2026-06-20 06:09:20] [DEBUG] AI: cur=46°C pred=°C gpu=0% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> conservative
+[2026-06-20 06:09:21] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:22] [DEBUG] AI: cur=48°C pred=°C gpu=0% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:09:23] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:23] [DEBUG] AI: cur=49°C pred=°C gpu=2% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:09:25] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:25] [DEBUG] Debounce: conservative->balanced (9s)
+[2026-06-20 06:09:25] [DEBUG] AI: cur=47°C pred=°C gpu=3% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> conservative
+[2026-06-20 06:09:27] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:27] [DEBUG] AI: cur=45°C pred=°C gpu=3% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:09:27] [INFO] Applying policy: balanced (gaming=)
+[2026-06-20 06:09:27] [DEBUG] Cluster 0 -> gov=walt 403200-1814400kHz hs=1209600@80%
+[2026-06-20 06:09:27] [DEBUG] Cluster 1 -> gov=walt 700800-2382720kHz hs=1881600@85%
+[2026-06-20 06:09:27] [DEBUG] Cluster 2 -> gov=walt 753600-2411520kHz hs=2112000@90%
+[2026-06-20 06:09:27] [DEBUG] GPU power levels -> max(ceil)=2 min(floor)=6
+[2026-06-20 06:09:27] [INFO] Policy BALANCED applied (gaming=)
+[2026-06-20 06:09:27] [DEBUG] I/O scheduler -> mq-deadline
+[2026-06-20 06:09:28] [INFO] Policy change: temp= gpu=3 gaming= -> balanced
+[2026-06-20 06:09:30] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:30] [DEBUG] Debounce: balanced->conservative (2s)
+[2026-06-20 06:09:30] [DEBUG] AI: cur=48°C pred=°C gpu=2% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> balanced
+[2026-06-20 06:09:32] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:32] [DEBUG] Debounce: balanced->conservative (4s)
+[2026-06-20 06:09:32] [DEBUG] AI: cur=50°C pred=°C gpu=1% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> balanced
+[2026-06-20 06:09:33] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:33] [DEBUG] Debounce: balanced->conservative (5s)
+[2026-06-20 06:09:34] [DEBUG] AI: cur=48°C pred=°C gpu=0% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> balanced
+[2026-06-20 06:09:35] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:35] [DEBUG] Debounce: balanced->conservative (7s)
+[2026-06-20 06:09:35] [DEBUG] AI: cur=49°C pred=°C gpu=0% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> balanced
+[2026-06-20 06:09:36] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:36] [DEBUG] Debounce: balanced->conservative (8s)
+[2026-06-20 06:09:36] [DEBUG] AI: cur=48°C pred=°C gpu=0% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> balanced
+[2026-06-20 06:09:38] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:38] [DEBUG] AI: cur=46°C pred=°C gpu=2% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:09:39] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:39] [DEBUG] AI: cur=45°C pred=°C gpu=4% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:09:41] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:41] [DEBUG] AI: cur=45°C pred=°C gpu=5% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:09:43] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:43] [DEBUG] AI: cur=43°C pred=°C gpu=4% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:09:44] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:45] [DEBUG] AI: cur=43°C pred=°C gpu=4% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:09:46] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:46] [DEBUG] AI: cur=42°C pred=°C gpu=4% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:09:48] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:48] [DEBUG] AI: cur=41°C pred=°C gpu=4% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:09:50] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:50] [DEBUG] AI: cur=41°C pred=°C gpu=4% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:09:50] [INFO] System stable for 2 minutes. Bootloop lock cleared.
+[2026-06-20 06:09:52] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:52] [DEBUG] AI: cur=40°C pred=°C gpu=4% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:09:54] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:54] [DEBUG] AI: cur=42°C pred=°C gpu=4% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:09:55] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:55] [DEBUG] AI: cur=43°C pred=°C gpu=4% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:09:57] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:57] [DEBUG] AI: cur=40°C pred=°C gpu=4% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:09:59] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:09:59] [DEBUG] AI: cur=39°C pred=°C gpu=4% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:10:01] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:10:01] [DEBUG] AI: cur=39°C pred=°C gpu=4% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:10:03] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:10:03] [DEBUG] AI: cur=41°C pred=°C gpu=4% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:10:05] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:10:05] [DEBUG] AI: cur=39°C pred=°C gpu=4% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:10:07] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:10:07] [DEBUG] AI: cur=39°C pred=°C gpu=4% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:10:09] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:10:09] [DEBUG] AI: cur=39°C pred=°C gpu=4% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:10:11] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:10:11] [DEBUG] AI: cur=39°C pred=°C gpu=4% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:10:13] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:10:13] [DEBUG] AI: cur=38°C pred=°C gpu=4% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:10:15] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:10:15] [DEBUG] AI: cur=38°C pred=°C gpu=4% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:10:17] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:10:17] [DEBUG] AI: cur=39°C pred=°C gpu=4% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:10:18] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:10:18] [DEBUG] AI: cur=39°C pred=°C gpu=4% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:10:20] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:10:20] [DEBUG] AI: cur=42°C pred=°C gpu=5% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:10:22] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:10:22] [DEBUG] AI: cur=40°C pred=°C gpu=5% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:10:24] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:10:24] [DEBUG] AI: cur=39°C pred=°C gpu=4% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:10:25] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:10:25] [DEBUG] AI: cur=40°C pred=°C gpu=4% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:10:27] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:10:27] [DEBUG] AI: cur=42°C pred=°C gpu=0% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:10:29] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:10:29] [DEBUG] AI: cur=41°C pred=°C gpu=0% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:10:30] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:10:30] [DEBUG] AI: cur=43°C pred=°C gpu=0% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:10:32] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:10:32] [DEBUG] AI: cur=42°C pred=°C gpu=0% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:10:33] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:10:33] [DEBUG] AI: cur=43°C pred=°C gpu=14% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:10:36] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:10:36] [DEBUG] AI: cur=46°C pred=°C gpu=23% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:10:38] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:10:38] [DEBUG] AI: cur=50°C pred=°C gpu=25% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:10:38] [INFO] Applying policy: conservative (gaming=)
+[2026-06-20 06:10:38] [DEBUG] Cluster 0 -> gov=walt 403200-1512000kHz hs=1209600@90%
+[2026-06-20 06:10:38] [DEBUG] Cluster 1 -> gov=walt 840960-2803200kHz hs=2342400@85%
+[2026-06-20 06:10:38] [DEBUG] Cluster 2 -> gov=walt 904320-2712960kHz hs=2419200@88%
+[2026-06-20 06:10:38] [DEBUG] GPU power levels -> max(ceil)=1 min(floor)=6
+[2026-06-20 06:10:38] [DEBUG] Background cpuset constrained to 0-2
+[2026-06-20 06:10:38] [INFO] Policy CONSERVATIVE applied (gaming=)
+[2026-06-20 06:10:38] [DEBUG] I/O scheduler -> mq-deadline
+[2026-06-20 06:10:38] [DEBUG] Background cpuset constrained to 0-2
+[2026-06-20 06:10:39] [INFO] Policy change: temp= gpu=25 gaming= -> conservative
+[2026-06-20 06:10:41] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:10:41] [DEBUG] AI: cur=48°C pred=°C gpu=13% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:10:43] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:10:43] [DEBUG] Debounce: conservative->balanced (4s)
+[2026-06-20 06:10:43] [DEBUG] AI: cur=46°C pred=°C gpu=11% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> conservative
+[2026-06-20 06:10:45] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:10:45] [DEBUG] Debounce: conservative->balanced (6s)
+[2026-06-20 06:10:45] [DEBUG] AI: cur=47°C pred=°C gpu=18% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> conservative
+[2026-06-20 06:10:48] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:10:48] [DEBUG] AI: cur=48°C pred=°C gpu=30% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:10:50] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:10:50] [DEBUG] AI: cur=49°C pred=°C gpu=19% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:10:52] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:10:52] [DEBUG] AI: cur=47°C pred=°C gpu=18% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:10:52] [INFO] Applying policy: balanced (gaming=)
+[2026-06-20 06:10:52] [DEBUG] Cluster 0 -> gov=walt 403200-1814400kHz hs=1209600@80%
+[2026-06-20 06:10:52] [DEBUG] Cluster 1 -> gov=walt 700800-2382720kHz hs=1881600@85%
+[2026-06-20 06:10:52] [DEBUG] Cluster 2 -> gov=walt 753600-2411520kHz hs=2112000@90%
+[2026-06-20 06:10:52] [DEBUG] GPU power levels -> max(ceil)=2 min(floor)=6
+[2026-06-20 06:10:52] [INFO] Policy BALANCED applied (gaming=)
+[2026-06-20 06:10:52] [DEBUG] I/O scheduler -> mq-deadline
+[2026-06-20 06:10:53] [INFO] Policy change: temp= gpu=18 gaming= -> balanced
+[2026-06-20 06:10:55] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:10:55] [DEBUG] AI: cur=47°C pred=°C gpu=17% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:10:58] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:10:58] [DEBUG] Debounce: balanced->conservative (5s)
+[2026-06-20 06:10:58] [DEBUG] AI: cur=48°C pred=°C gpu=17% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> balanced
+[2026-06-20 06:11:00] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:11:00] [DEBUG] Debounce: balanced->conservative (7s)
+[2026-06-20 06:11:00] [DEBUG] AI: cur=49°C pred=°C gpu=15% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> balanced
+[2026-06-20 06:11:02] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:11:02] [DEBUG] AI: cur=47°C pred=°C gpu=16% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:11:04] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:11:04] [DEBUG] AI: cur=46°C pred=°C gpu=13% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:11:06] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:11:06] [DEBUG] AI: cur=47°C pred=°C gpu=11% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:11:08] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:11:08] [DEBUG] AI: cur=46°C pred=°C gpu=13% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:11:10] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:11:10] [DEBUG] AI: cur=46°C pred=°C gpu=10% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:11:13] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:11:13] [DEBUG] AI: cur=47°C pred=°C gpu=18% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:11:15] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:11:15] [DEBUG] AI: cur=48°C pred=°C gpu=22% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:11:15] [INFO] Applying policy: conservative (gaming=)
+[2026-06-20 06:11:15] [DEBUG] Cluster 0 -> gov=walt 403200-1512000kHz hs=1209600@90%
+[2026-06-20 06:11:15] [DEBUG] Cluster 1 -> gov=walt 840960-2803200kHz hs=2342400@85%
+[2026-06-20 06:11:15] [DEBUG] Cluster 2 -> gov=walt 904320-2712960kHz hs=2419200@88%
+[2026-06-20 06:11:15] [DEBUG] GPU power levels -> max(ceil)=1 min(floor)=6
+[2026-06-20 06:11:15] [DEBUG] Background cpuset constrained to 0-2
+[2026-06-20 06:11:15] [INFO] Policy CONSERVATIVE applied (gaming=)
+[2026-06-20 06:11:15] [DEBUG] I/O scheduler -> mq-deadline
+[2026-06-20 06:11:15] [DEBUG] Background cpuset constrained to 0-2
+[2026-06-20 06:11:16] [INFO] Policy change: temp= gpu=22 gaming= -> conservative
+[2026-06-20 06:11:18] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:11:18] [DEBUG] AI: cur=49°C pred=°C gpu=22% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:11:21] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:11:21] [DEBUG] AI: cur=49°C pred=°C gpu=23% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:11:23] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:11:23] [DEBUG] AI: cur=50°C pred=°C gpu=22% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:11:25] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:11:25] [DEBUG] AI: cur=50°C pred=°C gpu=22% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:11:27] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:11:27] [DEBUG] AI: cur=49°C pred=°C gpu=18% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:11:30] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:11:30] [DEBUG] AI: cur=50°C pred=°C gpu=21% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:11:32] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:11:32] [DEBUG] AI: cur=50°C pred=°C gpu=19% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:11:34] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:11:34] [DEBUG] AI: cur=49°C pred=°C gpu=17% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:11:36] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:11:36] [DEBUG] AI: cur=51°C pred=°C gpu=23% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:11:38] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:11:38] [DEBUG] AI: cur=51°C pred=°C gpu=22% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:11:41] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:11:41] [DEBUG] AI: cur=50°C pred=°C gpu=16% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:11:43] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:11:43] [DEBUG] AI: cur=49°C pred=°C gpu=19% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:11:45] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:11:45] [DEBUG] AI: cur=49°C pred=°C gpu=17% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:11:47] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:11:47] [DEBUG] AI: cur=51°C pred=°C gpu=22% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:11:50] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:11:50] [DEBUG] AI: cur=50°C pred=°C gpu=20% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:11:52] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:11:52] [DEBUG] AI: cur=50°C pred=°C gpu=21% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:11:54] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:11:54] [DEBUG] AI: cur=49°C pred=°C gpu=17% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:11:56] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:11:56] [DEBUG] AI: cur=50°C pred=°C gpu=21% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:11:58] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:11:58] [DEBUG] AI: cur=51°C pred=°C gpu=19% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:12:01] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:12:01] [DEBUG] AI: cur=51°C pred=°C gpu=20% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:12:03] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:12:03] [DEBUG] AI: cur=50°C pred=°C gpu=19% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:12:05] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:12:05] [DEBUG] AI: cur=50°C pred=°C gpu=15% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:12:07] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:12:07] [DEBUG] AI: cur=49°C pred=°C gpu=16% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:12:09] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:12:09] [DEBUG] AI: cur=50°C pred=°C gpu=17% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:12:11] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:12:11] [DEBUG] AI: cur=50°C pred=°C gpu=17% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:12:14] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:12:14] [DEBUG] AI: cur=50°C pred=°C gpu=15% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:12:16] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:12:16] [DEBUG] AI: cur=50°C pred=°C gpu=17% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:12:18] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:12:18] [DEBUG] AI: cur=52°C pred=°C gpu=24% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:12:20] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:12:20] [DEBUG] AI: cur=51°C pred=°C gpu=21% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:12:22] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:12:23] [DEBUG] AI: cur=55°C pred=°C gpu=21% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:12:25] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:12:25] [DEBUG] AI: cur=52°C pred=°C gpu=19% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:12:27] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:12:27] [DEBUG] AI: cur=52°C pred=°C gpu=19% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:12:29] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:12:29] [DEBUG] AI: cur=51°C pred=°C gpu=19% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:12:31] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:12:31] [DEBUG] AI: cur=51°C pred=°C gpu=18% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:12:34] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:12:34] [DEBUG] AI: cur=56°C pred=°C gpu=19% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:12:36] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:12:36] [DEBUG] AI: cur=52°C pred=°C gpu=20% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:12:38] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:12:38] [DEBUG] AI: cur=52°C pred=°C gpu=20% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:12:40] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:12:40] [DEBUG] AI: cur=51°C pred=°C gpu=33% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:12:42] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:12:42] [DEBUG] AI: cur=51°C pred=°C gpu=17% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:12:44] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:12:44] [DEBUG] AI: cur=49°C pred=°C gpu=19% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:12:46] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:12:46] [DEBUG] AI: cur=50°C pred=°C gpu=23% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:12:49] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:12:49] [DEBUG] AI: cur=49°C pred=°C gpu=26% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:12:51] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:12:51] [DEBUG] AI: cur=51°C pred=°C gpu=21% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:12:53] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:12:53] [DEBUG] AI: cur=52°C pred=°C gpu=21% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:12:55] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:12:55] [DEBUG] AI: cur=51°C pred=°C gpu=21% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:12:58] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:12:58] [DEBUG] AI: cur=54°C pred=°C gpu=22% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:13:01] [DEBUG] VERBOSE AI CALC: s_temp=-50 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:13:01] [DEBUG] AI: cur=59°C pred=°C gpu=23% gaming=() t=-50 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-40 -> powersave
+[2026-06-20 06:13:01] [INFO] Applying policy: powersave (gaming=)
+[2026-06-20 06:13:01] [DEBUG] Cluster 0 -> gov=walt 364800-1209600kHz hs=806400@95%
+[2026-06-20 06:13:01] [DEBUG] Cluster 1 -> gov=walt 700800-2242560kHz hs=1881600@88%
+[2026-06-20 06:13:01] [DEBUG] Cluster 2 -> gov=walt 602880-2110080kHz hs=2112000@92%
+[2026-06-20 06:13:01] [DEBUG] GPU power levels -> max(ceil)=3 min(floor)=8
+[2026-06-20 06:13:01] [DEBUG] Background cpuset constrained to 0-2
+[2026-06-20 06:13:02] [DEBUG] Page cache dropped
+[2026-06-20 06:13:02] [INFO] Policy POWERSAVE applied (gaming=)
+[2026-06-20 06:13:02] [DEBUG] I/O scheduler -> bfq
+[2026-06-20 06:13:02] [DEBUG] Background cpuset constrained to 0-2
+[2026-06-20 06:13:03] [INFO] Policy change: temp= gpu=23 gaming= -> powersave
+[2026-06-20 06:13:05] [DEBUG] VERBOSE AI CALC: s_temp=-50 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:13:05] [DEBUG] AI: cur=61°C pred=°C gpu=24% gaming=() t=-50 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-40 -> powersave
+[2026-06-20 06:13:08] [DEBUG] VERBOSE AI CALC: s_temp=-50 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:13:08] [DEBUG] AI: cur=60°C pred=°C gpu=23% gaming=() t=-50 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-40 -> powersave
+[2026-06-20 06:13:10] [DEBUG] VERBOSE AI CALC: s_temp=-50 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:13:10] [DEBUG] AI: cur=60°C pred=°C gpu=26% gaming=() t=-50 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-40 -> powersave
+[2026-06-20 06:13:12] [DEBUG] VERBOSE AI CALC: s_temp=-50 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:13:12] [DEBUG] AI: cur=60°C pred=°C gpu=26% gaming=() t=-50 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-40 -> powersave
+[2026-06-20 06:13:14] [DEBUG] VERBOSE AI CALC: s_temp=-50 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:13:14] [DEBUG] AI: cur=61°C pred=°C gpu=26% gaming=() t=-50 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-40 -> powersave
+[2026-06-20 06:13:17] [DEBUG] VERBOSE AI CALC: s_temp=-50 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:13:17] [DEBUG] AI: cur=62°C pred=°C gpu=28% gaming=() t=-50 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-40 -> powersave
+[2026-06-20 06:13:19] [DEBUG] VERBOSE AI CALC: s_temp=-50 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:13:19] [DEBUG] AI: cur=62°C pred=°C gpu=23% gaming=() t=-50 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-40 -> powersave
+[2026-06-20 06:13:21] [DEBUG] VERBOSE AI CALC: s_temp=-50 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:13:21] [DEBUG] AI: cur=62°C pred=°C gpu=27% gaming=() t=-50 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-40 -> powersave
+[2026-06-20 06:13:24] [DEBUG] VERBOSE AI CALC: s_temp=-50 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:13:24] [DEBUG] AI: cur=61°C pred=°C gpu=23% gaming=() t=-50 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-40 -> powersave
+[2026-06-20 06:13:26] [DEBUG] VERBOSE AI CALC: s_temp=-50 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:13:26] [DEBUG] AI: cur=61°C pred=°C gpu=26% gaming=() t=-50 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-40 -> powersave
+[2026-06-20 06:13:28] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:13:28] [DEBUG] AI: cur=56°C pred=°C gpu=33% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> powersave
+[2026-06-20 06:13:31] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:13:31] [DEBUG] AI: cur=55°C pred=°C gpu=31% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> powersave
+[2026-06-20 06:13:33] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:13:33] [DEBUG] AI: cur=52°C pred=°C gpu=24% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> powersave
+[2026-06-20 06:13:35] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:13:35] [DEBUG] AI: cur=51°C pred=°C gpu=25% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> powersave
+[2026-06-20 06:13:37] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:13:37] [DEBUG] AI: cur=51°C pred=°C gpu=23% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> powersave
+[2026-06-20 06:13:39] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:13:39] [DEBUG] AI: cur=49°C pred=°C gpu=20% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> powersave
+[2026-06-20 06:13:41] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:13:41] [DEBUG] AI: cur=48°C pred=°C gpu=21% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> powersave
+[2026-06-20 06:13:43] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:13:43] [DEBUG] AI: cur=49°C pred=°C gpu=18% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> powersave
+[2026-06-20 06:13:45] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:13:45] [DEBUG] AI: cur=48°C pred=°C gpu=2% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> powersave
+[2026-06-20 06:13:47] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:13:47] [DEBUG] AI: cur=47°C pred=°C gpu=2% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> conservative
+[2026-06-20 06:13:47] [INFO] Applying policy: conservative (gaming=)
+[2026-06-20 06:13:47] [DEBUG] Cluster 0 -> gov=walt 403200-1512000kHz hs=1209600@90%
+[2026-06-20 06:13:47] [DEBUG] Cluster 1 -> gov=walt 840960-2803200kHz hs=2342400@85%
+[2026-06-20 06:13:47] [DEBUG] Cluster 2 -> gov=walt 904320-2712960kHz hs=2419200@88%
+[2026-06-20 06:13:47] [DEBUG] GPU power levels -> max(ceil)=1 min(floor)=6
+[2026-06-20 06:13:47] [DEBUG] Background cpuset constrained to 0-2
+[2026-06-20 06:13:47] [INFO] Policy CONSERVATIVE applied (gaming=)
+[2026-06-20 06:13:47] [DEBUG] I/O scheduler -> mq-deadline
+[2026-06-20 06:13:47] [DEBUG] Background cpuset constrained to 0-2
+[2026-06-20 06:13:48] [INFO] Policy change: temp= gpu=2 gaming= -> conservative
+[2026-06-20 06:13:50] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:13:50] [DEBUG] Debounce: conservative->balanced (2s)
+[2026-06-20 06:13:50] [DEBUG] AI: cur=46°C pred=°C gpu=0% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> conservative
+[2026-06-20 06:13:51] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:13:51] [DEBUG] Debounce: conservative->balanced (3s)
+[2026-06-20 06:13:51] [DEBUG] AI: cur=45°C pred=°C gpu=2% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> conservative
+[2026-06-20 06:13:53] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:13:53] [DEBUG] Debounce: conservative->balanced (5s)
+[2026-06-20 06:13:53] [DEBUG] AI: cur=45°C pred=°C gpu=2% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> conservative
+[2026-06-20 06:13:55] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:13:55] [DEBUG] Debounce: conservative->balanced (7s)
+[2026-06-20 06:13:55] [DEBUG] AI: cur=45°C pred=°C gpu=0% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> conservative
+[2026-06-20 06:13:57] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:13:57] [DEBUG] Debounce: conservative->balanced (9s)
+[2026-06-20 06:13:57] [DEBUG] AI: cur=45°C pred=°C gpu=6% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> conservative
+[2026-06-20 06:13:59] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:13:59] [DEBUG] AI: cur=45°C pred=°C gpu=4% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:13:59] [INFO] Applying policy: balanced (gaming=)
+[2026-06-20 06:13:59] [DEBUG] Cluster 0 -> gov=walt 403200-1814400kHz hs=1209600@80%
+[2026-06-20 06:13:59] [DEBUG] Cluster 1 -> gov=walt 700800-2382720kHz hs=1881600@85%
+[2026-06-20 06:13:59] [DEBUG] Cluster 2 -> gov=walt 753600-2411520kHz hs=2112000@90%
+[2026-06-20 06:13:59] [DEBUG] GPU power levels -> max(ceil)=2 min(floor)=6
+[2026-06-20 06:13:59] [INFO] Policy BALANCED applied (gaming=)
+[2026-06-20 06:13:59] [DEBUG] I/O scheduler -> mq-deadline
+[2026-06-20 06:14:00] [INFO] Policy change: temp= gpu=4 gaming= -> balanced
+[2026-06-20 06:14:01] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:14:01] [DEBUG] AI: cur=44°C pred=°C gpu=5% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:14:03] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:14:03] [DEBUG] AI: cur=44°C pred=°C gpu=4% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:14:05] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:14:05] [DEBUG] AI: cur=43°C pred=°C gpu=5% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:14:07] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:14:07] [DEBUG] AI: cur=43°C pred=°C gpu=4% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:14:08] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:14:08] [DEBUG] AI: cur=44°C pred=°C gpu=4% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:14:10] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:14:10] [DEBUG] AI: cur=44°C pred=°C gpu=5% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:14:12] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:14:12] [DEBUG] AI: cur=43°C pred=°C gpu=5% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:14:14] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:14:14] [DEBUG] AI: cur=45°C pred=°C gpu=7% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:14:16] [DEBUG] VERBOSE AI CALC: s_temp=-20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:14:16] [DEBUG] AI: cur=50°C pred=°C gpu=22% gaming=() t=-20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=-10 -> conservative
+[2026-06-20 06:14:16] [INFO] Applying policy: conservative (gaming=)
+[2026-06-20 06:14:16] [DEBUG] Cluster 0 -> gov=walt 403200-1512000kHz hs=1209600@90%
+[2026-06-20 06:14:16] [DEBUG] Cluster 1 -> gov=walt 840960-2803200kHz hs=2342400@85%
+[2026-06-20 06:14:16] [DEBUG] Cluster 2 -> gov=walt 904320-2712960kHz hs=2419200@88%
+[2026-06-20 06:14:16] [DEBUG] GPU power levels -> max(ceil)=1 min(floor)=6
+[2026-06-20 06:14:16] [DEBUG] Background cpuset constrained to 0-2
+[2026-06-20 06:14:16] [INFO] Policy CONSERVATIVE applied (gaming=)
+[2026-06-20 06:14:16] [DEBUG] I/O scheduler -> mq-deadline
+[2026-06-20 06:14:16] [DEBUG] Background cpuset constrained to 0-2
+[2026-06-20 06:14:17] [INFO] Policy change: temp= gpu=22 gaming= -> conservative
+[2026-06-20 06:14:19] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:14:19] [DEBUG] Debounce: conservative->balanced (2s)
+[2026-06-20 06:14:19] [DEBUG] AI: cur=46°C pred=°C gpu=25% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> conservative
+[2026-06-20 06:14:21] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:14:21] [DEBUG] Debounce: conservative->balanced (4s)
+[2026-06-20 06:14:21] [DEBUG] AI: cur=46°C pred=°C gpu=30% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> conservative
+[2026-06-20 06:14:23] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:14:23] [DEBUG] Debounce: conservative->balanced (6s)
+[2026-06-20 06:14:23] [DEBUG] AI: cur=46°C pred=°C gpu=31% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> conservative
+[2026-06-20 06:14:25] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:14:25] [DEBUG] Debounce: conservative->balanced (8s)
+[2026-06-20 06:14:25] [DEBUG] AI: cur=44°C pred=°C gpu=0% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> conservative
+[2026-06-20 06:14:27] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:14:27] [DEBUG] AI: cur=47°C pred=°C gpu=9% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:14:27] [INFO] Applying policy: balanced (gaming=)
+[2026-06-20 06:14:27] [DEBUG] Cluster 0 -> gov=walt 403200-1814400kHz hs=1209600@80%
+[2026-06-20 06:14:27] [DEBUG] Cluster 1 -> gov=walt 700800-2382720kHz hs=1881600@85%
+[2026-06-20 06:14:27] [DEBUG] Cluster 2 -> gov=walt 753600-2411520kHz hs=2112000@90%
+[2026-06-20 06:14:27] [DEBUG] GPU power levels -> max(ceil)=2 min(floor)=6
+[2026-06-20 06:14:27] [INFO] Policy BALANCED applied (gaming=)
+[2026-06-20 06:14:27] [DEBUG] I/O scheduler -> mq-deadline
+[2026-06-20 06:14:28] [INFO] Policy change: temp= gpu=9 gaming= -> balanced
+[2026-06-20 06:14:30] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:14:30] [DEBUG] AI: cur=43°C pred=°C gpu=18% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:14:32] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:14:32] [DEBUG] AI: cur=46°C pred=°C gpu=31% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:14:34] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:14:34] [DEBUG] AI: cur=43°C pred=°C gpu=2% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:14:35] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:14:36] [DEBUG] AI: cur=43°C pred=°C gpu=4% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:14:37] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:14:37] [DEBUG] AI: cur=43°C pred=°C gpu=3% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:14:39] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:14:39] [DEBUG] AI: cur=43°C pred=°C gpu=2% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:14:41] [DEBUG] VERBOSE AI CALC: s_temp=20 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:14:41] [DEBUG] AI: cur=42°C pred=°C gpu=3% gaming=() t=20 p=0 g=35 tr=0 ctx=-10 comf=-15 score=30 -> balanced
+[2026-06-20 06:14:43] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:14:43] [DEBUG] AI: cur=41°C pred=°C gpu=3% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:14:45] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:14:45] [DEBUG] AI: cur=40°C pred=°C gpu=0% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:14:48] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:14:48] [DEBUG] AI: cur=40°C pred=°C gpu=0% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:14:50] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:14:50] [DEBUG] AI: cur=39°C pred=°C gpu=0% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:14:52] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:14:52] [DEBUG] AI: cur=39°C pred=°C gpu=0% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:14:55] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:14:55] [DEBUG] AI: cur=39°C pred=°C gpu=0% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:14:57] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:14:57] [DEBUG] AI: cur=38°C pred=°C gpu=0% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:14:59] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:15:00] [DEBUG] AI: cur=38°C pred=°C gpu=0% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:15:01] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:15:01] [DEBUG] AI: cur=38°C pred=°C gpu=2% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:15:03] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:15:03] [DEBUG] AI: cur=38°C pred=°C gpu=0% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:15:05] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:15:05] [DEBUG] AI: cur=40°C pred=°C gpu=5% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:15:07] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:15:08] [DEBUG] AI: cur=39°C pred=°C gpu=0% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:15:10] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:15:10] [DEBUG] AI: cur=38°C pred=°C gpu=0% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:15:12] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:15:12] [DEBUG] AI: cur=38°C pred=°C gpu=0% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:15:13] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:15:13] [DEBUG] AI: cur=39°C pred=°C gpu=0% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:15:15] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:15:15] [DEBUG] AI: cur=40°C pred=°C gpu=0% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:15:17] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:15:17] [DEBUG] AI: cur=40°C pred=°C gpu=3% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:15:19] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:15:19] [DEBUG] AI: cur=39°C pred=°C gpu=0% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:15:21] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:15:21] [DEBUG] AI: cur=38°C pred=°C gpu=3% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:15:23] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:15:23] [DEBUG] AI: cur=39°C pred=°C gpu=3% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> balanced
+[2026-06-20 06:15:25] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-5
+[2026-06-20 06:15:25] [DEBUG] AI: cur=37°C pred=°C gpu=4% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-5 score=60 -> performance
+[2026-06-20 06:15:25] [INFO] Applying policy: performance (gaming=)
+[2026-06-20 06:15:26] [DEBUG] Cluster 0 -> gov=walt 504000-1915200kHz hs=1209600@70%
+[2026-06-20 06:15:26] [DEBUG] Cluster 1 -> gov=walt 840960-2663040kHz hs=2188800@80%
+[2026-06-20 06:15:26] [DEBUG] Cluster 2 -> gov=walt 904320-2712960kHz hs=2419200@85%
+[2026-06-20 06:15:26] [DEBUG] GPU power levels -> max(ceil)=1 min(floor)=4
+[2026-06-20 06:15:26] [INFO] Policy PERFORMANCE applied (gaming=)
+[2026-06-20 06:15:26] [DEBUG] I/O scheduler -> none
+[2026-06-20 06:15:26] [INFO] Policy change: temp= gpu=4 gaming= -> performance
+[2026-06-20 06:15:28] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-5
+[2026-06-20 06:15:28] [DEBUG] AI: cur=38°C pred=°C gpu=0% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-5 score=60 -> performance
+[2026-06-20 06:15:30] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-5
+[2026-06-20 06:15:30] [DEBUG] AI: cur=37°C pred=°C gpu=3% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-5 score=60 -> performance
+[2026-06-20 06:15:32] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:15:32] [DEBUG] AI: cur=39°C pred=°C gpu=0% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> performance
+[2026-06-20 06:15:34] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:15:34] [DEBUG] AI: cur=41°C pred=°C gpu=0% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> performance
+[2026-06-20 06:15:36] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:15:36] [DEBUG] AI: cur=39°C pred=°C gpu=3% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> performance
+[2026-06-20 06:15:38] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:15:38] [DEBUG] AI: cur=40°C pred=°C gpu=3% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> performance
+[2026-06-20 06:15:39] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:15:39] [DEBUG] AI: cur=39°C pred=°C gpu=2% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> performance
+[2026-06-20 06:15:41] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:15:41] [DEBUG] AI: cur=39°C pred=°C gpu=4% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> performance
+[2026-06-20 06:15:43] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:15:43] [DEBUG] AI: cur=39°C pred=°C gpu=0% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> performance
+[2026-06-20 06:15:45] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:15:45] [DEBUG] AI: cur=39°C pred=°C gpu=3% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> performance
+[2026-06-20 06:15:47] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:15:47] [DEBUG] AI: cur=39°C pred=°C gpu=4% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> performance
+[2026-06-20 06:15:48] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:15:48] [DEBUG] AI: cur=39°C pred=°C gpu=4% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> performance
+[2026-06-20 06:15:50] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:15:50] [DEBUG] AI: cur=39°C pred=°C gpu=4% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> performance
+[2026-06-20 06:15:52] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-15
+[2026-06-20 06:15:52] [DEBUG] AI: cur=38°C pred=°C gpu=0% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-15 score=50 -> performance
+[2026-06-20 06:15:55] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-5
+[2026-06-20 06:15:55] [DEBUG] AI: cur=38°C pred=°C gpu=0% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-5 score=60 -> performance
+[2026-06-20 06:15:57] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-5
+[2026-06-20 06:15:57] [DEBUG] AI: cur=38°C pred=°C gpu=0% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-5 score=60 -> performance
+[2026-06-20 06:15:59] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-5
+[2026-06-20 06:15:59] [DEBUG] AI: cur=39°C pred=°C gpu=0% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-5 score=60 -> performance
+[2026-06-20 06:16:01] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-5
+[2026-06-20 06:16:01] [DEBUG] AI: cur=38°C pred=°C gpu=2% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-5 score=60 -> performance
+[2026-06-20 06:16:02] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-5
+[2026-06-20 06:16:02] [DEBUG] AI: cur=39°C pred=°C gpu=3% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-5 score=60 -> performance
+[2026-06-20 06:16:04] [DEBUG] VERBOSE AI CALC: s_temp=40 s_pred=0 s_game=35 s_trend=0 context_weight=-10 comfort_weight=-5
+[2026-06-20 06:16:04] [DEBUG] AI: cur=38°C pred=°C gpu=3% gaming=() t=40 p=0 g=35 tr=0 ctx=-10 comf=-5 score=60 -> performance

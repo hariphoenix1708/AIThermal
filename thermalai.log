@@ -1,0 +1,80 @@
+[2026-06-20 06:07:49] [INFO] ════════════════════════════════════════
+[2026-06-20 06:07:49] [INFO]  ThermalAI boot service starting
+[2026-06-20 06:07:49] [INFO]  Device  : 24069PC21I (peridot)
+[2026-06-20 06:07:49] [INFO]  ROM     : BP4A.251205.006
+[2026-06-20 06:07:49] [INFO]  Android : 16
+[2026-06-20 06:07:49] [INFO]  SoC     : pineapple
+[2026-06-20 06:07:49] [INFO]  KSU     : ksud 3.2.0
+[2026-06-20 06:07:50] [INFO] ════════════════════════════════════════
+[2026-06-20 06:07:50] [INFO] Cluster 0 (LITTLE): CPUs=0 1 2  max=2016000
+[2026-06-20 06:07:50] [INFO] Cluster 1 (BIG)   : CPUs=3 4 5 6  max=2803200
+[2026-06-20 06:07:50] [INFO] Cluster 2 (PRIME) : CPUs=7  max=3014400
+[2026-06-20 06:07:50] [INFO] Stock thermal daemon (mi_thermald) disabled
+[2026-06-20 06:07:50] [INFO] Taking full state snapshot...
+[2026-06-20 06:07:50] [INFO] Launching AI thermal daemon...
+[2026-06-20 06:07:50] [INFO] ThermalAI daemon started (PID=7111)
+[2026-06-20 06:07:50] [INFO] ════════════════════════════════════════
+[2026-06-20 06:07:50] [INFO] Log: /data/local/tmp/thermalai.log
+[2026-06-20 06:07:50] [INFO]  ThermalAI v3.0 daemon starting
+[2026-06-20 06:07:50] [INFO]  Device : POCO F6 (peridot)
+[2026-06-20 06:07:50] [INFO]  SoC    : Snapdragon 8s Gen 3 (pineapple)
+[2026-06-20 06:07:50] [INFO]  Kernel : 6.1.170-GlaciumKernel-4.2-g5ca71d27cda5
+[2026-06-20 06:07:50] [INFO]  Config : poll=2s game_poll=1s
+[2026-06-20 06:07:50] [INFO]           debounce=10s latch=45s
+[2026-06-20 06:07:50] [INFO]           gpu_thresh=20% rotate=60min
+[2026-06-20 06:07:50] [INFO]  Detect : oom_score_adj+RenderThread+dumpsys(fallback)
+[2026-06-20 06:07:50] [INFO] ════════════════════════════════════════
+[2026-06-20 06:07:50] [INFO] Building weighted thermal zone map...
+[2026-06-20 06:07:51] [INFO] Active zones: 63 used, 12 skipped
+[2026-06-20 06:07:51] [INFO] Cluster 0 (LITTLE): CPUs=0 1 2  max=2016000
+[2026-06-20 06:07:51] [INFO] Cluster 1 (BIG)   : CPUs=3 4 5 6  max=2803200
+[2026-06-20 06:07:51] [INFO] Cluster 2 (PRIME) : CPUs=7  max=3014400
+[2026-06-20 06:07:52] [INFO] Log rotation started (every 60 min)
+[2026-06-20 06:07:52] [INFO] Applying policy: balanced (gaming=false)
+[2026-06-20 06:07:52] [INFO] Policy BALANCED applied (gaming=false)
+[2026-06-20 06:07:53] [INFO] Applying policy: conservative (gaming=)
+[2026-06-20 06:07:54] [INFO] Policy CONSERVATIVE applied (gaming=)
+[2026-06-20 06:07:54] [INFO] Policy change: temp= gpu=0 gaming= -> conservative
+[2026-06-20 06:08:05] [INFO] Applying policy: powersave (gaming=)
+[2026-06-20 06:08:05] [INFO] Policy POWERSAVE applied (gaming=)
+[2026-06-20 06:08:06] [INFO] Policy change: temp= gpu=0 gaming= -> powersave
+[2026-06-20 06:08:26] [INFO] Applying policy: conservative (gaming=)
+[2026-06-20 06:08:27] [INFO] Policy CONSERVATIVE applied (gaming=)
+[2026-06-20 06:08:27] [INFO] Policy change: temp= gpu=0 gaming= -> conservative
+[2026-06-20 06:08:37] [INFO] Applying policy: balanced (gaming=)
+[2026-06-20 06:08:37] [INFO] Policy BALANCED applied (gaming=)
+[2026-06-20 06:08:37] [INFO] Policy change: temp= gpu=0 gaming= -> balanced
+[2026-06-20 06:09:16] [INFO] Applying policy: conservative (gaming=)
+[2026-06-20 06:09:16] [INFO] Policy CONSERVATIVE applied (gaming=)
+[2026-06-20 06:09:16] [INFO] Policy change: temp= gpu=19 gaming= -> conservative
+[2026-06-20 06:09:27] [INFO] Applying policy: balanced (gaming=)
+[2026-06-20 06:09:27] [INFO] Policy BALANCED applied (gaming=)
+[2026-06-20 06:09:28] [INFO] Policy change: temp= gpu=3 gaming= -> balanced
+[2026-06-20 06:09:50] [INFO] System stable for 2 minutes. Bootloop lock cleared.
+[2026-06-20 06:10:38] [INFO] Applying policy: conservative (gaming=)
+[2026-06-20 06:10:38] [INFO] Policy CONSERVATIVE applied (gaming=)
+[2026-06-20 06:10:39] [INFO] Policy change: temp= gpu=25 gaming= -> conservative
+[2026-06-20 06:10:52] [INFO] Applying policy: balanced (gaming=)
+[2026-06-20 06:10:52] [INFO] Policy BALANCED applied (gaming=)
+[2026-06-20 06:10:53] [INFO] Policy change: temp= gpu=18 gaming= -> balanced
+[2026-06-20 06:11:15] [INFO] Applying policy: conservative (gaming=)
+[2026-06-20 06:11:15] [INFO] Policy CONSERVATIVE applied (gaming=)
+[2026-06-20 06:11:16] [INFO] Policy change: temp= gpu=22 gaming= -> conservative
+[2026-06-20 06:13:01] [INFO] Applying policy: powersave (gaming=)
+[2026-06-20 06:13:02] [INFO] Policy POWERSAVE applied (gaming=)
+[2026-06-20 06:13:03] [INFO] Policy change: temp= gpu=23 gaming= -> powersave
+[2026-06-20 06:13:47] [INFO] Applying policy: conservative (gaming=)
+[2026-06-20 06:13:47] [INFO] Policy CONSERVATIVE applied (gaming=)
+[2026-06-20 06:13:48] [INFO] Policy change: temp= gpu=2 gaming= -> conservative
+[2026-06-20 06:13:59] [INFO] Applying policy: balanced (gaming=)
+[2026-06-20 06:13:59] [INFO] Policy BALANCED applied (gaming=)
+[2026-06-20 06:14:00] [INFO] Policy change: temp= gpu=4 gaming= -> balanced
+[2026-06-20 06:14:16] [INFO] Applying policy: conservative (gaming=)
+[2026-06-20 06:14:16] [INFO] Policy CONSERVATIVE applied (gaming=)
+[2026-06-20 06:14:17] [INFO] Policy change: temp= gpu=22 gaming= -> conservative
+[2026-06-20 06:14:27] [INFO] Applying policy: balanced (gaming=)
+[2026-06-20 06:14:27] [INFO] Policy BALANCED applied (gaming=)
+[2026-06-20 06:14:28] [INFO] Policy change: temp= gpu=9 gaming= -> balanced
+[2026-06-20 06:15:25] [INFO] Applying policy: performance (gaming=)
+[2026-06-20 06:15:26] [INFO] Policy PERFORMANCE applied (gaming=)
+[2026-06-20 06:15:26] [INFO] Policy change: temp= gpu=4 gaming= -> performance
