@@ -34,14 +34,69 @@ keeping your device safe.
 ### Key Features
 
 - **Predictive**: Uses linear regression on 10-sample temp history to predict
-  temperature 10 seconds ahead — acts *before* throttle kicks in
-- **Gaming-aware**: Detects foreground app package, GPU load ≥60%, RenderThread
-  presence — auto-biases toward performance during gameplay
-- **Anti-flapping**: 10-second debounce on policy changes — no stuttering from
-  rapid policy swaps
-- **Background isolation**: Pushes non-game processes to little cores via cpuset
-  during gaming conserve/powersave modes
-- **Multi-SoC**: Works with Qualcomm Adreno, Mali, and generic GPU governors
+  temperature 10 seconds ahead — acts *before* throttle kicks in.
+- **Gaming-aware**: Detects foreground app package, GPU load, and RenderThread
+  presence — auto-biases toward performance and activates Touch/Network tweaks during gameplay.
+- **Battery-aware Charging**: Throttles fast charging if the device or battery exceeds safe temperatures to prolong battery lifespan.
+- **Self-Calibration**: Learns if your device runs hot and dynamically adjusts thermal thresholds safely down by 2°C over time.
+- **Bootloop & Crash Protection**: Safely aborts module startup if a system crash is detected within 2 minutes of boot. Watchdog resets to stock thermal if sensors fail.
+- **Suspend Cooling**: Drops CPU and GPU to absolute minimal power states instantly when the screen is turned off.
+- **Background isolation**: Pushes non-game processes to little cores via cpuset during gaming conserve/powersave modes.
+
+### Changelog v2.3.4
+- Removed `quiet_therm` (skin sensor) from battery temperature fallbacks.
+- Cleaned up duplicated property override subshell logic breaking main loop execution.
+
+### Changelog v2.3.3
+- Fixed KernelSU `/proc` isolation causing total failure of foreground game detection (fallback to `status`).
+- Fixed a massive subshell variable-loss bug that was silently clearing game package names and causing dumpsys spam.
+- Fixed an empty `TEMP_HISTORY` string initialization bug that broke AI trend prediction entirely.
+- Fixed a bug where a +35 gaming score boost was permanently applied even when idle.
+
+### Changelog v2.3.2
+- Fixed blank `p=` and `comf=` variables in `thermalai.log` and added verbose calculation logs for better debugging.
+- Broadened universal fast-charging limitation paths to cover specific AOSP variants and deeply nested `power_supply` nodes.
+- Rebuilt battery temperature fetching logic to use a robust dynamic fallback array across multiple thermal zones, preventing false 0°C readings on custom kernels.
+
+### Changelog v2.3.1
+- Fixed state snapshot variable collision preventing GPU power level restoration.
+- Fixed thermal watchdog to properly catch thermal sensor failures.
+- Fixed blocking offline network pings causing latency during game transitions.
+- Fixed self-calibration data wiping upon device reboot.
+- Added 90-second game-exit cool-down profile to prevent post-game heat spikes.
+- Added proactive 1A compound charge limit when actively gaming and charging.
+- Updated smart charging algorithm to use battery temperature (rather than SoC temp) with fine-grained stepped current limits targeting <39°C.
+- Added ambient IIO sensor tracking to penalize thermal limits in hot environments.
+- Added dual-log system (`thermalai.log` and `thermalai_verbose.log`) for better debugging without noise.
+- Fixed `thermalair status` to show live memory data, fixed blacklist branch bugs, and cleaned up duplicate code.
+
+### Changelog v2.3.0
+- Fixed critical charging heating issue by drastically reducing charge current when battery hits 41C.
+- Added universal kernel compatibility fallbacks for TCP, CPU, GPU, and Charging across generic Android trees (Mediatek, Exynos, custom Snapdragons).
+
+### Changelog v2.2.0
+- Implemented App-Switch Transition Engine with Residual State Cleaner to prevent lag when switching games.
+- Added Dynamic Post-Game Cool-Down Profile.
+- Added Memory-Pressure & Frame-Stutter Monitoring.
+- Built Auto-Blacklist sysfs wrapper to safely ignore failing paths without rebooting.
+
+### Changelog v2.1.0
+- Implemented advanced predictive heat forecasting using EMA and thermal inertia.
+- Added Dynamic Policy Weighting for context-aware intelligence.
+- Session Learning Engine & Per-Game Adaptive Profiles.
+- Advanced full state snapshot and restore mechanisms.
+- Network and Thermal Comfort awareness added.
+- Log file automatically cleared on module install/update.
+
+### Changelog v2.0.0
+- Added bootloop protection and thermal sensor watchdog.
+- Added self-calibration module to adapt to device cooling capabilities.
+- Added battery temperature-aware and SOC-aware smart charging controls.
+- Added temporary Touch/Network (BBR TCP) boosts during active gaming.
+- Added Suspend policy for screen-off instant cooling.
+- Fixed UI overheating by finding WALT "sweet spots" instead of 100% boosts.
+- Refactored `thermalair status` CLI for cleaner reporting.
+- Improved game detection subshell bug.
 
 ---
 

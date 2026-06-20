@@ -1,7 +1,7 @@
 id=thermalai
 name=ThermalAI - Intelligent Thermal Manager
-version=v1.3.0
-versionCode=130
+version=v2.3.4
+versionCode=234
 author=ThermalAI Project
-description=AI-driven adaptive thermal throttling for POCO F6 (peridot). Tuned for GlaciumKernel / AOSP Android 16 — v1.3.0: oom_score_adj detection (no dumpsys), app-switch aware, hysteresis throttle, log rotation — WALT governor, Adreno 735 power level control, mi_thermald replacement. Prevents frame drops during gaming via predictive thermal management.
+description=AI-driven adaptive thermal throttling for POCO F6 (peridot). v2.3.4: Removed quiet_therm from battery sensors and cleaned up property override logic.
 updateJson=
