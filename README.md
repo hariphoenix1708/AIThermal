@@ -43,6 +43,12 @@ keeping your device safe.
 - **Suspend Cooling**: Drops CPU and GPU to absolute minimal power states instantly when the screen is turned off.
 - **Background isolation**: Pushes non-game processes to little cores via cpuset during gaming conserve/powersave modes.
 
+### Changelog v2.3.5
+- Fixed AI prediction math dividing by 100 instead of 10, causing zero-delta predictions.
+- Applied battery charging limits per-tick instead of per-policy-change to handle cable re-plugging seamlessly.
+- Implemented `KNOWN_HOT` dynamic game profiles.
+- Integrated adaptive polling frequency based on trend variance.
+
 ### Changelog v2.3.4
 - Removed `quiet_therm` (skin sensor) from battery temperature fallbacks.
 - Cleaned up duplicated property override subshell logic breaking main loop execution.

@@ -1,7 +1,7 @@
 id=thermalai
 name=ThermalAI - Intelligent Thermal Manager
-version=v2.3.4
-versionCode=234
+version=v2.3.5
+versionCode=235
 author=ThermalAI Project
-description=AI-driven adaptive thermal throttling for POCO F6 (peridot). v2.3.4: Removed quiet_therm from battery sensors and cleaned up property override logic.
+description=AI-driven adaptive thermal throttling for POCO F6 (peridot). v2.3.5: Fixed prediction math, enforced charge limits per tick, and added dynamic GPU/game tracking.
 updateJson=
