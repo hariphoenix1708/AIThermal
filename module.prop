@@ -1,7 +1,7 @@
 id=thermalai
 name=ThermalAI - Intelligent Thermal Manager
-version=v2.3.7
-versionCode=237
+version=v2.3.8
+versionCode=238
 author=ThermalAI Project
-description=AI-driven adaptive thermal throttling for Android. v2.3.7: Fixed verbose logging conditions in charging.
+description=AI-driven adaptive thermal throttling for Android. v2.3.8: Added stuck state recovery watchdog and cooling device unlocking.
 updateJson=

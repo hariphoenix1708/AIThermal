@@ -432,8 +432,9 @@ main_loop() {
 
     init_thermal_zones
     discover_cpu_topology
+    load_snapshot
     start_log_rotation
-    apply_thermal_policy "balanced" "false" "40"
+    apply_thermal_policy "balanced" "false" "40" "transition"
 
     while true; do
         # Property-based override (Tasker / ADB / automation)
@@ -500,10 +501,20 @@ main_loop() {
         fi
 
         local now_time=$(date +%s)
+
+        # Self-healing stuck state watchdog
+        if [ $((now_time % 30)) -eq 0 ]; then
+            apply_thermal_policy "$CURRENT_POLICY" "$gaming" "$temp" "watchdog"
+        fi
+
         if [ "$LAST_GAMING_STATE" = "true" ] && [ "$gaming" = "false" ]; then
             GAME_EXIT_COOLDOWN_UNTIL=$((now_time + 90))
             COOLDOWN_SOURCE_PKG=$(get_current_game)
             log_info "Game exit detected. Post-game cooldown started for 90 seconds. Source: $COOLDOWN_SOURCE_PKG"
+            # Apply transition immediately to flush any stuck network/touch properties from previous game
+            apply_thermal_policy "balanced" "$gaming" "$temp" "transition"
+            CURRENT_POLICY="balanced"
+            LAST_POLICY_CHANGE="$now_time"
         fi
         LAST_GAMING_STATE="$gaming"
 
@@ -514,6 +525,8 @@ main_loop() {
                 if [ "$current_game_pkg" != "$LAST_GAME_PKG" ]; then
                     load_game_profile "$current_game_pkg"
                     LAST_GAME_PKG="$current_game_pkg"
+                    # Force a transition apply when switching games to clear stale settings
+                    apply_thermal_policy "$CURRENT_POLICY" "$gaming" "$temp" "transition"
                 fi
                 update_game_profile "$current_game_pkg" "$temp"
             fi

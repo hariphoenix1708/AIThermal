@@ -45,10 +45,18 @@ take_snapshot() {
     log_debug "Snapshot taken."
 }
 
+load_snapshot() {
+    if [ -f "$SNAPSHOT_FILE" ]; then
+        . "$SNAPSHOT_FILE"
+    else
+        log_warn "No snapshot file found to load into memory."
+    fi
+}
+
 restore_snapshot() {
     if [ -f "$SNAPSHOT_FILE" ]; then
         log_info "Restoring full state snapshot..."
-        . "$SNAPSHOT_FILE"
+        load_snapshot
         echo "$CPU_GOV_VAL" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor 2>/dev/null
         echo "$GPU_PWR_MIN_VAL" > /sys/class/kgsl/kgsl-3d0/min_pwrlevel 2>/dev/null
         echo "$GPU_PWR_MAX_VAL" > /sys/class/kgsl/kgsl-3d0/max_pwrlevel 2>/dev/null

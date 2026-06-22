@@ -21,17 +21,30 @@ apply_thermal_policy() {
     local policy="$1"
     local is_gaming="$2"
     local temp="$3"
+    local event_type="$4" # watchdog, transition
 
-    log_info "Applying policy: $policy (gaming=$is_gaming)"
+    log_info "Applying policy: $policy (gaming=$is_gaming, event=$event_type)"
+
+    # Unlock emergency cooling devices if we are recovering to a normal state
+    if [ "$policy" != "emergency_cool" ] && [ "$policy" != "suspend" ]; then
+        for cdev_path in /sys/class/thermal/cooling_device*/; do
+            local ctype=$(cat "${cdev_path}type" 2>/dev/null)
+            case "$ctype" in
+                cpu-cluster*|cpufreq-cpu*)
+                    [ -w "${cdev_path}cur_state" ] && echo "0" > "${cdev_path}cur_state" 2>/dev/null || true
+                    ;;
+            esac
+        done
+    fi
 
     case "$policy" in
         suspend)          _policy_suspend                   ;;
-        performance)      _policy_performance  "$is_gaming" ;;
-        balanced)         _policy_balanced     "$is_gaming" ;;
-        conservative)     _policy_conservative "$is_gaming" ;;
-        powersave)        _policy_powersave    "$is_gaming" ;;
-        emergency_cool)   _policy_emergency                 ;;
-        *)                _policy_balanced     "$is_gaming" ;;
+        performance)      _policy_performance  "$is_gaming" "$event_type" ;;
+        balanced)         _policy_balanced     "$is_gaming" "$event_type" ;;
+        conservative)     _policy_conservative "$is_gaming" "$event_type" ;;
+        powersave)        _policy_powersave    "$is_gaming" "$event_type" ;;
+        emergency_cool)   _policy_emergency                 "$event_type" ;;
+        *)                _policy_balanced     "$is_gaming" "$event_type" ;;
     esac
 
     _apply_vm_params    "$policy" "$is_gaming"
@@ -141,6 +154,7 @@ _policy_conservative() {
 # ══════════════════════════════════════════════════════════════════════════════
 _policy_powersave() {
     local gaming="$1"
+    local event_type="$2"
 
     if $gaming; then
         # LITTLE: hard cap at 60% (1209600 kHz) — bg tasks only
@@ -158,7 +172,7 @@ _policy_powersave() {
         set_gpu_power_levels 3 8
 
         _constrain_background_to_little
-        _drop_page_cache
+        [ "$event_type" = "transition" ] && _drop_page_cache
 
     else
         apply_cluster_settings 0 "$ACTIVE_GOV" 10 50  "595200"  "95" "12000" "1000"
@@ -195,6 +209,7 @@ _policy_suspend() {
 # Releases automatically once AI score recovers above -20.
 # ══════════════════════════════════════════════════════════════════════════════
 _policy_emergency() {
+    local event_type="$1"
     log_warn "EMERGENCY COOLING: temp critical — maximum throttle engaged"
 
     # All clusters hard-capped at 50%. Use ACTIVE_GOV to avoid "powersave" not found failures
@@ -220,8 +235,10 @@ _policy_emergency() {
         esac
     done
 
-    _drop_page_cache
-    _drop_slab_cache
+    if [ "$event_type" = "transition" ]; then
+        _drop_page_cache
+        _drop_slab_cache
+    fi
 
     log_warn "Emergency cooling active — will auto-release when score recovers"
 }

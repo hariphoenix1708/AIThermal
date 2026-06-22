@@ -43,6 +43,12 @@ keeping your device safe.
 - **Suspend Cooling**: Drops CPU and GPU to absolute minimal power states instantly when the screen is turned off.
 - **Background isolation**: Pushes non-game processes to little cores via cpuset during gaming conserve/powersave modes.
 
+### Changelog v2.3.8
+- **Stuck State Watchdog**: Added a self-healing watchdog to the main loop that periodically rebuilds and validates CPU/GPU/Scheduler states, ensuring performance never remains stuck after long gaming sessions.
+- **Game Switching Transitions**: Transitions between different games now immediately force-flush old profiles, wiping stale touch and network tweaks before the new game locks in.
+- **Emergency Cooling Unlocks**: Kernel-level `cooling_device` state locks (which were causing system-wide stuttering post-throttle) are now actively cleared when transitioning back to balanced or performance modes.
+- `state_manager.sh` now loads the original snapshot into memory, rather than directly writing to sysfs, allowing the engine to self-validate current state against the original expected values.
+
 ### Changelog v2.3.7
 - Fixed verbose log echo failing to print gaming charge status properly.
 
