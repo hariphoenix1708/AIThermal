@@ -24,7 +24,7 @@ log_info " Device  : $(getprop ro.product.model) ($(getprop ro.product.device))"
 log_info " ROM     : $(getprop ro.build.display.id)"
 log_info " Android : $(getprop ro.build.version.release)"
 log_info " SoC     : $(getprop ro.board.platform)"
-log_info " KSU     : $(ksud -V 2>/dev/null || echo 'unknown')"
+log_info " KSU     : $(ksud -V 2>/dev/null || ksud version 2>/dev/null || ksu -V 2>/dev/null || echo 'unknown')"
 log_info "════════════════════════════════════════"
 
 # ─── Discover hardware ────────────────────────────────────────────────────────
@@ -72,6 +72,7 @@ if [ -f "$LOCK_FILE" ]; then
 fi
 
 # Create lock file to monitor stability
+mkdir -p /data/local/tmp
 touch "$LOCK_FILE"
 
 # Background task to clear the lock file after 2 minutes of uptime (meaning boot was stable)
@@ -83,7 +84,7 @@ touch "$LOCK_FILE"
 
 # ─── Launch AI daemon ─────────────────────────────────────────────────────────
 log_info "Launching AI thermal daemon..."
-sh "$MODDIR/scripts/thermal_ai.sh" &
+/system/bin/sh "$MODDIR/scripts/thermal_ai.sh" &
 DAEMON_PID=$!
 echo "$DAEMON_PID" > /data/local/tmp/thermalai.pid
 

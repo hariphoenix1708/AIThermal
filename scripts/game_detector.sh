@@ -64,11 +64,26 @@ _CACHED_PKG=""
 # ─── GPU Load ─────────────────────────────────────────────────────────────────
 get_gpu_load() {
     local load
-    load=$(cat /sys/class/kgsl/kgsl-3d0/gpu_busy_percentage 2>/dev/null \
-           | awk '{print int($1)}')
+
+    # 1. Standard kgsl Adreno
+    load=$(cat /sys/class/kgsl/kgsl-3d0/gpu_busy_percentage 2>/dev/null | awk '{print int($1)}')
     [ -n "$load" ] && echo "$load" && return
+
+    # 2. Universal GPU busy kernel node
     load=$(cat /sys/kernel/gpu/gpu_busy 2>/dev/null | tr -d '% ')
     [ -n "$load" ] && echo "$load" && return
+
+    # 3. Devfreq (Mali, older Adreno, custom kernels without kgsl)
+    for devfreq_load in /sys/class/devfreq/1c00000.qcom,kgsl-3d0/load \
+                        /sys/class/kgsl/kgsl-3d0/devfreq/load \
+                        /sys/class/devfreq/gpufreq/load \
+                        /sys/devices/platform/g3d/devfreq/g3d/load; do
+        if [ -f "$devfreq_load" ]; then
+            load=$(cat "$devfreq_load" 2>/dev/null | cut -d@ -f1 | tr -d ' ' | awk '{print int($1)}')
+            [ -n "$load" ] && echo "$load" && return
+        fi
+    done
+
     echo "0"
 }
 

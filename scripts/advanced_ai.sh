@@ -3,9 +3,30 @@
 
 # Context-Aware Variables
 WIFI_STATE_PATH="/sys/class/net/wlan0/operstate"
-BRIGHTNESS_PATH="/sys/class/backlight/panel0-backlight/brightness"
+BRIGHTNESS_PATH=""
 GAME_PROFILES_DIR="/data/local/tmp/thermalai.game_profiles"
 mkdir -p "$GAME_PROFILES_DIR"
+
+# Dynamic Brightness path discovery
+for path in "/sys/class/backlight/panel0-backlight/brightness" \
+            "/sys/class/leds/lcd-backlight/brightness" \
+            "/sys/class/backlight/10-0045/brightness"; do
+    if [ -f "$path" ]; then
+        BRIGHTNESS_PATH="$path"
+        break
+    fi
+done
+
+# Dynamic Skin Sensor discovery
+export SKIN_TEMP_PATH=""
+for z in /sys/class/thermal/thermal_zone*/type; do
+    [ -f "$z" ] || continue
+    t_type=$(cat "$z" 2>/dev/null)
+    if echo "$t_type" | grep -iqE "quiet|skin|tskin"; then
+        SKIN_TEMP_PATH="${z%/*}/temp"
+        break
+    fi
+done
 
 # Smoothing factor for EMA (Exponential Moving Average)
 EMA_ALPHA=0.3
@@ -94,12 +115,12 @@ update_game_profile() {
         # Check max temp reached
         local max_temp=$(grep MAX_TEMP "$profile_file" | cut -d= -f2)
         if [ "$current_temp" -gt "$max_temp" ]; then
-            sed -i "s/MAX_TEMP=$max_temp/MAX_TEMP=$current_temp/" "$profile_file"
+            sed "s/MAX_TEMP=$max_temp/MAX_TEMP=$current_temp/" "$profile_file" > "${profile_file}.tmp" && mv "${profile_file}.tmp" "$profile_file"
 
             # If temp exceeds 46, mark it as KNOWN_HOT for future runs
             if [ "$current_temp" -gt 46 ]; then
                 if grep -q "KNOWN_HOT=" "$profile_file"; then
-                    sed -i "s/KNOWN_HOT=.*/KNOWN_HOT=true/" "$profile_file"
+                    sed "s/KNOWN_HOT=.*/KNOWN_HOT=true/" "$profile_file" > "${profile_file}.tmp" && mv "${profile_file}.tmp" "$profile_file"
                 else
                     echo "KNOWN_HOT=true" >> "$profile_file"
                 fi
@@ -109,7 +130,6 @@ update_game_profile() {
 }
 
 # Thermal Comfort & Power Budget Awareness
-SKIN_TEMP_PATH="/sys/class/thermal/thermal_zone48/temp" # quiet_therm / skin temp approximation
 BATT_TEMP_PATH="/sys/class/power_supply/battery/temp"
 
 get_thermal_comfort_score() {

@@ -19,24 +19,28 @@ _apply_network_tweaks() {
             echo 2 > /proc/sys/net/ipv4/tcp_synack_retries 2>/dev/null
             # Disable Wi-Fi power saving (if supported by wlan driver path)
             if [ -w "/sys/module/wlan/parameters/fwpath" ]; then
-                 # Note: actual wifi power save node varies heavily by device
-                 # Standard fallback is checking standard wlan0
-                 iw dev wlan0 set power_save off 2>/dev/null || true
+                 if command -v iw >/dev/null 2>&1; then
+                     iw dev wlan0 set power_save off 2>/dev/null || true
+                 fi
             fi
             log_debug "Gaming network tweaks applied (BBR, Fast Fail, Wi-Fi PS Off)"
         else
             log_warn "Network quality poor, bypassing gaming network enhancements."
         fi
     else
-        # Restore to default
+        # Restore to original values from snapshot
         if [ -f "/proc/sys/net/ipv4/tcp_available_congestion_control" ]; then
             if grep -q "cubic" "/proc/sys/net/ipv4/tcp_available_congestion_control"; then
                 echo "cubic" > /proc/sys/net/ipv4/tcp_congestion_control 2>/dev/null
             fi
         fi
-        echo 6 > /proc/sys/net/ipv4/tcp_syn_retries 2>/dev/null
-        echo 5 > /proc/sys/net/ipv4/tcp_synack_retries 2>/dev/null
-        iw dev wlan0 set power_save on 2>/dev/null || true
+
+        [ -n "$TCP_SYN_RETRIES" ] && echo "$TCP_SYN_RETRIES" > /proc/sys/net/ipv4/tcp_syn_retries 2>/dev/null
+        [ -n "$TCP_SYNACK_RETRIES" ] && echo "$TCP_SYNACK_RETRIES" > /proc/sys/net/ipv4/tcp_synack_retries 2>/dev/null
+
+        if command -v iw >/dev/null 2>&1; then
+            iw dev wlan0 set power_save on 2>/dev/null || true
+        fi
         log_debug "Network tweaks restored to default"
     fi
 }

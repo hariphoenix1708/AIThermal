@@ -27,14 +27,14 @@ _log() {
     
     # Rotate main log
     local size
-    size=$(stat -c%s "$LOG_FILE" 2>/dev/null || echo "0")
+    size=$(wc -c < "$LOG_FILE" 2>/dev/null || stat -c%s "$LOG_FILE" 2>/dev/null || echo "0")
     if [ "$size" -gt "$MAX_LOG_SIZE" ]; then
         mv "$LOG_FILE" "${LOG_FILE}.1" 2>/dev/null || true
     fi
 
     # Rotate verbose log
     local v_size
-    v_size=$(stat -c%s "$VERBOSE_LOG_FILE" 2>/dev/null || echo "0")
+    v_size=$(wc -c < "$VERBOSE_LOG_FILE" 2>/dev/null || stat -c%s "$VERBOSE_LOG_FILE" 2>/dev/null || echo "0")
     if [ "$v_size" -gt "$MAX_VERBOSE_LOG_SIZE" ]; then
         mv "$VERBOSE_LOG_FILE" "${VERBOSE_LOG_FILE}.1" 2>/dev/null || true
     fi

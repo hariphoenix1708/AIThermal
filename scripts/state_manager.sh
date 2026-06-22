@@ -11,6 +11,16 @@ GPU_PWR_MAX="/sys/class/kgsl/kgsl-3d0/max_pwrlevel"
 SWAPPINESS_PATH="/proc/sys/vm/swappiness"
 BATT_CURRENT_MAX="/sys/class/power_supply/battery/constant_charge_current_max"
 
+# Global CPUSET path detection
+export CPUSET_ROOT="/dev/cpuset"
+if [ ! -d "/dev/cpuset" ]; then
+    if [ -d "/sys/fs/cgroup/cpuset" ]; then
+        export CPUSET_ROOT="/sys/fs/cgroup/cpuset"
+    elif [ -d "/sys/fs/cgroup" ] && [ -f "/sys/fs/cgroup/cpuset.cpus" ]; then
+        export CPUSET_ROOT="/sys/fs/cgroup"
+    fi
+fi
+
 take_snapshot() {
     log_info "Taking full state snapshot..."
     echo "CPU_GOV_VAL=$(cat $CPU_GOV_PATH 2>/dev/null || echo 'schedutil')" > "$SNAPSHOT_FILE"
@@ -18,6 +28,20 @@ take_snapshot() {
     echo "GPU_PWR_MAX_VAL=$(cat $GPU_PWR_MAX 2>/dev/null || echo '0')" >> "$SNAPSHOT_FILE"
     echo "SWAPPINESS_VAL=$(cat $SWAPPINESS_PATH 2>/dev/null || echo '100')" >> "$SNAPSHOT_FILE"
     echo "BATT_CURRENT_MAX_VAL=$(cat $BATT_CURRENT_MAX 2>/dev/null || echo '5000000')" >> "$SNAPSHOT_FILE"
+
+    # Save cpusets
+    local cpus_file="cpus"
+    [ "$CPUSET_ROOT" = "/sys/fs/cgroup" ] && cpus_file="cpuset.cpus"
+
+    echo "CPUSET_BG=\"$(cat $CPUSET_ROOT/background/$cpus_file 2>/dev/null)\"" >> "$SNAPSHOT_FILE"
+    echo "CPUSET_SYSBG=\"$(cat $CPUSET_ROOT/system-background/$cpus_file 2>/dev/null)\"" >> "$SNAPSHOT_FILE"
+    echo "CPUSET_FG=\"$(cat $CPUSET_ROOT/foreground/$cpus_file 2>/dev/null)\"" >> "$SNAPSHOT_FILE"
+    echo "CPUSET_TOPAPP=\"$(cat $CPUSET_ROOT/top-app/$cpus_file 2>/dev/null)\"" >> "$SNAPSHOT_FILE"
+
+    # Save TCP config
+    echo "TCP_SYN_RETRIES=\"$(cat /proc/sys/net/ipv4/tcp_syn_retries 2>/dev/null || echo '6')\"" >> "$SNAPSHOT_FILE"
+    echo "TCP_SYNACK_RETRIES=\"$(cat /proc/sys/net/ipv4/tcp_synack_retries 2>/dev/null || echo '5')\"" >> "$SNAPSHOT_FILE"
+
     log_debug "Snapshot taken."
 }
 
@@ -30,6 +54,18 @@ restore_snapshot() {
         echo "$GPU_PWR_MAX_VAL" > /sys/class/kgsl/kgsl-3d0/max_pwrlevel 2>/dev/null
         echo "$SWAPPINESS_VAL" > /proc/sys/vm/swappiness 2>/dev/null
         echo "$BATT_CURRENT_MAX_VAL" > /sys/class/power_supply/battery/constant_charge_current_max 2>/dev/null
+
+        local cpus_file="cpus"
+        [ "$CPUSET_ROOT" = "/sys/fs/cgroup" ] && cpus_file="cpuset.cpus"
+
+        [ -n "$CPUSET_BG" ] && echo "$CPUSET_BG" > "$CPUSET_ROOT/background/$cpus_file" 2>/dev/null
+        [ -n "$CPUSET_SYSBG" ] && echo "$CPUSET_SYSBG" > "$CPUSET_ROOT/system-background/$cpus_file" 2>/dev/null
+        [ -n "$CPUSET_FG" ] && echo "$CPUSET_FG" > "$CPUSET_ROOT/foreground/$cpus_file" 2>/dev/null
+        [ -n "$CPUSET_TOPAPP" ] && echo "$CPUSET_TOPAPP" > "$CPUSET_ROOT/top-app/$cpus_file" 2>/dev/null
+
+        [ -n "$TCP_SYN_RETRIES" ] && echo "$TCP_SYN_RETRIES" > /proc/sys/net/ipv4/tcp_syn_retries 2>/dev/null
+        [ -n "$TCP_SYNACK_RETRIES" ] && echo "$TCP_SYNACK_RETRIES" > /proc/sys/net/ipv4/tcp_synack_retries 2>/dev/null
+
         log_info "Snapshot restored."
     else
         log_warn "No snapshot file found to restore."

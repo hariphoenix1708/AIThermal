@@ -4,9 +4,9 @@
 SKIPUNZIP=1
 
 ui_print "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-ui_print "   ThermalAI v2.3.5 - Intelligent Thermal Manager"
-ui_print "   Device Edition: POCO F6 (peridot)"
-ui_print "   AOSP Android 16 / GlaciumKernel"
+ui_print "   ThermalAI v2.3.6 - Intelligent Thermal Manager"
+ui_print "   Device Edition: Universal Android"
+ui_print "   Linux 4.14+ / AOSP / HyperOS"
 ui_print "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 ui_print ""
 

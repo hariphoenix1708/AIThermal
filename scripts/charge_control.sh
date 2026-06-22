@@ -18,64 +18,63 @@ BATT_CAPACITY="/sys/class/power_supply/battery/capacity"
 
 # ─── Robust Battery Temp Read ─────────────────────────────────────────────────
 get_robust_battery_temp() {
-    local max_t=0
-    # List of possible battery thermal zones or paths.
-    # Usually in tenths of a degree (350 = 35.0C), but sometimes in millidegrees (35000 = 35.0C).
-    local paths="
-/sys/class/power_supply/battery/temp
-/sys/class/thermal/thermal_zone54/temp
-/sys/class/thermal/thermal_zone60/temp
-"
+    local batt_temp=0
 
-    # We will grab all and use the max realistic one (to be safe and throttle properly)
-    for p in $paths; do
-        if [ -f "$p" ]; then
-            local raw
-            raw=$(cat "$p" 2>/dev/null || echo 0)
+    # Best reliable path on most Android devices
+    local primary_path="/sys/class/power_supply/battery/temp"
 
-            # Convert millidegrees to tenths if needed (if it's e.g., 35000 -> 350)
-            if [ "$raw" -gt 10000 ]; then
-                raw=$((raw / 100))
-            fi
-
-            # Plausibility check: between 10C (100) and 80C (800)
-            if [ "$raw" -ge 100 ] && [ "$raw" -le 800 ]; then
-                if [ "$raw" -gt "$max_t" ]; then
-                    max_t="$raw"
-                fi
-            fi
+    if [ -f "$primary_path" ]; then
+        batt_temp=$(cat "$primary_path" 2>/dev/null || echo 0)
+        [ "$batt_temp" -gt 10000 ] && batt_temp=$((batt_temp / 100))
+        if [ "$batt_temp" -ge 100 ] && [ "$batt_temp" -le 800 ]; then
+            echo "$batt_temp"
+            return
         fi
-    done
-
-    # Check fallback type=battery thermal zones dynamically just in case
-    for tz_type in /sys/class/thermal/thermal_zone*/type; do
-        if [ -f "$tz_type" ]; then
-            local type_val
-            type_val=$(cat "$tz_type" 2>/dev/null || echo "")
-            if case "$type_val" in *battery*|*charger_therm*|*vbat*) true;; *) false;; esac; then
-                local tz_dir="${tz_type%/*}"
-                if [ -f "$tz_dir/temp" ]; then
-                    local raw
-                    raw=$(cat "$tz_dir/temp" 2>/dev/null || echo 0)
-                    if [ "$raw" -gt 10000 ]; then
-                        raw=$((raw / 100))
-                    fi
-                    if [ "$raw" -ge 100 ] && [ "$raw" -le 800 ]; then
-                        if [ "$raw" -gt "$max_t" ]; then
-                            max_t="$raw"
-                        fi
-                    fi
-                fi
-            fi
-        fi
-    done
-
-    # If we couldn't find anything plausible, return 350 (35.0C) as a safe default
-    if [ "$max_t" -eq 0 ]; then
-        max_t=350
     fi
 
-    echo "$max_t"
+    # Fallback to dynamic thermal zones
+    # We want MIN of matched to avoid charger_therm inflating actual battery temp
+    local min_t=999
+    local found_exact_battery="false"
+
+    for tz_type in /sys/class/thermal/thermal_zone*/type; do
+        [ -f "$tz_type" ] || continue
+        local type_val=$(cat "$tz_type" 2>/dev/null | tr -d '\n')
+
+        # If we find EXACTLY "battery", take it and exit loop.
+        if [ "$type_val" = "battery" ]; then
+            local tz_dir="${tz_type%/*}"
+            if [ -f "$tz_dir/temp" ]; then
+                local raw=$(cat "$tz_dir/temp" 2>/dev/null || echo 0)
+                [ "$raw" -gt 10000 ] && raw=$((raw / 100))
+                if [ "$raw" -ge 100 ] && [ "$raw" -le 800 ]; then
+                    echo "$raw"
+                    return
+                fi
+            fi
+        fi
+
+        # Otherwise, collect matches and find the minimum valid one
+        if echo "$type_val" | grep -iqE "battery|charger_therm|vbat"; then
+            local tz_dir="${tz_type%/*}"
+            if [ -f "$tz_dir/temp" ]; then
+                local raw=$(cat "$tz_dir/temp" 2>/dev/null || echo 0)
+                [ "$raw" -gt 10000 ] && raw=$((raw / 100))
+                if [ "$raw" -ge 100 ] && [ "$raw" -le 800 ]; then
+                    if [ "$raw" -lt "$min_t" ]; then
+                        min_t="$raw"
+                    fi
+                fi
+            fi
+        fi
+    done
+
+    if [ "$min_t" -lt 999 ]; then
+        echo "$min_t"
+    else
+        # Safe default
+        echo 350
+    fi
 }
 
 # ─── Adjust Charging Current ──────────────────────────────────────────────────

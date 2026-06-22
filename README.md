@@ -43,6 +43,12 @@ keeping your device safe.
 - **Suspend Cooling**: Drops CPU and GPU to absolute minimal power states instantly when the screen is turned off.
 - **Background isolation**: Pushes non-game processes to little cores via cpuset during gaming conserve/powersave modes.
 
+### Changelog v2.3.6
+- **Universal Governor Support**: Automatically detects and uses `walt`, `schedutil`, `interactive`, `ondemand`, or `conservative` based on the running kernel rather than hardcoding.
+- **Universal GPU Support**: Adreno `kgsl` paths now gracefully fall back to generic `devfreq` paths (in Hz) to support AOSP/minimal kernels, Mali, and Exynos devices.
+- **Dynamic Cgroups**: CPU isolation now dynamically checks for `cgroup v2` and dynamically determines LITTLE core ranges instead of hardcoding `0-2`.
+- **Agnostic Path Scanning**: Thermal zones, backlight paths, `iw` binaries, and block schedulers (`sdc`, `mmcblk0`) are now scanned dynamically for cross-ROM compatibility.
+
 ### Changelog v2.3.5
 - Fixed AI prediction math dividing by 100 instead of 10, causing zero-delta predictions.
 - Applied battery charging limits per-tick instead of per-policy-change to handle cable re-plugging seamlessly.
