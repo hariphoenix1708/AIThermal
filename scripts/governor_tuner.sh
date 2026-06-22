@@ -42,7 +42,18 @@ CLUSTER_MINFREQ_2=0
 
 # ─── CPU Topology Discovery ───────────────────────────────────────────────────
 discover_cpu_topology() {
-    log_debug "Discovering CPU topology (pineapple/peridot)..."
+    log_debug "Discovering CPU topology and governors..."
+
+    # Discover preferred CPU governor
+    export ACTIVE_GOV="schedutil"
+    local available_govs=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors 2>/dev/null || echo "schedutil")
+    for gov in walt schedutil ondemand interactive conservative performance; do
+        if echo "$available_govs" | grep -qw "$gov"; then
+            export ACTIVE_GOV="$gov"
+            break
+        fi
+    done
+    log_info "Detected active CPU governor: $ACTIVE_GOV"
 
     local cluster_id=0
     local prev_max=""
@@ -169,6 +180,7 @@ apply_cluster_settings() {
         set_cpu_governor "$cpu_num" "$governor"
         set_cpu_freq_limits "$cpu_num" "$target_min" "$target_max"
         tune_walt "$cpu_num" "$walt_hispeed" "$walt_hsload" "$walt_up_us" "$walt_dn_us" ""
+        apply_universal_cpu_tuning "$cpu_num" "$governor"
     done
 
     log_debug "Cluster ${cluster_id} -> gov=${governor} ${target_min}-${target_max}kHz hs=${walt_hispeed}@${walt_hsload}%"
@@ -182,12 +194,28 @@ apply_cluster_settings() {
 #            min_pwrlevel sets the FLOOR  (highest number = slowest)
 # Only msm-adreno-tz governor exists — no performance/powersave switch possible.
 # We control speed purely through min/max power level clamping.
+
+# Helper to convert pwrlevel to Hz for non-kgsl devfreq fallback
+pwrlevel_to_hz() {
+    case "$1" in
+        0) echo 1100000000 ;;
+        1) echo 1000000000 ;;
+        2) echo 950000000 ;;
+        3) echo 900000000 ;;
+        4) echo 835000000 ;;
+        5) echo 736000000 ;;
+        6) echo 684000000 ;;
+        7) echo 633000000 ;;
+        8) echo 500000000 ;;
+        9) echo 353000000 ;;
+        10) echo 255000000 ;;
+        *) echo 500000000 ;;
+    esac
+}
+
 set_gpu_power_levels() {
     local max_pl="$1"   # ceiling: 0 (1100MHz/fastest) to 10 (255MHz/slowest)
     local min_pl="$2"   # floor:   must be >= max_pl
-
-    local adreno="/sys/class/kgsl/kgsl-3d0"
-    [ -d "$adreno" ] || return
 
     # Validate: floor must be slower than or equal to ceiling
     if [ "$min_pl" -lt "$max_pl" ] 2>/dev/null; then
@@ -195,28 +223,59 @@ set_gpu_power_levels() {
         min_pl="$max_pl"
     fi
 
-    # Write min (floor/slowest) FIRST to avoid transient invalid state
-    [ -w "$adreno/min_pwrlevel" ] && echo "$min_pl" > "$adreno/min_pwrlevel" 2>/dev/null
-    [ -w "$adreno/max_pwrlevel" ] && echo "$max_pl" > "$adreno/max_pwrlevel" 2>/dev/null
+    # 1. Try standard KGSL Adreno path
+    local adreno="/sys/class/kgsl/kgsl-3d0"
+    if [ -d "$adreno" ] && [ -w "$adreno/min_pwrlevel" ]; then
+        # Write min (floor/slowest) FIRST to avoid transient invalid state
+        echo "$min_pl" > "$adreno/min_pwrlevel" 2>/dev/null
+        [ -w "$adreno/max_pwrlevel" ] && echo "$max_pl" > "$adreno/max_pwrlevel" 2>/dev/null
+        log_debug "GPU power levels -> max(ceil)=${max_pl} min(floor)=${min_pl}"
+        return
+    fi
 
-    log_debug "GPU power levels -> max(ceil)=${max_pl} min(floor)=${min_pl}"
+    # 2. Try generic devfreq fallback (freq in Hz instead of power levels)
+    local max_hz=$(pwrlevel_to_hz "$max_pl")
+    local min_hz=$(pwrlevel_to_hz "$min_pl")
+
+    # We use GPU_MIN_FREQ_NODES from thermal_policy.sh fallback list if sourced, else hardcode
+    for node in /sys/class/kgsl/kgsl-3d0/devfreq/min_freq \
+                /sys/class/devfreq/1c00000.qcom,kgsl-3d0/min_freq \
+                /sys/class/devfreq/gpufreq/min_freq \
+                /sys/devices/platform/g3d/devfreq/g3d/min_freq; do
+        if [ -w "$node" ]; then
+            echo "$min_hz" > "$node" 2>/dev/null || true
+            local max_node="${node/min_freq/max_freq}"
+            [ -w "$max_node" ] && echo "$max_hz" > "$max_node" 2>/dev/null || true
+            log_debug "GPU devfreq -> max=${max_hz} min=${min_hz}"
+            return
+        fi
+    done
 }
 
 # ─── Disable Stock Thermal (mi_thermald for peridot/HyperOS) ─────────────────
 disable_stock_thermal() {
     # Primary: mi_thermald (MIUI / HyperOS — confirmed running pid=2418)
-    stop mi_thermald 2>/dev/null || true
-    # Belt-and-suspenders: try generic names too
-    stop thermal-engine        2>/dev/null || true
-    stop vendor.thermal-engine 2>/dev/null || true
-    stop thermald              2>/dev/null || true
+    local daemons="mi_thermald thermal-engine vendor.thermal-engine thermald thermal_monitor vendor.thermal_monitor"
+
+    for d in $daemons; do
+        stop "$d" 2>/dev/null || true
+    done
+
+    sleep 1
+
+    # Verify if they actually stopped (some persistent services via init.rc restart instantly)
+    for d in $daemons; do
+        if pgrep -f "$d" >/dev/null 2>&1; then
+            log_warn "Thermal daemon $d is still running and may fight the module."
+        fi
+    done
 
     # Reset all cooling device states to 0 (no throttle)
     for cdev in /sys/class/thermal/cooling_device*/cur_state; do
         [ -w "$cdev" ] && echo "0" > "$cdev" 2>/dev/null || true
     done
 
-    log_info "Stock thermal daemon (mi_thermald) disabled"
+    log_info "Stock thermal daemons stopped and cooling devices reset"
 }
 
 # ─── Restore Stock Thermal ────────────────────────────────────────────────────
@@ -240,5 +299,47 @@ restore_stock_thermal() {
     # Restore GPU to full range
     set_gpu_power_levels 0 10
 
+    # Restore charging (if charge_control.sh is available)
+    if command -v restore_charging_control >/dev/null 2>&1; then
+        restore_charging_control
+    fi
+
     log_info "Stock thermal (mi_thermald) restored and freq limits reset"
+}
+
+# ─── Universal CPU Tuning Fallbacks ───────────────────────────────────────────
+# If WALT is not available (e.g., standard schedutil, interactive, or MediaTek)
+apply_universal_cpu_tuning() {
+    local cpu_num="$1"
+    local governor="$2"
+    local gov_path="/sys/devices/system/cpu/cpu${cpu_num}/cpufreq/scaling_governor"
+
+    # Don't blindly write governor if it's identical to what we're currently trying to enforce
+    # Just let the caller's set_cpu_governor handle it.
+
+    # Try generic schedutil tuning if WALT is missing
+    local schedutil_path="/sys/devices/system/cpu/cpu${cpu_num}/cpufreq/schedutil"
+    if [ -d "$schedutil_path" ]; then
+        if [ "$governor" = "performance" ] || echo "$governor" | grep -q "walt"; then
+            sysfs_write 500 "$schedutil_path/up_rate_limit_us"
+            sysfs_write 20000 "$schedutil_path/down_rate_limit_us"
+        else
+            sysfs_write 2000 "$schedutil_path/up_rate_limit_us"
+            sysfs_write 5000 "$schedutil_path/down_rate_limit_us"
+        fi
+    fi
+
+    # Try interactive governor tuning
+    local interactive_path="/sys/devices/system/cpu/cpu${cpu_num}/cpufreq/interactive"
+    if [ -d "$interactive_path" ]; then
+        if [ "$governor" = "performance" ]; then
+            sysfs_write "85" "$interactive_path/go_hispeed_load"
+            sysfs_write "10000" "$interactive_path/timer_rate"
+            sysfs_write "0" "$interactive_path/above_hispeed_delay"
+        else
+            sysfs_write "95" "$interactive_path/go_hispeed_load"
+            sysfs_write "20000" "$interactive_path/timer_rate"
+            sysfs_write "20000" "$interactive_path/above_hispeed_delay"
+        fi
+    fi
 }

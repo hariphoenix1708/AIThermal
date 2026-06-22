@@ -64,11 +64,26 @@ _CACHED_PKG=""
 # ─── GPU Load ─────────────────────────────────────────────────────────────────
 get_gpu_load() {
     local load
-    load=$(cat /sys/class/kgsl/kgsl-3d0/gpu_busy_percentage 2>/dev/null \
-           | awk '{print int($1)}')
+
+    # 1. Standard kgsl Adreno
+    load=$(cat /sys/class/kgsl/kgsl-3d0/gpu_busy_percentage 2>/dev/null | awk '{print int($1)}')
     [ -n "$load" ] && echo "$load" && return
+
+    # 2. Universal GPU busy kernel node
     load=$(cat /sys/kernel/gpu/gpu_busy 2>/dev/null | tr -d '% ')
     [ -n "$load" ] && echo "$load" && return
+
+    # 3. Devfreq (Mali, older Adreno, custom kernels without kgsl)
+    for devfreq_load in /sys/class/devfreq/1c00000.qcom,kgsl-3d0/load \
+                        /sys/class/kgsl/kgsl-3d0/devfreq/load \
+                        /sys/class/devfreq/gpufreq/load \
+                        /sys/devices/platform/g3d/devfreq/g3d/load; do
+        if [ -f "$devfreq_load" ]; then
+            load=$(cat "$devfreq_load" 2>/dev/null | cut -d@ -f1 | tr -d ' ' | awk '{print int($1)}')
+            [ -n "$load" ] && echo "$load" && return
+        fi
+    done
+
     echo "0"
 }
 
@@ -130,6 +145,8 @@ is_known_game_package() {
 # Fastest when game is clearly foreground (normal gameplay)
 # ══════════════════════════════════════════════════════════════════════════════
 _scan_oom_for_game() {
+    log_debug "Detector: Starting Layer 1 (oom_score_adj) scan..."
+    local found_count=0
     for oom_path in /proc/[0-9]*/oom_score_adj; do
         # Read oom_score_adj — skip if not 0 (not foreground)
         local oom_val
@@ -141,10 +158,17 @@ _scan_oom_for_game() {
         pid="${pid##*/proc/}"
 
         # Read cmdline (package name is first null-delimited token)
+        # Fallback to status Name: field if cmdline is restricted (e.g., KernelSU isolation)
         local cmdline_path="/proc/$pid/cmdline"
-        [ -f "$cmdline_path" ] || continue
-        local pkg
-        pkg=$(cat "$cmdline_path" 2>/dev/null | tr '\0' '\n' | head -1)
+        local pkg=""
+        if [ -f "$cmdline_path" ]; then
+            pkg=$(cat "$cmdline_path" 2>/dev/null | tr '\0' '\n' | head -1)
+        fi
+
+        if [ -z "$pkg" ] && [ -f "/proc/$pid/status" ]; then
+            pkg=$(grep "^Name:" "/proc/$pid/status" 2>/dev/null | awk '{print $2}')
+        fi
+
         [ -z "$pkg" ] && continue
 
         # Skip kernel threads, zygote, system processes
@@ -159,20 +183,23 @@ _scan_oom_for_game() {
             com.google.android.apps.nexuslauncher) continue ;;
         esac
 
+        found_count=$((found_count + 1))
+
         # Match against game list
         local result
         result=$(is_known_game_package "$pkg")
         if [ "$result" = "true" ]; then
             log_debug "Layer1(oom): foreground game=$pkg pid=$pid"
             _CONFIRMED_GAME_PKG="$pkg"
-            echo "true"
+            _LAST_DETECTION_RESULT="true"
             return
         fi
 
         # Log what we actually found (helps debug future games not in list)
         log_debug "Layer1(oom): foreground pkg=$pkg (not a known game)"
     done
-    echo "false"
+    log_debug "Detector: Layer 1 finished. Checked $found_count foreground processes, no game found."
+    _LAST_DETECTION_RESULT="false"
 }
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -187,7 +214,14 @@ _scan_renderthreads_for_game() {
     gpu_load=$(get_gpu_load)
 
     # Layer 2 only useful when GPU is actually active
-    [ "$gpu_load" -lt "$GPU_GAMING_THRESHOLD" ] && echo "false" && return
+    if [ "$gpu_load" -lt "$GPU_GAMING_THRESHOLD" ]; then
+        log_debug "Detector: Skipping Layer 2. GPU load ${gpu_load}% is below threshold (${GPU_GAMING_THRESHOLD}%)."
+        _LAST_DETECTION_RESULT="false"
+        return
+    fi
+
+    log_debug "Detector: Starting Layer 2 (RenderThread) scan. GPU is ${gpu_load}%."
+    local found_count=0
 
     # Scan all app_process64 / app_process32 processes
     for status_path in /proc/[0-9]*/status; do
@@ -210,6 +244,8 @@ _scan_renderthreads_for_game() {
             com.android.systemui|com.android.launcher*) continue ;;
         esac
 
+        found_count=$((found_count + 1))
+
         # Check if this process has a RenderThread
         local task_dir="/proc/$pid/task"
         [ -d "$task_dir" ] || continue
@@ -223,20 +259,21 @@ _scan_renderthreads_for_game() {
                 if [ "$game_result" = "true" ] || [ "$game_result" = "maybe" ]; then
                     log_debug "Layer2(render): game=$pkg gpu=${gpu_load}% pid=$pid"
                     _CONFIRMED_GAME_PKG="$pkg"
-                    echo "true"
+                    _LAST_DETECTION_RESULT="true"
                     return
                 fi
                 # Unknown package with RenderThread + high GPU — still flag it
                 if [ "$gpu_load" -ge 40 ]; then
                     log_debug "Layer2(render): unknown+highgpu pkg=$pkg gpu=${gpu_load}%"
                     _CONFIRMED_GAME_PKG="$pkg"
-                    echo "true"
+                    _LAST_DETECTION_RESULT="true"
                     return
                 fi
                 ;;
         esac
     done
-    echo "false"
+    log_debug "Detector: Layer 2 finished. Checked $found_count app processes, no game found."
+    _LAST_DETECTION_RESULT="false"
 }
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -244,11 +281,14 @@ _scan_renderthreads_for_game() {
 # Limited to single targeted cmd — NOT the full "dumpsys window windows" dump
 # ══════════════════════════════════════════════════════════════════════════════
 _dumpsys_fallback() {
+    log_debug "Detector: Starting Layer 4 (dumpsys) fallback..."
     local now
     now=$(date +%s)
     local age=$((now - _LAST_PKG_CACHE_TIME))
     [ "$age" -lt "$PKG_CACHE_TTL" ] && [ -n "$_CACHED_PKG" ] && {
-        is_known_game_package "$_CACHED_PKG"
+        log_debug "Detector: Using cached pkg=$_CACHED_PKG (age=${age}s < ${PKG_CACHE_TTL}s ttl)"
+        _LAST_DETECTION_RESULT=$(is_known_game_package "$_CACHED_PKG")
+        [ "$_LAST_DETECTION_RESULT" = "maybe" ] && _LAST_DETECTION_RESULT="true"
         return
     }
 
@@ -266,14 +306,16 @@ _dumpsys_fallback() {
           | grep -m1 "^  ACTIVITY " \
           | awk '{print $2}' | cut -d'/' -f1)
 
-    [ -n "$pkg" ] && {
+    if [ -n "$pkg" ]; then
         _CACHED_PKG="$pkg"
         _LAST_PKG_CACHE_TIME="$now"
         log_debug "Layer4(dumpsys): pkg=$pkg"
-        is_known_game_package "$pkg"
+        _LAST_DETECTION_RESULT=$(is_known_game_package "$pkg")
+        [ "$_LAST_DETECTION_RESULT" = "maybe" ] && _LAST_DETECTION_RESULT="true"
         return
-    }
-    echo "false"
+    fi
+    log_debug "Detector: Layer 4 finished. No game found via dumpsys."
+    _LAST_DETECTION_RESULT="false"
 }
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -287,7 +329,7 @@ detect_gaming_context() {
     if [ "$now" -lt "$_GAME_LATCH_UNTIL" ]; then
         local remaining=$((_GAME_LATCH_UNTIL - now))
         log_debug "Latch active: ${remaining}s remaining (${_CONFIRMED_GAME_PKG})"
-        echo "true"
+        _LAST_DETECTION_RESULT="true"
         return
     fi
 
@@ -298,38 +340,32 @@ detect_gaming_context() {
         _LAST_PROC_SCAN="$now"
 
         # Layer 1: oom_score_adj (foreground pkg detection)
-        local l1_result
-        l1_result=$(_scan_oom_for_game)
-        if [ "$l1_result" = "true" ]; then
+        _scan_oom_for_game
+        if [ "$_LAST_DETECTION_RESULT" = "true" ]; then
             _GAME_LATCH_UNTIL=$((now + GAME_LATCH_SEC))
             log_info "Gaming confirmed (L1/oom): ${_CONFIRMED_GAME_PKG} latch=${GAME_LATCH_SEC}s"
-            echo "true"
             return
         fi
 
         # Layer 2: RenderThread + GPU scan
-        local l2_result
-        l2_result=$(_scan_renderthreads_for_game)
-        if [ "$l2_result" = "true" ]; then
+        _scan_renderthreads_for_game
+        if [ "$_LAST_DETECTION_RESULT" = "true" ]; then
             _GAME_LATCH_UNTIL=$((now + GAME_LATCH_SEC))
             log_info "Gaming confirmed (L2/render+gpu): ${_CONFIRMED_GAME_PKG} latch=${GAME_LATCH_SEC}s"
-            echo "true"
             return
         fi
     fi
 
     # Layer 4: dumpsys fallback (infrequent)
-    local l4_result
-    l4_result=$(_dumpsys_fallback)
-    if [ "$l4_result" = "true" ]; then
+    _dumpsys_fallback
+    if [ "$_LAST_DETECTION_RESULT" = "true" ]; then
         _GAME_LATCH_UNTIL=$((now + GAME_LATCH_SEC))
         log_info "Gaming confirmed (L4/dumpsys): ${_CACHED_PKG} latch=${GAME_LATCH_SEC}s"
-        echo "true"
         return
     fi
 
-    log_debug "No game detected (L1=false L2=false L4=$l4_result)"
-    echo "false"
+    log_debug "No game detected"
+    _LAST_DETECTION_RESULT="false"
 }
 
 # Export for CLI use
