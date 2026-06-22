@@ -318,6 +318,24 @@ ai_decide_policy() {
 start_log_rotation() {
     local sec=$((LOG_ROTATE_MIN * 60))
     (while true; do
+        # Property-based override (Tasker / ADB / automation)
+        local forced_policy
+        forced_policy=$(getprop thermalai.force_policy 2>/dev/null)
+        if [ -n "$forced_policy" ] && [ "$forced_policy" != "none" ]; then
+            case "$forced_policy" in
+                performance|balanced|conservative|powersave|emergency_cool)
+                    log_info "Property override: thermalai.force_policy=$forced_policy"
+                    apply_thermal_policy "$forced_policy" "$gaming" "$temp"
+                    CURRENT_POLICY="$forced_policy"
+                    LAST_POLICY_CHANGE=$(date +%s)
+                    setprop thermalai.force_policy "none" 2>/dev/null
+                    ;;
+                *)
+                    log_warn "Invalid thermalai.force_policy value: $forced_policy"
+                    setprop thermalai.force_policy "none" 2>/dev/null
+                    ;;
+            esac
+        fi
         sleep "$sec"
         local now; now=$(date "+%Y-%m-%d %H:%M:%S")
         local buf; buf=$(tail -200 "$LOG_FILE" 2>/dev/null)
