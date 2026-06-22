@@ -472,6 +472,8 @@ main_loop() {
         detect_gaming_context
         local gaming="$_LAST_DETECTION_RESULT"
 
+        local realtime_gaming; realtime_gaming=$(detect_realtime_gaming_status)
+
         update_history "$temp"
         local trend; trend=$(calculate_trend "$TEMP_HISTORY")
         update_trend_ema "$trend"
@@ -484,7 +486,7 @@ main_loop() {
         update_ema "$temp"
 
         # Apply charging control every tick to guarantee hardware hasn't reset it
-        apply_charging_control "$CURRENT_POLICY" "$gaming"
+        apply_charging_control "$realtime_gaming"
 
         # Watchdog Check
         if [ "$TEMP_READ_FAILED" = "true" ]; then

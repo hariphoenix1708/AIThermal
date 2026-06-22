@@ -50,7 +50,6 @@ apply_thermal_policy() {
     _apply_vm_params    "$policy" "$is_gaming"
     _apply_io_scheduler "$policy"
     _apply_cpuset       "$policy" "$is_gaming"
-    apply_charging_control "$policy" "$is_gaming"
 
     # Apply optional gaming tweaks (if the function is available)
     if command -v apply_gaming_enhancements >/dev/null 2>&1; then

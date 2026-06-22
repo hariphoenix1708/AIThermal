@@ -43,6 +43,11 @@ keeping your device safe.
 - **Suspend Cooling**: Drops CPU and GPU to absolute minimal power states instantly when the screen is turned off.
 - **Background isolation**: Pushes non-game processes to little cores via cpuset during gaming conserve/powersave modes.
 
+### Changelog v2.3.9
+- **Charging State Machine**: Completely redesigned the charging module into a state machine (`NORMAL`, `GAMING`, `THERMAL_THROTTLE`, `EMERGENCY`).
+- **Hysteresis**: Implemented proper battery temperature hysteresis (throttle at 37°C, don't recover until 35°C) to prevent charging loops.
+- **Unlatched Charging Recovery**: Charging states are now governed by a real-time `detect_realtime_gaming_status()` poll, meaning charging speed recovers instantly upon closing a game without waiting for the global gaming latch/debounce timer to expire.
+
 ### Changelog v2.3.8
 - **Stuck State Watchdog**: Added a self-healing watchdog to the main loop that periodically rebuilds and validates CPU/GPU/Scheduler states, ensuring performance never remains stuck after long gaming sessions.
 - **Game Switching Transitions**: Transitions between different games now immediately force-flush old profiles, wiping stale touch and network tweaks before the new game locks in.

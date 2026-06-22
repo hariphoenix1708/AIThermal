@@ -319,6 +319,26 @@ _dumpsys_fallback() {
 }
 
 # ══════════════════════════════════════════════════════════════════════════════
+# REALTIME UNLATCHED CHECK (FOR CHARGING & TRANSITIONS)
+# Returns true if a game is actively running right now, ignoring debounces
+# ══════════════════════════════════════════════════════════════════════════════
+detect_realtime_gaming_status() {
+    _scan_oom_for_game
+    if [ "$_LAST_DETECTION_RESULT" = "true" ]; then
+        echo "true"
+        return
+    fi
+
+    _scan_renderthreads_for_game
+    if [ "$_LAST_DETECTION_RESULT" = "true" ]; then
+        echo "true"
+        return
+    fi
+
+    echo "false"
+}
+
+# ══════════════════════════════════════════════════════════════════════════════
 # MAIN ENTRY POINT
 # ══════════════════════════════════════════════════════════════════════════════
 detect_gaming_context() {
