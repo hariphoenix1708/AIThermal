@@ -7,7 +7,7 @@
     <style>
         :root {
             --bg-color: #121212;
-            --panel-bg: #1e1e1e;
+            --panel-bg: #1e1e1e; --tab-hover: rgba(0, 188, 212, 0.1);
             --text-color: #e0e0e0;
             --accent-color: #00bcd4;
             --border-color: #333;
@@ -18,7 +18,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
+            background-color: var(--bg-color); font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             color: var(--text-color);
             margin: 0;
             padding: 0;
@@ -58,10 +58,11 @@
             padding: 1rem;
             font-size: 1rem;
             cursor: pointer;
-            border-bottom: 3px solid transparent;
+            border-bottom: 3px solid transparent; transition: all 0.2s ease-in-out;
             white-space: nowrap;
         }
 
+        nav button:hover { background-color: var(--tab-hover); }
         nav button.active {
             border-bottom-color: var(--accent-color);
             color: var(--accent-color);
@@ -190,7 +191,7 @@
         .form-group input, .form-group textarea {
             width: 100%;
             padding: 0.6rem;
-            background-color: var(--bg-color);
+            background-color: var(--bg-color); font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             border: 1px solid var(--border-color);
             color: var(--text-color);
             border-radius: 4px;
@@ -226,11 +227,11 @@
     </header>
 
     <nav>
-        <button class="active" onclick="switchTab('dashboard')">Dashboard</button>
-        <button onclick="switchTab('logs')">Logs</button>
-        <button onclick="switchTab('games')">Games</button>
-        <button onclick="switchTab('settings')">Settings</button>
-        <button onclick="switchTab('controls')">Controls</button>
+        <button class="active" onclick="window.switchTab(event, 'dashboard')">Dashboard</button>
+        <button onclick="window.switchTab(event, 'logs')">Logs</button>
+        <button onclick="window.switchTab(event, 'games')">Games</button>
+        <button onclick="window.switchTab(event, 'settings')">Settings</button>
+        <button onclick="window.switchTab(event, 'controls')">Controls</button>
     </nav>
 
     <main>
@@ -283,8 +284,8 @@
                 <div class="flex-between">
                     <h2>Log Viewer</h2>
                     <div>
-                        <button class="btn btn-primary" id="btn-toggle-log" onclick="toggleLogType()">Verbose Mode: OFF</button>
-                        <button class="btn" onclick="fetchLogs()">Refresh</button>
+                        <button class="btn btn-primary" id="btn-toggle-log" onclick="window.toggleLogType()">Verbose Mode: OFF</button>
+                        <button class="btn" onclick="window.fetchLogs()">Refresh</button>
                     </div>
                 </div>
                 <div id="log-container" class="log-viewer"></div>
@@ -297,13 +298,13 @@
                 <h2>Dynamic Game Profiles</h2>
                 <p style="font-size:0.8rem; color:#999; margin-top:-10px;">Auto-calibrated data for KNOWN_HOT games.</p>
                 <div id="dynamic-profiles-container">Loading...</div>
-                <button class="btn btn-danger" style="margin-top: 10px;" onclick="clearGameProfiles()">Clear All Dynamic Profiles</button>
+                <button class="btn btn-danger" style="margin-top: 10px;" onclick="window.clearGameProfiles()">Clear All Dynamic Profiles</button>
             </div>
 
             <div class="card">
                 <div class="flex-between">
                     <h2>Static Game List</h2>
-                    <button class="btn btn-primary" onclick="saveGameList()">Save List</button>
+                    <button class="btn btn-primary" onclick="window.saveGameList()">Save List</button>
                 </div>
                 <div class="form-group">
                     <textarea id="game-list-editor" spellcheck="false"></textarea>
@@ -316,7 +317,7 @@
             <div class="card">
                 <div class="flex-between">
                     <h2>Core Configuration</h2>
-                    <button class="btn btn-primary" onclick="saveSettings()">Save & Restart</button>
+                    <button class="btn btn-primary" onclick="window.saveSettings()">Save & Restart</button>
                 </div>
                 <p style="font-size:0.8rem; color:#999; margin-top:-10px;">/data/adb/modules/thermalai/config/profiles.conf</p>
 
@@ -361,62 +362,82 @@
         <div id="controls" class="tab-content">
             <div class="card">
                 <h2>Daemon Controls</h2>
-                <button class="btn btn-primary" onclick="runKsuCmd('su -c /data/adb/modules/thermalai/system/bin/thermalair restart', 'Restarted Daemon')">Restart ThermalAI Daemon</button>
-                <button class="btn btn-danger" onclick="runKsuCmd('su -c /data/adb/modules/thermalai/system/bin/thermalair stop', 'Stopped Daemon')">Stop Daemon</button>
-                <button class="btn btn-primary" style="margin-top: 10px;" onclick="runKsuCmd('su -c /data/adb/modules/thermalai/system/bin/thermalair start', 'Started Daemon')">Start Daemon</button>
+                <button class="btn btn-primary" onclick="window.runKsuCmd('su -c /data/adb/modules/thermalai/system/bin/thermalair restart', 'Restarted Daemon')">Restart ThermalAI Daemon</button>
+                <button class="btn btn-danger" onclick="window.runKsuCmd('su -c /data/adb/modules/thermalai/system/bin/thermalair stop', 'Stopped Daemon')">Stop Daemon</button>
+                <button class="btn btn-primary" style="margin-top: 10px;" onclick="window.runKsuCmd('su -c /data/adb/modules/thermalai/system/bin/thermalair start', 'Started Daemon')">Start Daemon</button>
             </div>
 
             <div class="card">
                 <h2>Diagnostic Tools</h2>
-                <button class="btn" onclick="runKsuCmdAndShow('su -c /data/adb/modules/thermalai/system/bin/thermalair status')">Check Status</button>
-                <button class="btn" onclick="runKsuCmdAndShow('su -c /data/adb/modules/thermalai/system/bin/thermalair gaming')">Check Gaming State</button>
-                <button class="btn" onclick="runKsuCmdAndShow('su -c /data/adb/modules/thermalai/system/bin/thermalair temps')">List Active Sensors</button>
+                <button class="btn" onclick="window.runKsuCmdAndShow('su -c /data/adb/modules/thermalai/system/bin/thermalair status')">Check Status</button>
+                <button class="btn" onclick="window.runKsuCmdAndShow('su -c /data/adb/modules/thermalai/system/bin/thermalair gaming')">Check Gaming State</button>
+                <button class="btn" onclick="window.runKsuCmdAndShow('su -c /data/adb/modules/thermalai/system/bin/thermalair temps')">List Active Sensors</button>
             </div>
 
             <div class="card">
                 <h2>Maintenance</h2>
-                <button class="btn" onclick="runKsuCmd('su -c rm -f /data/local/tmp/thermalai*.log* && echo Cleared', 'Logs Cleared')">Clear All Logs</button>
-                <button class="btn" onclick="runKsuCmd('su -c /data/adb/modules/thermalai/system/bin/thermalair calibrate reset', 'Calibration Reset')">Reset Self-Calibration</button>
+                <button class="btn" onclick="window.runKsuCmd('su -c rm -f /data/local/tmp/thermalai*.log* && echo Cleared', 'Logs Cleared')">Clear All Logs</button>
+                <button class="btn" onclick="window.runKsuCmd('su -c /data/adb/modules/thermalai/system/bin/thermalair calibrate reset', 'Calibration Reset')">Reset Self-Calibration</button>
             </div>
 
             <div class="card">
                 <h2>Force Policy (Temporary)</h2>
-                <button class="btn" onclick="runKsuCmd('su -c setprop thermalai.force_policy performance', 'Forced Performance')">Performance</button>
-                <button class="btn" onclick="runKsuCmd('su -c setprop thermalai.force_policy balanced', 'Forced Balanced')">Balanced</button>
-                <button class="btn" onclick="runKsuCmd('su -c setprop thermalai.force_policy powersave', 'Forced Powersave')">Powersave</button>
+                <button class="btn" onclick="window.runKsuCmd('su -c setprop thermalai.force_policy performance', 'Forced Performance')">Performance</button>
+                <button class="btn" onclick="window.runKsuCmd('su -c setprop thermalai.force_policy balanced', 'Forced Balanced')">Balanced</button>
+                <button class="btn" onclick="window.runKsuCmd('su -c setprop thermalai.force_policy powersave', 'Forced Powersave')">Powersave</button>
             </div>
         </div>
     </main>
 
     <!-- KSU API Script -->
+
+    <!-- Load KernelSU API through all possible manager routes -->
     <script type="module">
-        import { exec } from 'kernelsu';
+        try {
+            const { exec } = await import('kernelsu');
+            window.ksuExec = exec;
+        } catch (e) {
+            console.log("KernelSU ES Module not found, relying on injected window.ksu");
+        }
+    </script>
+    <script>
+        window.exec = async (cmd) => {
+            if (window.ksuExec) return await window.ksuExec(cmd);
+            if (window.ksu && window.ksu.exec) return await window.ksu.exec(cmd);
+            if (window.kernelsu && window.kernelsu.exec) return await window.kernelsu.exec(cmd);
+            return { stdout: "Waiting for KernelSU API injection...", stderr: "" };
+        };
 
         let autoRefreshInterval = null;
         let isVerboseLog = false;
         let tempHistoryData = [];
         const maxHistory = 30;
 
-        // Make functions globally available to onClick handlers
-        window.switchTab = (tabId) => {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            event.currentTarget.classList.add('active');
+        window.switchTab = (event, tabId) => {
+            try {
+                document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+                document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
+                document.getElementById(tabId).classList.add('active');
+                if (event && event.currentTarget) {
+                    event.currentTarget.classList.add('active');
+                }
 
-            if(tabId === 'dashboard') {
-                startAutoRefresh();
-            } else {
-                stopAutoRefresh();
-                if(tabId === 'logs') fetchLogs();
-                if(tabId === 'settings') loadSettings();
-                if(tabId === 'games') loadGames();
+                if(tabId === 'dashboard') {
+                    window.startAutoRefresh();
+                } else {
+                    window.stopAutoRefresh();
+                    if(tabId === 'logs') window.fetchLogs();
+                    if(tabId === 'settings') window.loadSettings();
+                    if(tabId === 'games') window.loadGames();
+                }
+            } catch (e) {
+                console.error(e);
             }
         };
 
         window.runKsuCmd = async (cmd, successMsg) => {
             try {
-                await exec(cmd);
+                await window.exec(cmd);
                 alert(successMsg || "Command executed successfully");
             } catch(e) {
                 alert("Error: " + e);
@@ -425,19 +446,18 @@
 
         window.runKsuCmdAndShow = async (cmd) => {
             try {
-                const { stdout, stderr } = await exec(cmd);
-                alert(stdout || stderr || "No output");
+                const res = await window.exec(cmd);
+                alert(res.stdout || res.stderr || "No output");
             } catch(e) {
                 alert("Error: " + e);
             }
         };
 
-        // --- Dashboard Logic ---
-        async function fetchDashboardData() {
+        window.fetchDashboardData = async () => {
             try {
-                // Check if daemon is running
-                const { stdout: pidOut } = await exec('cat /data/local/tmp/thermalai.pid');
-                if(pidOut && pidOut.trim().length > 0) {
+                const res = await window.exec('cat /data/local/tmp/thermalai.pid');
+                const pidOut = res.stdout;
+                if(pidOut && pidOut.trim().length > 0 && !pidOut.includes("No such file")) {
                     document.getElementById('daemon-status').innerText = 'Running (PID ' + pidOut.trim() + ')';
                     document.getElementById('daemon-status').style.color = 'var(--success-color)';
                 } else {
@@ -445,8 +465,8 @@
                     document.getElementById('daemon-status').style.color = 'var(--danger-color)';
                 }
 
-                // Extract latest AI line from log
-                const { stdout: aiLog } = await exec('grep "Policy change:\\|AI:" /data/local/tmp/thermalai.log | tail -1');
+                const aiRes = await window.exec('grep -E "Policy change:|AI:" /data/local/tmp/thermalai.log | tail -1');
+                const aiLog = aiRes.stdout;
                 if(aiLog) {
                     const tempMatch = aiLog.match(/cur=(\d+)/) || aiLog.match(/temp=(\d+)/);
                     const policyMatch = aiLog.match(/-> (\w+)/);
@@ -456,47 +476,44 @@
                     if(tempMatch) {
                         const tempVal = parseInt(tempMatch[1]);
                         document.getElementById('dash-temp').innerText = tempVal + "°C";
-
-                        // Add to chart history
                         if(tempHistoryData.length >= maxHistory) tempHistoryData.shift();
                         tempHistoryData.push(tempVal);
-                        drawChart();
+                        window.drawChart();
                     }
                     if(policyMatch) document.getElementById('dash-policy').innerText = policyMatch[1].toUpperCase();
                     if(gpuMatch) document.getElementById('dash-gpu').innerText = gpuMatch[1] + "%";
                     if(gamingMatch) document.getElementById('dash-gaming').innerText = gamingMatch[1].toUpperCase();
-
                     document.getElementById('dash-ai-raw').innerText = aiLog.trim();
                 }
 
-                // Extract latest charge state from verbose log
-                const { stdout: chargeLog } = await exec('grep "Charging current limit" /data/local/tmp/thermalai_verbose.log | tail -1');
+                const chargeRes = await window.exec('grep "Charging current limit" /data/local/tmp/thermalai_verbose.log | tail -1');
+                const chargeLog = chargeRes.stdout;
                 if(chargeLog) {
                     const battMatch = chargeLog.match(/batt_temp=(\d+)/);
                     const stateMatch = chargeLog.match(/state=(\w+)/);
                     if(battMatch) document.getElementById('dash-batt-temp').innerText = battMatch[1] + "°C";
                     if(stateMatch) document.getElementById('dash-charge-state').innerText = stateMatch[1].toUpperCase();
                 }
-
             } catch (e) {
                 console.error("Fetch dashboard error:", e);
+                const el = document.getElementById('daemon-status');
+                if (el) el.innerText = "KSU API Error";
             }
-        }
+        };
 
-        function drawChart() {
+        window.drawChart = () => {
             const canvas = document.getElementById('tempChart');
+            if (!canvas) return;
             const ctx = canvas.getContext('2d');
             const width = canvas.width = canvas.offsetWidth;
             const height = canvas.height = canvas.offsetHeight;
 
             ctx.clearRect(0, 0, width, height);
-
             if(tempHistoryData.length < 2) return;
 
             const minTemp = 25;
             const maxTemp = 80;
             const range = maxTemp - minTemp;
-
             const stepX = width / (maxHistory - 1);
 
             ctx.beginPath();
@@ -507,17 +524,13 @@
                 let temp = tempHistoryData[i];
                 if(temp < minTemp) temp = minTemp;
                 if(temp > maxTemp) temp = maxTemp;
-
                 const x = i * stepX;
                 const y = height - ((temp - minTemp) / range * height);
-
                 if(i === 0) ctx.moveTo(x, y);
                 else ctx.lineTo(x, y);
             }
-
             ctx.stroke();
 
-            // Draw gradient fill
             ctx.lineTo((tempHistoryData.length - 1) * stepX, height);
             ctx.lineTo(0, height);
             ctx.closePath();
@@ -527,22 +540,23 @@
             gradient.addColorStop(1, 'rgba(0, 188, 212, 0.0)');
             ctx.fillStyle = gradient;
             ctx.fill();
-        }
+        };
 
-        // --- Logs Logic ---
         window.toggleLogType = () => {
             isVerboseLog = !isVerboseLog;
-            document.getElementById('btn-toggle-log').innerText = isVerboseLog ? "Verbose Mode: ON" : "Verbose Mode: OFF";
-            fetchLogs();
+            const btn = document.getElementById('btn-toggle-log');
+            if(btn) btn.innerText = isVerboseLog ? "Verbose Mode: ON" : "Verbose Mode: OFF";
+            window.fetchLogs();
         };
 
         window.fetchLogs = async () => {
             const file = isVerboseLog ? '/data/local/tmp/thermalai_verbose.log' : '/data/local/tmp/thermalai.log';
             try {
-                const { stdout } = await exec(`tail -n 100 ${file}`);
+                const res = await window.exec(`tail -n 100 ${file}`);
+                const stdout = res.stdout;
                 const container = document.getElementById('log-container');
+                if(!container) return;
 
-                // Color formatting
                 let formatted = (stdout || "Empty").replace(/</g, '&lt;').replace(/>/g, '&gt;');
                 formatted = formatted.replace(/\[INFO\]/g, '<span class="log-info">[INFO]</span>');
                 formatted = formatted.replace(/\[WARN\]/g, '<span class="log-warn">[WARN]</span>');
@@ -551,76 +565,76 @@
                 container.innerHTML = formatted;
                 container.scrollTop = container.scrollHeight;
             } catch(e) {
-                document.getElementById('log-container').innerText = "Failed to load log.";
+                const container = document.getElementById('log-container');
+                if(container) container.innerText = "Failed to load log.";
             }
         };
 
-        // --- Settings Logic ---
-        const CONFIG_FILE = "/data/adb/modules/thermalai/config/profiles.conf";
-
         window.loadSettings = async () => {
+            const CONFIG_FILE = "/data/adb/modules/thermalai/config/profiles.conf";
             try {
-                const { stdout } = await exec(`cat ${CONFIG_FILE}`);
+                const res = await window.exec(`cat ${CONFIG_FILE}`);
+                const stdout = res.stdout;
                 if(!stdout) return;
 
                 const lines = stdout.split('\n');
                 lines.forEach(line => {
-                    if(line.startsWith('POLL_INTERVAL=')) document.getElementById('cfg_poll').value = line.split('=')[1];
-                    if(line.startsWith('GAME_POLL_INTERVAL=')) document.getElementById('cfg_game_poll').value = line.split('=')[1];
-                    if(line.startsWith('TEMP_COOL=')) document.getElementById('cfg_tcool').value = line.split('=')[1];
-                    if(line.startsWith('TEMP_WARM=')) document.getElementById('cfg_twarm').value = line.split('=')[1];
-                    if(line.startsWith('TEMP_HOT=')) document.getElementById('cfg_thot').value = line.split('=')[1];
-                    if(line.startsWith('TEMP_POWERSAVE=')) document.getElementById('cfg_tpsave').value = line.split('=')[1];
-                    if(line.startsWith('TEMP_CRITICAL=')) document.getElementById('cfg_tcrit').value = line.split('=')[1];
-                    if(line.startsWith('GAMING_SCORE_BOOST=')) document.getElementById('cfg_gboost').value = line.split('=')[1];
+                    const parts = line.split('=');
+                    if(parts.length < 2) return;
+                    const val = parts[1].trim();
+                    if(line.startsWith('POLL_INTERVAL=')) document.getElementById('cfg_poll').value = val;
+                    if(line.startsWith('GAME_POLL_INTERVAL=')) document.getElementById('cfg_game_poll').value = val;
+                    if(line.startsWith('TEMP_COOL=')) document.getElementById('cfg_tcool').value = val;
+                    if(line.startsWith('TEMP_WARM=')) document.getElementById('cfg_twarm').value = val;
+                    if(line.startsWith('TEMP_HOT=')) document.getElementById('cfg_thot').value = val;
+                    if(line.startsWith('TEMP_POWERSAVE=')) document.getElementById('cfg_tpsave').value = val;
+                    if(line.startsWith('TEMP_CRITICAL=')) document.getElementById('cfg_tcrit').value = val;
+                    if(line.startsWith('GAMING_SCORE_BOOST=')) document.getElementById('cfg_gboost').value = val;
                 });
             } catch(e) {
-                console.error("Failed to load config");
+                console.error("Failed to load config", e);
             }
         };
 
         window.saveSettings = async () => {
-            const v = (id) => document.getElementById(id).value;
-            const newConfig = `
-POLL_INTERVAL=${v('cfg_poll')}
+            const CONFIG_FILE = "/data/adb/modules/thermalai/config/profiles.conf";
+            const v = (id) => { const el = document.getElementById(id); return el ? el.value : ''; };
+            const newConfig = `POLL_INTERVAL=${v('cfg_poll')}
 GAME_POLL_INTERVAL=${v('cfg_game_poll')}
 TEMP_COOL=${v('cfg_tcool')}
 TEMP_WARM=${v('cfg_twarm')}
 TEMP_HOT=${v('cfg_thot')}
 TEMP_POWERSAVE=${v('cfg_tpsave')}
 TEMP_CRITICAL=${v('cfg_tcrit')}
-GAMING_SCORE_BOOST=${v('cfg_gboost')}
-`;
+GAMING_SCORE_BOOST=${v('cfg_gboost')}`;
             try {
-                // Write temp file, then replace
-                await exec(`echo "${newConfig.trim()}" > /data/local/tmp/t_cfg.tmp && cp /data/local/tmp/t_cfg.tmp ${CONFIG_FILE}`);
+                await window.exec(`echo "${newConfig.trim()}" > /data/local/tmp/t_cfg.tmp && cp /data/local/tmp/t_cfg.tmp ${CONFIG_FILE}`);
                 alert("Settings saved. Restarting daemon...");
-                await exec('su -c /data/adb/modules/thermalai/system/bin/thermalair restart');
+                await window.exec('su -c /data/adb/modules/thermalai/system/bin/thermalair restart');
             } catch(e) {
                 alert("Save failed: " + e);
             }
         };
 
-        // --- Games Logic ---
-        const GAME_LIST_FILE = "/data/adb/modules/thermalai/config/game_list.conf";
-
         window.loadGames = async () => {
+            const GAME_LIST_FILE = "/data/adb/modules/thermalai/config/game_list.conf";
             try {
-                // Static list
-                const { stdout: listOut } = await exec(`cat ${GAME_LIST_FILE}`);
-                document.getElementById('game-list-editor').value = listOut || "";
+                const listRes = await window.exec(`cat ${GAME_LIST_FILE}`);
+                const editor = document.getElementById('game-list-editor');
+                if(editor) editor.value = listRes.stdout || "";
 
-                // Dynamic profiles
-                const { stdout: profOut } = await exec(`ls -1 /data/local/tmp/thermalai.game_profiles/ 2>/dev/null`);
+                const profRes = await window.exec(`ls -1 /data/local/tmp/thermalai.game_profiles/ 2>/dev/null`);
+                const profOut = profRes.stdout;
                 let profHtml = "";
 
-                if(profOut && profOut.trim().length > 0) {
+                if(profOut && profOut.trim().length > 0 && !profOut.includes("No such file")) {
                     const profiles = profOut.trim().split('\n');
                     for(const p of profiles) {
-                        const { stdout: details } = await exec(`cat /data/local/tmp/thermalai.game_profiles/${p}`);
+                        if(!p) continue;
+                        const detRes = await window.exec(`cat /data/local/tmp/thermalai.game_profiles/${p}`);
+                        const details = detRes.stdout;
                         let maxT = details.match(/MAX_TEMP=(\d+)/)?.[1] || "N/A";
                         let hot = details.match(/KNOWN_HOT=(true|false)/)?.[1] || "false";
-
                         let color = hot === "true" ? "var(--danger-color)" : "var(--accent-color)";
                         profHtml += `<div style="background:rgba(255,255,255,0.05); padding:10px; margin-bottom:5px; border-radius:4px; display:flex; justify-content:space-between;">
                             <span>${p}</span>
@@ -630,17 +644,20 @@ GAMING_SCORE_BOOST=${v('cfg_gboost')}
                 } else {
                     profHtml = "<p>No dynamic profiles recorded yet.</p>";
                 }
-                document.getElementById('dynamic-profiles-container').innerHTML = profHtml;
-
+                const container = document.getElementById('dynamic-profiles-container');
+                if(container) container.innerHTML = profHtml;
             } catch(e) {
-                console.error("Game load error");
+                console.error("Game load error", e);
             }
         };
 
         window.saveGameList = async () => {
-            const val = document.getElementById('game-list-editor').value;
+            const GAME_LIST_FILE = "/data/adb/modules/thermalai/config/game_list.conf";
+            const editor = document.getElementById('game-list-editor');
+            if(!editor) return;
+            const val = editor.value;
             try {
-                await exec(`echo "${val}" > /data/local/tmp/g_cfg.tmp && cp /data/local/tmp/g_cfg.tmp ${GAME_LIST_FILE}`);
+                await window.exec(`echo "${val}" > /data/local/tmp/g_cfg.tmp && cp /data/local/tmp/g_cfg.tmp ${GAME_LIST_FILE}`);
                 alert("Game list saved.");
             } catch(e) {
                 alert("Failed: " + e);
@@ -649,39 +666,40 @@ GAMING_SCORE_BOOST=${v('cfg_gboost')}
 
         window.clearGameProfiles = async () => {
             try {
-                await exec(`rm -rf /data/local/tmp/thermalai.game_profiles/*`);
+                await window.exec(`rm -rf /data/local/tmp/thermalai.game_profiles/*`);
                 alert("Profiles cleared");
-                loadGames();
+                window.loadGames();
             } catch(e) {
                 alert("Failed: " + e);
             }
         };
 
-        // --- Lifecycle ---
-        function startAutoRefresh() {
-            fetchDashboardData();
+        window.startAutoRefresh = () => {
+            window.fetchDashboardData();
             if(!autoRefreshInterval) {
-                autoRefreshInterval = setInterval(fetchDashboardData, 2000);
+                autoRefreshInterval = setInterval(window.fetchDashboardData, 2000);
             }
-        }
+        };
 
-        function stopAutoRefresh() {
+        window.stopAutoRefresh = () => {
             if(autoRefreshInterval) {
                 clearInterval(autoRefreshInterval);
                 autoRefreshInterval = null;
             }
-        }
+        };
 
         // Init
-        startAutoRefresh();
+        setTimeout(() => {
+            window.startAutoRefresh();
+        }, 500);
 
-        // Handle resizing for canvas
         window.addEventListener('resize', () => {
-            if(document.getElementById('dashboard').classList.contains('active')) {
-                drawChart();
+            const dash = document.getElementById('dashboard');
+            if(dash && dash.classList.contains('active')) {
+                window.drawChart();
             }
         });
-
     </script>
+
 </body>
 </html>
