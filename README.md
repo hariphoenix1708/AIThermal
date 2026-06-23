@@ -43,6 +43,10 @@ keeping your device safe.
 - **Suspend Cooling**: Drops CPU and GPU to absolute minimal power states instantly when the screen is turned off.
 - **Background isolation**: Pushes non-game processes to little cores via cpuset during gaming conserve/powersave modes.
 
+### Changelog v2.3.13
+- **Learning-based Adaptive Charging**: Charging logic no longer jumps between hardcoded limits. It now dynamically adjusts current up and down by `100mA`/`200mA` increments to "hunt" for the optimal charging speed that keeps the battery exactly at a safe "Sweet Spot" temperature (36°C normal, 34°C gaming).
+- **Stutter Recovery Fix**: Fixed a kernel boundary bug where waking the phone from deep sleep (or recovering from an emergency) caused severe lag because `cpufreq` policies were silently rejected by the kernel. The module now correctly inverts bounds-write order dynamically.
+
 ### Changelog v2.3.12
 - **KernelSU WebUI**: Added a fully functional WebUI dashboard accessible directly inside the KernelSU Manager app. It features a real-time stat dashboard, live scrolling log viewer, visual temperature graph, and a direct config editor that restarts the daemon automatically upon saving.
 

@@ -109,9 +109,19 @@ set_cpu_freq_limits() {
     local max_freq="$3"
     local base_path="/sys/devices/system/cpu/cpu${cpu_num}/cpufreq"
 
-    # Must write min before max to avoid kernel rejecting out-of-range
-    [ -w "$base_path/scaling_min_freq" ] && echo "$min_freq" > "$base_path/scaling_min_freq" 2>/dev/null
-    [ -w "$base_path/scaling_max_freq" ] && echo "$max_freq" > "$base_path/scaling_max_freq" 2>/dev/null
+    local current_max=$(cat "$base_path/scaling_max_freq" 2>/dev/null || echo "0")
+    local current_min=$(cat "$base_path/scaling_min_freq" 2>/dev/null || echo "0")
+
+    # Safe write logic to prevent kernel "Invalid Argument" (min > max) rejections
+    # If the new target min is greater than the current active max, writing min first will fail.
+    # Therefore, if min > current_max, we must write the new max first.
+    if [ "$min_freq" -gt "$current_max" ] 2>/dev/null; then
+        [ -w "$base_path/scaling_max_freq" ] && echo "$max_freq" > "$base_path/scaling_max_freq" 2>/dev/null
+        [ -w "$base_path/scaling_min_freq" ] && echo "$min_freq" > "$base_path/scaling_min_freq" 2>/dev/null
+    else
+        [ -w "$base_path/scaling_min_freq" ] && echo "$min_freq" > "$base_path/scaling_min_freq" 2>/dev/null
+        [ -w "$base_path/scaling_max_freq" ] && echo "$max_freq" > "$base_path/scaling_max_freq" 2>/dev/null
+    fi
 }
 
 set_cpu_governor() {
@@ -226,9 +236,18 @@ set_gpu_power_levels() {
     # 1. Try standard KGSL Adreno path
     local adreno="/sys/class/kgsl/kgsl-3d0"
     if [ -d "$adreno" ] && [ -w "$adreno/min_pwrlevel" ]; then
-        # Write min (floor/slowest) FIRST to avoid transient invalid state
-        echo "$min_pl" > "$adreno/min_pwrlevel" 2>/dev/null
-        [ -w "$adreno/max_pwrlevel" ] && echo "$max_pl" > "$adreno/max_pwrlevel" 2>/dev/null
+        local current_max_pl=$(cat "$adreno/max_pwrlevel" 2>/dev/null || echo "0")
+
+        # kgsl inverted bounds check: if new minimum level (slowest) is numerically smaller (faster)
+        # than the current max level (ceiling), write the max level first.
+        if [ "$min_pl" -lt "$current_max_pl" ] 2>/dev/null; then
+             [ -w "$adreno/max_pwrlevel" ] && echo "$max_pl" > "$adreno/max_pwrlevel" 2>/dev/null
+             echo "$min_pl" > "$adreno/min_pwrlevel" 2>/dev/null
+        else
+             echo "$min_pl" > "$adreno/min_pwrlevel" 2>/dev/null
+             [ -w "$adreno/max_pwrlevel" ] && echo "$max_pl" > "$adreno/max_pwrlevel" 2>/dev/null
+        fi
+
         log_debug "GPU power levels -> max(ceil)=${max_pl} min(floor)=${min_pl}"
         return
     fi
@@ -237,15 +256,23 @@ set_gpu_power_levels() {
     local max_hz=$(pwrlevel_to_hz "$max_pl")
     local min_hz=$(pwrlevel_to_hz "$min_pl")
 
-    # We use GPU_MIN_FREQ_NODES from thermal_policy.sh fallback list if sourced, else hardcode
     for node in /sys/class/kgsl/kgsl-3d0/devfreq/min_freq \
                 /sys/class/devfreq/1c00000.qcom,kgsl-3d0/min_freq \
                 /sys/class/devfreq/gpufreq/min_freq \
                 /sys/devices/platform/g3d/devfreq/g3d/min_freq; do
         if [ -w "$node" ]; then
-            echo "$min_hz" > "$node" 2>/dev/null || true
             local max_node="${node/min_freq/max_freq}"
-            [ -w "$max_node" ] && echo "$max_hz" > "$max_node" 2>/dev/null || true
+            local current_max_hz=$(cat "$max_node" 2>/dev/null || echo "0")
+
+            # devfreq standard bounds check: min_freq cannot exceed max_freq
+            if [ "$min_hz" -gt "$current_max_hz" ] 2>/dev/null; then
+                [ -w "$max_node" ] && echo "$max_hz" > "$max_node" 2>/dev/null || true
+                echo "$min_hz" > "$node" 2>/dev/null || true
+            else
+                echo "$min_hz" > "$node" 2>/dev/null || true
+                [ -w "$max_node" ] && echo "$max_hz" > "$max_node" 2>/dev/null || true
+            fi
+
             log_debug "GPU devfreq -> max=${max_hz} min=${min_hz}"
             return
         fi

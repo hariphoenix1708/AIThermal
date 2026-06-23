@@ -1,7 +1,7 @@
 id=thermalai
 name=ThermalAI - Intelligent Thermal Manager
-version=v2.3.12
-versionCode=242
+version=v2.3.13
+versionCode=243
 author=ThermalAI Project
-description=AI-driven adaptive thermal throttling for Android. v2.3.12: Added KernelSU WebUI integration for real-time dashboard, log viewer, and configuration editing.
+description=AI-driven adaptive thermal throttling for Android. v2.3.13: Adaptive AI charging limits and fixed kernel governor bounds checking.
 updateJson=

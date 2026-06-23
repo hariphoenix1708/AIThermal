@@ -446,7 +446,7 @@ main_loop() {
             case "$forced_policy" in
                 performance|balanced|conservative|powersave|emergency_cool)
                     log_info "Property override: thermalai.force_policy=$forced_policy"
-                    apply_thermal_policy "$forced_policy" "$gaming" "$temp"
+                    apply_thermal_policy "$forced_policy" "$gaming" "$temp" "transition"
                     CURRENT_POLICY="$forced_policy"
                     LAST_POLICY_CHANGE="$NOW_TIME"
                     setprop thermalai.force_policy "none" 2>/dev/null
@@ -575,7 +575,7 @@ main_loop() {
         fi
 
         if [ "$new_policy" != "$CURRENT_POLICY" ]; then
-            apply_thermal_policy "$new_policy" "$gaming" "$temp"
+            apply_thermal_policy "$new_policy" "$gaming" "$temp" "transition"
             log_info "Policy change: temp=${temp} gpu=${gpu} gaming=${gaming} -> ${new_policy}"
 
             CURRENT_POLICY="$new_policy"
