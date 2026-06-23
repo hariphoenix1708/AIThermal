@@ -14,6 +14,10 @@ MODDIR="${0%/*}/.."
 . "$MODDIR/scripts/logger.sh"
 . "$MODDIR/scripts/game_detector.sh"
 . "$MODDIR/scripts/governor_tuner.sh"
+. "$MODDIR/scripts/charge_control.sh"
+. "$MODDIR/scripts/game_tweaks.sh"
+. "$MODDIR/scripts/advanced_ai.sh"
+. "$MODDIR/scripts/state_manager.sh"
 . "$MODDIR/scripts/thermal_policy.sh"
 
 CFG="$MODDIR/config/profiles.conf"
@@ -29,11 +33,34 @@ GAMING_SCORE_BOOST="${GAMING_SCORE_BOOST:-35}"
 GPU_GAMING_THRESHOLD="${GPU_GAMING_THRESHOLD:-20}"
 LOG_ROTATE_MIN="${LOG_ROTATE_MIN:-60}"
 
-TEMP_COOL="${TEMP_COOL:-45}"
-TEMP_WARM="${TEMP_WARM:-55}"
-TEMP_HOT="${TEMP_HOT:-65}"
-TEMP_POWERSAVE="${TEMP_POWERSAVE:-72}"
-TEMP_CRITICAL="${TEMP_CRITICAL:-78}"
+# Base threshold definitions (can be modified by self-calibration)
+BASE_TEMP_COOL="${TEMP_COOL:-42}"
+BASE_TEMP_WARM="${TEMP_WARM:-48}"
+BASE_TEMP_HOT="${TEMP_HOT:-58}"
+BASE_TEMP_POWERSAVE="${TEMP_POWERSAVE:-68}"
+BASE_TEMP_CRITICAL="${TEMP_CRITICAL:-75}"
+
+TEMP_COOL="$BASE_TEMP_COOL"
+TEMP_WARM="$BASE_TEMP_WARM"
+TEMP_HOT="$BASE_TEMP_HOT"
+TEMP_POWERSAVE="$BASE_TEMP_POWERSAVE"
+TEMP_CRITICAL="$BASE_TEMP_CRITICAL"
+
+CALIBRATION_FILE="/data/local/tmp/thermalai.calibration"
+CALIBRATION_OFFSET_FILE="/data/local/tmp/thermalai.calibration_offset"
+
+# Load saved offset
+if [ -f "$CALIBRATION_OFFSET_FILE" ]; then
+    saved_offset=$(cat "$CALIBRATION_OFFSET_FILE" 2>/dev/null || echo "0")
+    if [ "$saved_offset" -lt 0 ] && [ "$saved_offset" -ge -6 ]; then
+        log_info "Loaded persistent calibration offset: ${saved_offset}°C"
+        TEMP_COOL=$((BASE_TEMP_COOL + saved_offset))
+        TEMP_WARM=$((BASE_TEMP_WARM + saved_offset))
+        TEMP_HOT=$((BASE_TEMP_HOT + saved_offset))
+        TEMP_POWERSAVE=$((BASE_TEMP_POWERSAVE + saved_offset))
+        TEMP_CRITICAL=$((BASE_TEMP_CRITICAL + saved_offset))
+    fi
+fi
 
 # ─── State ────────────────────────────────────────────────────────────────────
 TEMP_HISTORY=""
@@ -41,6 +68,12 @@ TEMP_HISTORY_COUNT=0
 TREND_SCORE=0
 CURRENT_POLICY="balanced"
 LAST_POLICY_CHANGE=0
+WATCHDOG_FAILURES=0
+WATCHDOG_LIMIT=5
+GAME_EXIT_COOLDOWN_UNTIL=0
+LAST_GAMING_STATE="false"
+COOLDOWN_SOURCE_PKG=""
+LAST_GAME_PKG=""
 
 # ─── Thermal zones ────────────────────────────────────────────────────────────
 _zone_weight() {
@@ -81,34 +114,45 @@ init_thermal_zones() {
 
 get_composite_temp() {
     local tw=0 wt=0
+    local reads_succeeded=0
+    local current_gpu_load=$(get_gpu_load 2>/dev/null || echo 0)
+
     for entry in $ACTIVE_ZONES; do
         local zid="${entry%%:*}" w="${entry##*:}"
         local t
+
+        # Determine zone type
+        local ztype=$(cat "/sys/class/thermal/thermal_zone${zid}/type" 2>/dev/null || echo "unknown")
+
+        # Scale gpuss- weights based on current gpu load
+        if case "$ztype" in gpuss-*) true;; *) false;; esac; then
+            w=$(( (w * current_gpu_load) / 100 ))
+            [ "$w" -lt 1 ] && w=1
+        fi
+
         t=$(cat "/sys/class/thermal/thermal_zone${zid}/temp" 2>/dev/null) || continue
         [ "$t" -gt 1000 ] 2>/dev/null && t=$((t/1000))
         [ "$t" -lt 0 ] 2>/dev/null && continue
         [ "$t" -gt 120 ] 2>/dev/null && continue
         tw=$((tw + t*w)); wt=$((wt + w))
+        reads_succeeded=1
     done
-    [ "$wt" -eq 0 ] && echo "45" && return
-    echo $((tw/wt))
+    if [ "$reads_succeeded" -eq 1 ] && [ "$wt" -gt 0 ]; then
+        echo $((tw/wt))
+    else
+        # Return special failure indicator instead of just 45
+        echo "READ_FAILED:45"
+    fi
 }
 
-get_gpu_load() {
-    local l
-    l=$(cat /sys/class/kgsl/kgsl-3d0/gpu_busy_percentage 2>/dev/null | awk '{print int($1)}')
-    [ -n "$l" ] && echo "$l" && return
-    l=$(cat /sys/kernel/gpu/gpu_busy 2>/dev/null | tr -d '% ')
-    [ -n "$l" ] && echo "$l" && return
-    echo "0"
-}
+# (get_gpu_load has been moved to game_detector.sh where it is universally sourced)
 
 # ─── History ──────────────────────────────────────────────────────────────────
 update_history() {
-    TEMP_HISTORY="$TEMP_HISTORY $1"
+    TEMP_HISTORY="${TEMP_HISTORY:+$TEMP_HISTORY }$1"
     TEMP_HISTORY_COUNT=$((TEMP_HISTORY_COUNT+1))
     if [ "$TEMP_HISTORY_COUNT" -gt "$TEMP_HISTORY_SIZE" ]; then
-        TEMP_HISTORY=$(echo "$TEMP_HISTORY" | awk '{for(i=2;i<=NF;i++)printf "%s%s",$i,(i==NF?"\n":" ")}')
+        TEMP_HISTORY=$(echo "$TEMP_HISTORY" | awk '{for(i=2;i<=NF;i++)printf "%s%s",$i,(i==NF?"":" ")}')
         TEMP_HISTORY_COUNT=$((TEMP_HISTORY_COUNT-1))
     fi
 }
@@ -127,17 +171,23 @@ calculate_trend() {
 # ─── Asymmetric EMA [FIX-1: clamp raised to ±50] ────────────────────────────
 update_trend_ema() {
     local s="$1"
-    if [ "$s" -gt "$TREND_SCORE" ]; then
+
+    # NEW: Heavily penalize sudden huge temperature spikes to act faster
+    if [ "$s" -gt 15 ] && [ "$s" -gt "$TREND_SCORE" ]; then
+        # Huge spike detected, fast-track the EMA upward
+        TREND_SCORE=$((TREND_SCORE*40/100 + s*60/100))
+    elif [ "$s" -gt "$TREND_SCORE" ]; then
         TREND_SCORE=$((TREND_SCORE*75/100 + s*25/100))
     else
         TREND_SCORE=$((TREND_SCORE*45/100 + s*55/100))
     fi
+
     [ "$TREND_SCORE" -gt  50 ] && TREND_SCORE=50   # was ±30
     [ "$TREND_SCORE" -lt -50 ] && TREND_SCORE=-50
 }
 
 predict_temp() {
-    local p=$(($1 + $2*$3/100))
+    local p=$(($1 + $2*$3/10))
     [ "$2" -gt 50 ] && p=$((p*85/100))
     [ "$p" -gt 100 ] && p=100; [ "$p" -lt 20 ] && p=20; echo "$p"
 }
@@ -156,7 +206,7 @@ calculate_confidence() {
 
 # ─── AI Scoring ───────────────────────────────────────────────────────────────
 ai_decide_policy() {
-    local cur="$1" gpu="$2" gaming="$3" pred="$4" conf="$5"
+    local cur="$1" gpu="$2" gaming="$3" pred="$4" conf="$5" game_pkg="$6"
     local s=0 s_temp=0 s_pred=0 s_game=0 s_trend=0
 
     # Temp component
@@ -179,7 +229,7 @@ ai_decide_policy() {
     fi
 
     # Gaming boost
-    if $gaming; then
+    if [ "$gaming" = "true" ]; then
         s_game=$GAMING_SCORE_BOOST
         [ "$gpu" -gt 90 ] && s_game=$((s_game - 15))
         [ "$gpu" -gt 70 ] && [ "$gpu" -le 90 ] && s_game=$((s_game - 8))
@@ -189,11 +239,32 @@ ai_decide_policy() {
     s_trend=$((TREND_SCORE / 4))
 
     s=$((s_temp + s_pred + s_game + s_trend))
+
+    # Incorporate dynamic context weighting
+    local context_weight=$(get_context_score)
+    local comfort_weight=$(get_thermal_comfort_score 2>/dev/null || echo 0)
+    s=$((s + comfort_weight))
+    s=$((s + context_weight))
+
+    log_debug "VERBOSE AI CALC: s_temp=$s_temp s_pred=$s_pred s_game=$s_game s_trend=$s_trend context_weight=$context_weight comfort_weight=$comfort_weight"
+
+    if [ "$gaming" = "true" ]; then
+        if [ -n "$game_pkg" ]; then
+            local game_mod=$(get_game_profile_modifier "$game_pkg")
+            s=$((s + game_mod))
+            local fg_boost=$(get_foreground_priority "$game_pkg")
+            s=$((s + fg_boost))
+        fi
+    fi
+
+    local cooling_boost=$(get_cooling_efficiency "$cur" "$gpu")
+    s=$((s + cooling_boost))
+
     [ "$s" -gt  100 ] && s=100
     [ "$s" -lt -100 ] && s=-100
 
     # Hysteresis policy mapping [FIX-2: performance threshold 65→55]
-    local policy
+    local policy=""
     case "$CURRENT_POLICY" in
         performance)
             [ "$s" -lt 45 ] && policy="balanced" || policy="performance" ;;
@@ -234,13 +305,12 @@ ai_decide_policy() {
     fi
 
     # Diagnostic: warn if high GPU but gaming=false (detection suspect)
-    if [ "$gpu" -ge 40 ] && ! $gaming; then
+    if [ "$gpu" -ge 40 ] && [ "$gaming" != "true" ]; then
         log_debug "WARN: gpu=${gpu}% but gaming=false — check detector"
     fi
 
     # [FIX-4] Include confirmed game pkg in log line
-    local game_pkg; game_pkg=$(get_current_game)
-    log_info "AI: cur=${cur}°C pred=${pred}°C gpu=${gpu}% gaming=${gaming}(${game_pkg}) t=${s_temp} p=${s_pred} g=${s_game} tr=${s_trend} score=${s} -> ${policy}"
+    log_debug "AI: cur=${cur}°C pred=${pred}°C gpu=${gpu}% gaming=${gaming}(${game_pkg}) t=${s_temp} p=${s_pred} g=${s_game} tr=${s_trend} ctx=${context_weight} comf=${comfort_weight} score=${s} -> ${policy}"
     echo "$policy"
 }
 
@@ -258,6 +328,77 @@ start_log_rotation() {
     log_info "Log rotation started (every ${LOG_ROTATE_MIN} min)"
 }
 
+# ─── Self-Calibration ─────────────────────────────────────────────────────────
+# Automatically adjust thresholds based on how often the device overheats
+perform_self_calibration() {
+    local current_temp="$1"
+
+    # Simple logic: track consecutive minutes above 'powersave' threshold.
+    # If the phone runs too hot for too long, permanently shift thresholds down slightly.
+    if [ "$current_temp" -ge "$BASE_TEMP_POWERSAVE" ]; then
+        if [ ! -f "$CALIBRATION_FILE" ]; then
+            echo "1" > "$CALIBRATION_FILE"
+        else
+            local count=$(cat "$CALIBRATION_FILE" 2>/dev/null || echo "0")
+            count=$((count + 1))
+            echo "$count" > "$CALIBRATION_FILE"
+
+            if [ "$count" -ge 60 ]; then # E.g., device was > 68C for roughly 60 ticks (2 mins)
+                local current_offset=$(cat "$CALIBRATION_OFFSET_FILE" 2>/dev/null || echo "0")
+                if [ "$current_offset" -gt -6 ]; then
+                    local new_offset=$((current_offset - 2))
+                    log_warn "Self-Calibration: Device running hot for extended period. Lowering thresholds by 2°C (Total offset: ${new_offset}°C) to protect hardware."
+
+                    # Apply dynamic shift
+                    TEMP_COOL=$((BASE_TEMP_COOL + new_offset))
+                    TEMP_WARM=$((BASE_TEMP_WARM + new_offset))
+                    TEMP_HOT=$((BASE_TEMP_HOT + new_offset))
+                    TEMP_POWERSAVE=$((BASE_TEMP_POWERSAVE + new_offset))
+                    TEMP_CRITICAL=$((BASE_TEMP_CRITICAL + new_offset))
+
+                    # Save offset and reset counter
+                    echo "$new_offset" > "$CALIBRATION_OFFSET_FILE"
+                    echo "0" > "$CALIBRATION_FILE"
+                else
+                    log_warn "Self-Calibration: Device extremely hot, but max offset (-6°C) reached. Cannot lower thresholds further."
+                    echo "0" > "$CALIBRATION_FILE"
+                fi
+            fi
+        fi
+    else
+        # If cool, slowly decay the calibration counter back to normal
+        if [ -f "$CALIBRATION_FILE" ]; then
+             local count=$(cat "$CALIBRATION_FILE" 2>/dev/null || echo "0")
+             if [ "$count" -gt 0 ]; then
+                 count=$((count - 1))
+                 echo "$count" > "$CALIBRATION_FILE"
+             else
+                 local current_offset=$(cat "$CALIBRATION_OFFSET_FILE" 2>/dev/null || echo "0")
+                 if [ "$current_offset" -lt 0 ]; then
+                     log_info "Self-Calibration: Device has recovered. Restoring original temperature thresholds."
+                     TEMP_COOL="$BASE_TEMP_COOL"
+                     TEMP_WARM="$BASE_TEMP_WARM"
+                     TEMP_HOT="$BASE_TEMP_HOT"
+                     TEMP_POWERSAVE="$BASE_TEMP_POWERSAVE"
+                     TEMP_CRITICAL="$BASE_TEMP_CRITICAL"
+                     echo "0" > "$CALIBRATION_OFFSET_FILE"
+                 fi
+             fi
+        fi
+    fi
+}
+
+# ─── Display State ────────────────────────────────────────────────────────────
+get_screen_state() {
+    local state
+    state=$(cat /sys/class/backlight/panel0-backlight/brightness 2>/dev/null || echo "100")
+    if [ "$state" = "0" ]; then
+        echo "off"
+    else
+        echo "on"
+    fi
+}
+
 # ─── Main Loop ────────────────────────────────────────────────────────────────
 main_loop() {
     log_info "════════════════════════════════════════"
@@ -273,34 +414,172 @@ main_loop() {
 
     init_thermal_zones
     discover_cpu_topology
+    load_snapshot
     start_log_rotation
-    apply_thermal_policy "balanced" "false"
+    apply_thermal_policy "balanced" "false" "40" "transition"
 
     while true; do
-        local temp; temp=$(get_composite_temp)
-        local gpu;  gpu=$(get_gpu_load)
-        local gaming; gaming=$(detect_gaming_context)
+        export NOW_TIME=$(date +%s)
 
-        update_history "$temp"
-        local slope; slope=$(calculate_trend "$TEMP_HISTORY")
-        update_trend_ema "$slope"
+        # Property-based override (Tasker / ADB / automation)
+        local forced_policy
+        forced_policy=$(getprop thermalai.force_policy 2>/dev/null)
+        if [ -n "$forced_policy" ] && [ "$forced_policy" != "none" ]; then
+            case "$forced_policy" in
+                performance|balanced|conservative|powersave|emergency_cool)
+                    log_info "Property override: thermalai.force_policy=$forced_policy"
+                    apply_thermal_policy "$forced_policy" "$gaming" "$temp"
+                    CURRENT_POLICY="$forced_policy"
+                    LAST_POLICY_CHANGE="$NOW_TIME"
+                    setprop thermalai.force_policy "none" 2>/dev/null
+                    ;;
+                *)
+                    log_warn "Invalid thermalai.force_policy value: $forced_policy"
+                    setprop thermalai.force_policy "none" 2>/dev/null
+                    ;;
+            esac
+        fi
+        local raw_temp_read; raw_temp_read=$(get_composite_temp)
+        local temp="${raw_temp_read}"
 
-        local pred; pred=$(predict_temp "$temp" "$slope" "$PREDICTION_WINDOW")
-        local conf; conf=$(calculate_confidence)
-
-        local new_policy; new_policy=$(ai_decide_policy "$temp" "$gpu" "$gaming" "$pred" "$conf")
-
-        if [ "$new_policy" != "$CURRENT_POLICY" ]; then
-            apply_thermal_policy "$new_policy" "$gaming"
-            CURRENT_POLICY="$new_policy"
-            LAST_POLICY_CHANGE=$(date +%s)
+        # Parse failure indicator
+        if case "$raw_temp_read" in READ_FAILED*) true;; *) false;; esac; then
+            TEMP_READ_FAILED="true"
+            temp="${raw_temp_read#READ_FAILED:}"
+        else
+            TEMP_READ_FAILED="false"
         fi
 
-        # Fast poll when gaming OR GPU is hot (don't wait for detection to confirm)
-        if $gaming || [ "$gpu" -ge "$GPU_GAMING_THRESHOLD" ]; then
-            sleep "$GAME_POLL_INTERVAL"
+        local gpu;  gpu=$(get_gpu_load)
+
+        # Execute game detector globally, do not use $(...) subshell so state isn't lost
+        detect_gaming_context
+        local gaming="$_LAST_DETECTION_RESULT"
+
+        local realtime_gaming="$_REALTIME_GAMING"
+
+        update_history "$temp"
+        local trend; trend=$(calculate_trend "$TEMP_HISTORY")
+        update_trend_ema "$trend"
+
+        local pred conf
+        pred=$(predict_temp "$temp" "$TREND_SCORE" "$PREDICTION_WINDOW")
+        conf=$(calculate_confidence)
+
+        perform_self_calibration "$temp"
+        update_ema "$temp"
+
+        # Apply charging control every tick to guarantee hardware hasn't reset it
+        apply_charging_control "$realtime_gaming"
+
+        # Watchdog Check
+        if [ "$TEMP_READ_FAILED" = "true" ]; then
+            WATCHDOG_FAILURES=$((WATCHDOG_FAILURES + 1))
         else
-            sleep "$POLL_INTERVAL"
+            WATCHDOG_FAILURES=0
+        fi
+
+        if [ "$WATCHDOG_FAILURES" -ge "$WATCHDOG_LIMIT" ]; then
+            log_error "CRITICAL: Watchdog triggered! Thermal sensors failing to read."
+            log_error "Aborting AI daemon and falling back to stock thermal engine."
+            restore_stock_thermal
+            exit 1
+        fi
+
+        # Self-healing stuck state watchdog
+        if [ $((NOW_TIME % 30)) -eq 0 ]; then
+            apply_thermal_policy "$CURRENT_POLICY" "$gaming" "$temp" "watchdog"
+        fi
+
+        if [ "$LAST_GAMING_STATE" = "true" ] && [ "$gaming" = "false" ]; then
+            GAME_EXIT_COOLDOWN_UNTIL=$((NOW_TIME + 90))
+            COOLDOWN_SOURCE_PKG="$_CONFIRMED_GAME_PKG"
+            log_info "Game exit detected. Post-game cooldown started for 90 seconds. Source: $COOLDOWN_SOURCE_PKG"
+            # Apply transition immediately to flush any stuck network/touch properties from previous game
+            apply_thermal_policy "balanced" "$gaming" "$temp" "transition"
+            CURRENT_POLICY="balanced"
+            LAST_POLICY_CHANGE="$NOW_TIME"
+        fi
+        LAST_GAMING_STATE="$gaming"
+
+        local current_game_pkg=""
+        if [ "$gaming" = "true" ]; then
+            current_game_pkg="$_CONFIRMED_GAME_PKG"
+            if [ -n "$current_game_pkg" ]; then
+                if [ "$current_game_pkg" != "$LAST_GAME_PKG" ]; then
+                    load_game_profile "$current_game_pkg"
+                    LAST_GAME_PKG="$current_game_pkg"
+                    # Force a transition apply when switching games to clear stale settings
+                    apply_thermal_policy "$CURRENT_POLICY" "$gaming" "$temp" "transition"
+                fi
+                update_game_profile "$current_game_pkg" "$temp"
+            fi
+        else
+            LAST_GAME_PKG=""
+        fi
+
+        local screen_state; screen_state=$(get_screen_state)
+        local new_policy
+
+        if [ "$screen_state" = "off" ]; then
+            new_policy="suspend"
+        else
+            new_policy=$(ai_decide_policy "$temp" "$gpu" "$gaming" "$pred" "$conf" "$current_game_pkg")
+
+            if [ "$NOW_TIME" -lt "$GAME_EXIT_COOLDOWN_UNTIL" ]; then
+                if [ "$gaming" = "true" ]; then
+                    local cur_pkg="$current_game_pkg"
+                    if [ "$cur_pkg" != "$COOLDOWN_SOURCE_PKG" ]; then
+                        GAME_EXIT_COOLDOWN_UNTIL=0
+                        log_info "Game switch detected ($COOLDOWN_SOURCE_PKG -> $cur_pkg). Cancelling cooldown."
+                    else
+                        local remaining=$((GAME_EXIT_COOLDOWN_UNTIL - NOW_TIME))
+                        new_policy="balanced"
+                        log_debug "Cooling down: forcing balanced (${remaining}s remaining)"
+                    fi
+                else
+                    local remaining=$((GAME_EXIT_COOLDOWN_UNTIL - NOW_TIME))
+                    new_policy="balanced"
+                    log_debug "Cooling down: forcing balanced (${remaining}s remaining)"
+                fi
+            fi
+        fi
+
+        # Stutter override: jank during balanced -> force conservative gaming
+        if [ "$gaming" = "true" ] && [ "$new_policy" = "balanced" ]; then
+            local game_pkg="$_CONFIRMED_GAME_PKG"
+            local stutter
+            stutter=$(detect_frame_stutter "$game_pkg")
+            if [ "$stutter" = "true" ]; then
+                log_info "Stutter override: balanced -> conservative (jank detected)"
+                new_policy="conservative"
+            fi
+        fi
+
+        if [ "$new_policy" != "$CURRENT_POLICY" ]; then
+            apply_thermal_policy "$new_policy" "$gaming" "$temp"
+            log_info "Policy change: temp=${temp} gpu=${gpu} gaming=${gaming} -> ${new_policy}"
+
+            CURRENT_POLICY="$new_policy"
+            LAST_POLICY_CHANGE="$NOW_TIME"
+        fi
+
+        if [ "$screen_state" = "off" ]; then
+            sleep "$((POLL_INTERVAL * 2))" # Poll slower when screen is off
+        elif [ "$gaming" = "true" ] || [ "$gpu" -ge "$GPU_GAMING_THRESHOLD" ]; then
+            if [ "$TREND_SCORE" -gt 15 ]; then
+                sleep 0 # Skip sleep entirely
+            elif [ "$TREND_SCORE" -gt 8 ]; then
+                sleep 1
+            else
+                sleep "$GAME_POLL_INTERVAL"
+            fi
+        else
+            if [ "$TREND_SCORE" -ge -2 ] && [ "$TREND_SCORE" -le 2 ]; then
+                sleep 8 # Sleep even longer when stable and not gaming to reduce CPU load
+            else
+                sleep "$POLL_INTERVAL"
+            fi
         fi
     done
 }

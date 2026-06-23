@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThermalAI Dashboard</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --panel-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --accent-color: #00bcd4;
+            --border-color: #333;
+            --danger-color: #f44336;
+            --warn-color: #ff9800;
+            --success-color: #4caf50;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: var(--panel-bg);
+            padding: 1rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: var(--accent-color);
+        }
+
+        nav {
+            display: flex;
+            background-color: var(--panel-bg);
+            border-bottom: 1px solid var(--border-color);
+            overflow-x: auto;
+        }
+
+        nav button {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            padding: 1rem;
+            font-size: 1rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+        }
+
+        nav button.active {
+            border-bottom-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background-color: var(--panel-bg);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .stat-box {
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 0.8rem;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 0.2rem;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        pre, code {
+            font-family: "Courier New", Courier, monospace;
+            background-color: #000;
+            padding: 0.5rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 0;
+            font-size: 0.85rem;
+        }
+
+        .log-viewer {
+            height: 400px;
+            overflow-y: auto;
+            background-color: #000;
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            font-family: monospace;
+            font-size: 0.8rem;
+            white-space: pre-wrap;
+        }
+
+        .log-info { color: #e0e0e0; }
+        .log-warn { color: var(--warn-color); }
+        .log-error { color: var(--danger-color); font-weight: bold; }
+
+        button.btn {
+            background-color: var(--panel-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        button.btn:active {
+            background-color: var(--border-color);
+        }
+
+        button.btn-primary {
+            background-color: rgba(0, 188, 212, 0.2);
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        button.btn-danger {
+            background-color: rgba(244, 67, 54, 0.2);
+            border-color: var(--danger-color);
+            color: var(--danger-color);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-size: 0.9rem;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 0.6rem;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            height: 150px;
+            font-family: monospace;
+        }
+
+        canvas {
+            width: 100%;
+            height: 150px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>ThermalAI</h1>
+        <span id="daemon-status" style="font-size:0.8rem; color:#999;">Checking...</span>
+    </header>
+
+    <nav>
+        <button class="active" onclick="switchTab('dashboard')">Dashboard</button>
+        <button onclick="switchTab('logs')">Logs</button>
+        <button onclick="switchTab('games')">Games</button>
+        <button onclick="switchTab('settings')">Settings</button>
+        <button onclick="switchTab('controls')">Controls</button>
+    </nav>
+
+    <main>
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="card">
+                <h2>Real-Time Stats</h2>
+                <div class="grid-2">
+                    <div class="stat-box">
+                        <div id="dash-temp" class="stat-value">--°C</div>
+                        <div class="stat-label">AI Temp</div>
+                    </div>
+                    <div class="stat-box">
+                        <div id="dash-policy" class="stat-value">--</div>
+                        <div class="stat-label">Current Policy</div>
+                    </div>
+                    <div class="stat-box">
+                        <div id="dash-gpu" class="stat-value">--%</div>
+                        <div class="stat-label">GPU Load</div>
+                    </div>
+                    <div class="stat-box">
+                        <div id="dash-gaming" class="stat-value">--</div>
+                        <div class="stat-label">Gaming State</div>
+                    </div>
+                    <div class="stat-box">
+                        <div id="dash-batt-temp" class="stat-value">--°C</div>
+                        <div class="stat-label">Battery Temp</div>
+                    </div>
+                    <div class="stat-box">
+                        <div id="dash-charge-state" class="stat-value">--</div>
+                        <div class="stat-label">Charge State</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Temperature Trend (Last 30 reads)</h2>
+                <canvas id="tempChart"></canvas>
+            </div>
+
+            <div class="card">
+                <h2>Prediction Analytics</h2>
+                <pre id="dash-ai-raw" style="min-height: 50px;">Waiting for data...</pre>
+            </div>
+        </div>
+
+        <!-- Logs Tab -->
+        <div id="logs" class="tab-content">
+            <div class="card">
+                <div class="flex-between">
+                    <h2>Log Viewer</h2>
+                    <div>
+                        <button class="btn btn-primary" id="btn-toggle-log" onclick="toggleLogType()">Verbose Mode: OFF</button>
+                        <button class="btn" onclick="fetchLogs()">Refresh</button>
+                    </div>
+                </div>
+                <div id="log-container" class="log-viewer"></div>
+            </div>
+        </div>
+
+        <!-- Games Tab -->
+        <div id="games" class="tab-content">
+            <div class="card">
+                <h2>Dynamic Game Profiles</h2>
+                <p style="font-size:0.8rem; color:#999; margin-top:-10px;">Auto-calibrated data for KNOWN_HOT games.</p>
+                <div id="dynamic-profiles-container">Loading...</div>
+                <button class="btn btn-danger" style="margin-top: 10px;" onclick="clearGameProfiles()">Clear All Dynamic Profiles</button>
+            </div>
+
+            <div class="card">
+                <div class="flex-between">
+                    <h2>Static Game List</h2>
+                    <button class="btn btn-primary" onclick="saveGameList()">Save List</button>
+                </div>
+                <div class="form-group">
+                    <textarea id="game-list-editor" spellcheck="false"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settings" class="tab-content">
+            <div class="card">
+                <div class="flex-between">
+                    <h2>Core Configuration</h2>
+                    <button class="btn btn-primary" onclick="saveSettings()">Save & Restart</button>
+                </div>
+                <p style="font-size:0.8rem; color:#999; margin-top:-10px;">/data/adb/modules/thermalai/config/profiles.conf</p>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>POLL_INTERVAL (sec)</label>
+                        <input type="number" id="cfg_poll" value="2">
+                    </div>
+                    <div class="form-group">
+                        <label>GAME_POLL_INTERVAL (sec)</label>
+                        <input type="number" id="cfg_game_poll" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label>TEMP_COOL (°C)</label>
+                        <input type="number" id="cfg_tcool" value="42">
+                    </div>
+                    <div class="form-group">
+                        <label>TEMP_WARM (°C)</label>
+                        <input type="number" id="cfg_twarm" value="48">
+                    </div>
+                    <div class="form-group">
+                        <label>TEMP_HOT (°C)</label>
+                        <input type="number" id="cfg_thot" value="58">
+                    </div>
+                    <div class="form-group">
+                        <label>TEMP_POWERSAVE (°C)</label>
+                        <input type="number" id="cfg_tpsave" value="68">
+                    </div>
+                    <div class="form-group">
+                        <label>TEMP_CRITICAL (°C)</label>
+                        <input type="number" id="cfg_tcrit" value="75">
+                    </div>
+                    <div class="form-group">
+                        <label>GAMING_SCORE_BOOST</label>
+                        <input type="number" id="cfg_gboost" value="35">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls Tab -->
+        <div id="controls" class="tab-content">
+            <div class="card">
+                <h2>Daemon Controls</h2>
+                <button class="btn btn-primary" onclick="runKsuCmd('su -c /data/adb/modules/thermalai/system/bin/thermalair restart', 'Restarted Daemon')">Restart ThermalAI Daemon</button>
+                <button class="btn btn-danger" onclick="runKsuCmd('su -c /data/adb/modules/thermalai/system/bin/thermalair stop', 'Stopped Daemon')">Stop Daemon</button>
+                <button class="btn btn-primary" style="margin-top: 10px;" onclick="runKsuCmd('su -c /data/adb/modules/thermalai/system/bin/thermalair start', 'Started Daemon')">Start Daemon</button>
+            </div>
+
+            <div class="card">
+                <h2>Diagnostic Tools</h2>
+                <button class="btn" onclick="runKsuCmdAndShow('su -c /data/adb/modules/thermalai/system/bin/thermalair status')">Check Status</button>
+                <button class="btn" onclick="runKsuCmdAndShow('su -c /data/adb/modules/thermalai/system/bin/thermalair gaming')">Check Gaming State</button>
+                <button class="btn" onclick="runKsuCmdAndShow('su -c /data/adb/modules/thermalai/system/bin/thermalair temps')">List Active Sensors</button>
+            </div>
+
+            <div class="card">
+                <h2>Maintenance</h2>
+                <button class="btn" onclick="runKsuCmd('su -c rm -f /data/local/tmp/thermalai*.log* && echo Cleared', 'Logs Cleared')">Clear All Logs</button>
+                <button class="btn" onclick="runKsuCmd('su -c /data/adb/modules/thermalai/system/bin/thermalair calibrate reset', 'Calibration Reset')">Reset Self-Calibration</button>
+            </div>
+
+            <div class="card">
+                <h2>Force Policy (Temporary)</h2>
+                <button class="btn" onclick="runKsuCmd('su -c setprop thermalai.force_policy performance', 'Forced Performance')">Performance</button>
+                <button class="btn" onclick="runKsuCmd('su -c setprop thermalai.force_policy balanced', 'Forced Balanced')">Balanced</button>
+                <button class="btn" onclick="runKsuCmd('su -c setprop thermalai.force_policy powersave', 'Forced Powersave')">Powersave</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- KSU API Script -->
+    <script type="module">
+        import { exec } from 'kernelsu';
+
+        let autoRefreshInterval = null;
+        let isVerboseLog = false;
+        let tempHistoryData = [];
+        const maxHistory = 30;
+
+        // Make functions globally available to onClick handlers
+        window.switchTab = (tabId) => {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+
+            if(tabId === 'dashboard') {
+                startAutoRefresh();
+            } else {
+                stopAutoRefresh();
+                if(tabId === 'logs') fetchLogs();
+                if(tabId === 'settings') loadSettings();
+                if(tabId === 'games') loadGames();
+            }
+        };
+
+        window.runKsuCmd = async (cmd, successMsg) => {
+            try {
+                await exec(cmd);
+                alert(successMsg || "Command executed successfully");
+            } catch(e) {
+                alert("Error: " + e);
+            }
+        };
+
+        window.runKsuCmdAndShow = async (cmd) => {
+            try {
+                const { stdout, stderr } = await exec(cmd);
+                alert(stdout || stderr || "No output");
+            } catch(e) {
+                alert("Error: " + e);
+            }
+        };
+
+        // --- Dashboard Logic ---
+        async function fetchDashboardData() {
+            try {
+                // Check if daemon is running
+                const { stdout: pidOut } = await exec('cat /data/local/tmp/thermalai.pid');
+                if(pidOut && pidOut.trim().length > 0) {
+                    document.getElementById('daemon-status').innerText = 'Running (PID ' + pidOut.trim() + ')';
+                    document.getElementById('daemon-status').style.color = 'var(--success-color)';
+                } else {
+                    document.getElementById('daemon-status').innerText = 'Stopped';
+                    document.getElementById('daemon-status').style.color = 'var(--danger-color)';
+                }
+
+                // Extract latest AI line from log
+                const { stdout: aiLog } = await exec('grep "Policy change:\\|AI:" /data/local/tmp/thermalai.log | tail -1');
+                if(aiLog) {
+                    const tempMatch = aiLog.match(/cur=(\d+)/) || aiLog.match(/temp=(\d+)/);
+                    const policyMatch = aiLog.match(/-> (\w+)/);
+                    const gpuMatch = aiLog.match(/gpu=(\d+)/);
+                    const gamingMatch = aiLog.match(/gaming=(\w+)/);
+
+                    if(tempMatch) {
+                        const tempVal = parseInt(tempMatch[1]);
+                        document.getElementById('dash-temp').innerText = tempVal + "°C";
+
+                        // Add to chart history
+                        if(tempHistoryData.length >= maxHistory) tempHistoryData.shift();
+                        tempHistoryData.push(tempVal);
+                        drawChart();
+                    }
+                    if(policyMatch) document.getElementById('dash-policy').innerText = policyMatch[1].toUpperCase();
+                    if(gpuMatch) document.getElementById('dash-gpu').innerText = gpuMatch[1] + "%";
+                    if(gamingMatch) document.getElementById('dash-gaming').innerText = gamingMatch[1].toUpperCase();
+
+                    document.getElementById('dash-ai-raw').innerText = aiLog.trim();
+                }
+
+                // Extract latest charge state from verbose log
+                const { stdout: chargeLog } = await exec('grep "Charging current limit" /data/local/tmp/thermalai_verbose.log | tail -1');
+                if(chargeLog) {
+                    const battMatch = chargeLog.match(/batt_temp=(\d+)/);
+                    const stateMatch = chargeLog.match(/state=(\w+)/);
+                    if(battMatch) document.getElementById('dash-batt-temp').innerText = battMatch[1] + "°C";
+                    if(stateMatch) document.getElementById('dash-charge-state').innerText = stateMatch[1].toUpperCase();
+                }
+
+            } catch (e) {
+                console.error("Fetch dashboard error:", e);
+            }
+        }
+
+        function drawChart() {
+            const canvas = document.getElementById('tempChart');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width = canvas.offsetWidth;
+            const height = canvas.height = canvas.offsetHeight;
+
+            ctx.clearRect(0, 0, width, height);
+
+            if(tempHistoryData.length < 2) return;
+
+            const minTemp = 25;
+            const maxTemp = 80;
+            const range = maxTemp - minTemp;
+
+            const stepX = width / (maxHistory - 1);
+
+            ctx.beginPath();
+            ctx.strokeStyle = '#00bcd4';
+            ctx.lineWidth = 2;
+
+            for(let i=0; i<tempHistoryData.length; i++) {
+                let temp = tempHistoryData[i];
+                if(temp < minTemp) temp = minTemp;
+                if(temp > maxTemp) temp = maxTemp;
+
+                const x = i * stepX;
+                const y = height - ((temp - minTemp) / range * height);
+
+                if(i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+
+            ctx.stroke();
+
+            // Draw gradient fill
+            ctx.lineTo((tempHistoryData.length - 1) * stepX, height);
+            ctx.lineTo(0, height);
+            ctx.closePath();
+
+            const gradient = ctx.createLinearGradient(0, 0, 0, height);
+            gradient.addColorStop(0, 'rgba(0, 188, 212, 0.4)');
+            gradient.addColorStop(1, 'rgba(0, 188, 212, 0.0)');
+            ctx.fillStyle = gradient;
+            ctx.fill();
+        }
+
+        // --- Logs Logic ---
+        window.toggleLogType = () => {
+            isVerboseLog = !isVerboseLog;
+            document.getElementById('btn-toggle-log').innerText = isVerboseLog ? "Verbose Mode: ON" : "Verbose Mode: OFF";
+            fetchLogs();
+        };
+
+        window.fetchLogs = async () => {
+            const file = isVerboseLog ? '/data/local/tmp/thermalai_verbose.log' : '/data/local/tmp/thermalai.log';
+            try {
+                const { stdout } = await exec(`tail -n 100 ${file}`);
+                const container = document.getElementById('log-container');
+
+                // Color formatting
+                let formatted = (stdout || "Empty").replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                formatted = formatted.replace(/\[INFO\]/g, '<span class="log-info">[INFO]</span>');
+                formatted = formatted.replace(/\[WARN\]/g, '<span class="log-warn">[WARN]</span>');
+                formatted = formatted.replace(/\[ERROR\]/g, '<span class="log-error">[ERROR]</span>');
+
+                container.innerHTML = formatted;
+                container.scrollTop = container.scrollHeight;
+            } catch(e) {
+                document.getElementById('log-container').innerText = "Failed to load log.";
+            }
+        };
+
+        // --- Settings Logic ---
+        const CONFIG_FILE = "/data/adb/modules/thermalai/config/profiles.conf";
+
+        window.loadSettings = async () => {
+            try {
+                const { stdout } = await exec(`cat ${CONFIG_FILE}`);
+                if(!stdout) return;
+
+                const lines = stdout.split('\n');
+                lines.forEach(line => {
+                    if(line.startsWith('POLL_INTERVAL=')) document.getElementById('cfg_poll').value = line.split('=')[1];
+                    if(line.startsWith('GAME_POLL_INTERVAL=')) document.getElementById('cfg_game_poll').value = line.split('=')[1];
+                    if(line.startsWith('TEMP_COOL=')) document.getElementById('cfg_tcool').value = line.split('=')[1];
+                    if(line.startsWith('TEMP_WARM=')) document.getElementById('cfg_twarm').value = line.split('=')[1];
+                    if(line.startsWith('TEMP_HOT=')) document.getElementById('cfg_thot').value = line.split('=')[1];
+                    if(line.startsWith('TEMP_POWERSAVE=')) document.getElementById('cfg_tpsave').value = line.split('=')[1];
+                    if(line.startsWith('TEMP_CRITICAL=')) document.getElementById('cfg_tcrit').value = line.split('=')[1];
+                    if(line.startsWith('GAMING_SCORE_BOOST=')) document.getElementById('cfg_gboost').value = line.split('=')[1];
+                });
+            } catch(e) {
+                console.error("Failed to load config");
+            }
+        };
+
+        window.saveSettings = async () => {
+            const v = (id) => document.getElementById(id).value;
+            const newConfig = `
+POLL_INTERVAL=${v('cfg_poll')}
+GAME_POLL_INTERVAL=${v('cfg_game_poll')}
+TEMP_COOL=${v('cfg_tcool')}
+TEMP_WARM=${v('cfg_twarm')}
+TEMP_HOT=${v('cfg_thot')}
+TEMP_POWERSAVE=${v('cfg_tpsave')}
+TEMP_CRITICAL=${v('cfg_tcrit')}
+GAMING_SCORE_BOOST=${v('cfg_gboost')}
+`;
+            try {
+                // Write temp file, then replace
+                await exec(`echo "${newConfig.trim()}" > /data/local/tmp/t_cfg.tmp && cp /data/local/tmp/t_cfg.tmp ${CONFIG_FILE}`);
+                alert("Settings saved. Restarting daemon...");
+                await exec('su -c /data/adb/modules/thermalai/system/bin/thermalair restart');
+            } catch(e) {
+                alert("Save failed: " + e);
+            }
+        };
+
+        // --- Games Logic ---
+        const GAME_LIST_FILE = "/data/adb/modules/thermalai/config/game_list.conf";
+
+        window.loadGames = async () => {
+            try {
+                // Static list
+                const { stdout: listOut } = await exec(`cat ${GAME_LIST_FILE}`);
+                document.getElementById('game-list-editor').value = listOut || "";
+
+                // Dynamic profiles
+                const { stdout: profOut } = await exec(`ls -1 /data/local/tmp/thermalai.game_profiles/ 2>/dev/null`);
+                let profHtml = "";
+
+                if(profOut && profOut.trim().length > 0) {
+                    const profiles = profOut.trim().split('\n');
+                    for(const p of profiles) {
+                        const { stdout: details } = await exec(`cat /data/local/tmp/thermalai.game_profiles/${p}`);
+                        let maxT = details.match(/MAX_TEMP=(\d+)/)?.[1] || "N/A";
+                        let hot = details.match(/KNOWN_HOT=(true|false)/)?.[1] || "false";
+
+                        let color = hot === "true" ? "var(--danger-color)" : "var(--accent-color)";
+                        profHtml += `<div style="background:rgba(255,255,255,0.05); padding:10px; margin-bottom:5px; border-radius:4px; display:flex; justify-content:space-between;">
+                            <span>${p}</span>
+                            <span>Max: ${maxT}°C | <span style="color:${color}">HOT: ${hot.toUpperCase()}</span></span>
+                        </div>`;
+                    }
+                } else {
+                    profHtml = "<p>No dynamic profiles recorded yet.</p>";
+                }
+                document.getElementById('dynamic-profiles-container').innerHTML = profHtml;
+
+            } catch(e) {
+                console.error("Game load error");
+            }
+        };
+
+        window.saveGameList = async () => {
+            const val = document.getElementById('game-list-editor').value;
+            try {
+                await exec(`echo "${val}" > /data/local/tmp/g_cfg.tmp && cp /data/local/tmp/g_cfg.tmp ${GAME_LIST_FILE}`);
+                alert("Game list saved.");
+            } catch(e) {
+                alert("Failed: " + e);
+            }
+        };
+
+        window.clearGameProfiles = async () => {
+            try {
+                await exec(`rm -rf /data/local/tmp/thermalai.game_profiles/*`);
+                alert("Profiles cleared");
+                loadGames();
+            } catch(e) {
+                alert("Failed: " + e);
+            }
+        };
+
+        // --- Lifecycle ---
+        function startAutoRefresh() {
+            fetchDashboardData();
+            if(!autoRefreshInterval) {
+                autoRefreshInterval = setInterval(fetchDashboardData, 2000);
+            }
+        }
+
+        function stopAutoRefresh() {
+            if(autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+            }
+        }
+
+        // Init
+        startAutoRefresh();
+
+        // Handle resizing for canvas
+        window.addEventListener('resize', () => {
+            if(document.getElementById('dashboard').classList.contains('active')) {
+                drawChart();
+            }
+        });
+
+    </script>
+</body>
+</html>
