@@ -43,6 +43,16 @@ keeping your device safe.
 - **Suspend Cooling**: Drops CPU and GPU to absolute minimal power states instantly when the screen is turned off.
 - **Background isolation**: Pushes non-game processes to little cores via cpuset during gaming conserve/powersave modes.
 
+### Changelog v2.3.14
+- **7 New Advanced Heuristics**:
+  - **Memory Pressure Tracking**: Monitors `/proc/meminfo`. Pre-emptively raises ZRAM swappiness if RAM > 85% during gaming to prevent OOM stutters.
+  - **GPU Pre-Load Spikes**: Detects sudden +20% GPU load spikes in a single cycle (indicative of heavy map/match loading) and forces an immediate 1-cycle `performance` boost to eliminate loading screen frame drops.
+  - **Fast Charger Detection**: Calculates incoming Wattage (`current_now` * `voltage_now`) and proactively drops Target Temps by 2°C if an extreme fast charger (>15W) is connected.
+  - **Battery Capacity Awareness**: Dynamically penalizes AI comfort scores if the battery is forced-trickling (>90%) or under heavy voltage strain (<20%) while charging.
+  - **Thermal Fatigue Tracking**: Counts total gaming sessions per uptime, applying a baseline penalty for chassis heat soak after 3 sessions.
+  - **Residual Heat Penalties**: Applies a decaying penalty curve to the start of new gaming sessions if they begin within 5 minutes of a previous session ending.
+  - **Cooling Rate Analysis**: Tracks post-game cooling velocity. If the device cools less than 2°C in 2 minutes, it flags it as a `SLOW_COOLER` (e.g. tight case) and modifies thresholds accordingly.
+
 ### Changelog v2.3.13
 - **Learning-based Adaptive Charging**: Charging logic no longer jumps between hardcoded limits. It now dynamically adjusts current up and down by `100mA`/`200mA` increments to "hunt" for the optimal charging speed that keeps the battery exactly at a safe "Sweet Spot" temperature (36°C normal, 34°C gaming).
 - **Stutter Recovery Fix**: Fixed a kernel boundary bug where waking the phone from deep sleep (or recovering from an emergency) caused severe lag because `cpufreq` policies were silently rejected by the kernel. The module now correctly inverts bounds-write order dynamically.

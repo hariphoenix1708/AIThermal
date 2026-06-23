@@ -159,6 +159,27 @@ get_thermal_comfort_score() {
         comfort_penalty=$((comfort_penalty - 20))
     fi
 
+    # Battery capacity heat coupling
+    local batt_cap=$(cat /sys/class/power_supply/battery/capacity 2>/dev/null || echo 50)
+    local batt_status=$(cat /sys/class/power_supply/battery/status 2>/dev/null || echo "Unknown")
+    if [ "$batt_status" = "Charging" ]; then
+        if [ "$batt_cap" -gt 90 ]; then
+            comfort_penalty=$((comfort_penalty - 10))
+        elif [ "$batt_cap" -lt 20 ]; then
+            comfort_penalty=$((comfort_penalty - 10))
+        fi
+    fi
+
+    # Slow cooler flag check
+    if [ "$SLOW_COOLER_FLAG" = "true" ]; then
+        comfort_penalty=$((comfort_penalty - 5))
+    fi
+
+    # Memory pressure tracking
+    if [ "$MEM_PRESSURE" -gt 85 ]; then
+        comfort_penalty=$((comfort_penalty - 10))
+    fi
+
     echo "$comfort_penalty"
 }
 
@@ -190,6 +211,27 @@ get_game_profile_modifier() {
              if [ "$duration" -gt 1800 ]; then
                  modifier=$((modifier - 5))
              fi
+             # Over 60 mins gaming, larger penalty
+             if [ "$duration" -gt 3600 ]; then
+                 modifier=$((modifier - 5))
+             fi
+        fi
+
+        # Residual heat / Initial cooldown check from previous session
+        if [ -n "$LAST_GAME_END_TIME" ] && [ "$LAST_GAME_END_TIME" -gt 0 ]; then
+            local current_time=$(date +%s)
+            local since_last_game=$((current_time - LAST_GAME_END_TIME))
+            if [ "$since_last_game" -lt 300 ]; then
+                 # Residual heat penalty that decays over 5 mins
+                 local decay=$(( 8 - (since_last_game / 37) ))
+                 [ "$decay" -lt 0 ] && decay=0
+                 modifier=$((modifier - decay))
+            fi
+        fi
+
+        # Session fatigue
+        if [ -n "$GAMING_SESSION_COUNT" ] && [ "$GAMING_SESSION_COUNT" -ge 3 ]; then
+            modifier=$((modifier - 5))
         fi
     fi
     echo "$modifier"

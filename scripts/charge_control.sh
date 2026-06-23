@@ -153,10 +153,35 @@ apply_charging_control() {
         fi
     fi
 
+    # Charger Type Awareness
+    local current_now_ua=$(cat /sys/class/power_supply/battery/current_now 2>/dev/null | tr -d '-' || echo 0)
+    local voltage_now_uv=$(cat /sys/class/power_supply/battery/voltage_now 2>/dev/null || echo 0)
+
+    local is_fast_charger=false
+    if [ "$current_now_ua" -gt 0 ] && [ "$voltage_now_uv" -gt 0 ]; then
+        # Watts = (current_uA * voltage_uV) / 1000000000000
+        # Shell math is integer only, so we scale it carefully.
+        # Micro is 10^-6. So (uA/1000 * uV/1000) / 1000000 = Watts
+        local ma=$((current_now_ua / 1000))
+        local mv=$((voltage_now_uv / 1000))
+        local watts=$(( (ma * mv) / 1000000 ))
+
+        if [ "$watts" -gt 15 ]; then
+            is_fast_charger=true
+        fi
+    fi
+
     # 2. Learning-based Step Adaptation
     # Define "Sweet Spot" target temperatures
     local target_temp=36
-    [ "$CHARGE_STATE" = "GAMING" ] && target_temp=34
+    if [ "$CHARGE_STATE" = "GAMING" ]; then
+        target_temp=34
+    fi
+
+    # Proactively drop targets if a massive fast charger is connected
+    if [ "$is_fast_charger" = "true" ]; then
+        target_temp=$((target_temp - 2))
+    fi
 
     if [ "$CHARGE_STATE" = "NORMAL" ] || [ "$CHARGE_STATE" = "GAMING" ]; then
         # If we are below target, we can speed up charging slightly

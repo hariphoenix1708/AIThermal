@@ -306,14 +306,19 @@ _apply_vm_params() {
     case "$policy" in
         performance)
             # Minimal swapping — keep game assets in RAM
-            _safe_vm_write 10  /proc/sys/vm/swappiness
+            local swap_val=10
+            [ -n "$MEM_PRESSURE" ] && [ "$MEM_PRESSURE" -gt 85 ] && swap_val=60
+            _safe_vm_write "$swap_val"  /proc/sys/vm/swappiness
             _safe_vm_write 10  /proc/sys/vm/vfs_cache_pressure
             _safe_vm_write 4000 /proc/sys/vm/dirty_expire_centisecs
             _safe_vm_write 0   /proc/sys/vm/compaction_proactiveness
             ;;
         balanced)
             local swap_val=40
-            $gaming && swap_val=20
+            if [ "$gaming" = "true" ]; then
+                swap_val=20
+                [ -n "$MEM_PRESSURE" ] && [ "$MEM_PRESSURE" -gt 85 ] && swap_val=80
+            fi
             _safe_vm_write "$swap_val" /proc/sys/vm/swappiness
             _safe_vm_write 50  /proc/sys/vm/vfs_cache_pressure
             _safe_vm_write 3000 /proc/sys/vm/dirty_expire_centisecs
@@ -321,14 +326,19 @@ _apply_vm_params() {
             ;;
         conservative)
             local swap_val=60
-            $gaming && swap_val=30
+            if [ "$gaming" = "true" ]; then
+                swap_val=30
+                [ -n "$MEM_PRESSURE" ] && [ "$MEM_PRESSURE" -gt 85 ] && swap_val=100
+            fi
             _safe_vm_write "$swap_val" /proc/sys/vm/swappiness
             _safe_vm_write 75  /proc/sys/vm/vfs_cache_pressure
             _safe_vm_write 2000 /proc/sys/vm/dirty_expire_centisecs
             ;;
         powersave|emergency_cool)
             # Restore to AOSP default swappiness (40, not HyperOS's 100)
-            _safe_vm_write 40  /proc/sys/vm/swappiness
+            local swap_val=40
+            [ "$gaming" = "true" ] && [ -n "$MEM_PRESSURE" ] && [ "$MEM_PRESSURE" -gt 85 ] && swap_val=100
+            _safe_vm_write "$swap_val"  /proc/sys/vm/swappiness
             _safe_vm_write 100 /proc/sys/vm/vfs_cache_pressure
             _safe_vm_write 1000 /proc/sys/vm/dirty_expire_centisecs
             _safe_vm_write 20  /proc/sys/vm/compaction_proactiveness

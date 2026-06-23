@@ -484,8 +484,35 @@ main_loop() {
         pred=$(predict_temp "$temp" "$TREND_SCORE" "$PREDICTION_WINDOW")
         conf=$(calculate_confidence)
 
+        # Thermal Recovery Speed Detection
+        if [ "$gaming" = "false" ] && [ "$LAST_GAMING_STATE" = "true" ]; then
+            LAST_GAME_END_TEMP="$temp"
+            LAST_GAME_END_TIME="$NOW_TIME"
+        fi
+
+        if [ -n "$LAST_GAME_END_TIME" ]; then
+             if [ $((NOW_TIME - LAST_GAME_END_TIME)) -eq 120 ]; then
+                 local cooled_amount=$((LAST_GAME_END_TEMP - temp))
+                 if [ "$cooled_amount" -lt 2 ] && [ "$temp" -gt 38 ]; then
+                     export SLOW_COOLER_FLAG="true"
+                     log_info "Thermal Recovery: Device cooled only ${cooled_amount}°C in 2 mins. Flagged as SLOW_COOLER."
+                 else
+                     export SLOW_COOLER_FLAG="false"
+                 fi
+             fi
+        fi
+
         perform_self_calibration "$temp"
         update_ema "$temp"
+
+        # Calculate Memory Pressure
+        export MEM_PRESSURE=0
+        local mem_total=$(awk '/MemTotal/{print int($2/1024)}' /proc/meminfo 2>/dev/null || echo 0)
+        local mem_avail=$(awk '/MemAvailable/{print int($2/1024)}' /proc/meminfo 2>/dev/null || echo 0)
+        if [ "$mem_total" -gt 0 ]; then
+            local mem_used=$((mem_total - mem_avail))
+            MEM_PRESSURE=$((mem_used * 100 / mem_total))
+        fi
 
         # Apply charging control every tick to guarantee hardware hasn't reset it
         apply_charging_control "$realtime_gaming"
@@ -525,6 +552,7 @@ main_loop() {
             current_game_pkg="$_CONFIRMED_GAME_PKG"
             if [ -n "$current_game_pkg" ]; then
                 if [ "$current_game_pkg" != "$LAST_GAME_PKG" ]; then
+                    export GAMING_SESSION_COUNT=$((GAMING_SESSION_COUNT + 1))
                     load_game_profile "$current_game_pkg"
                     LAST_GAME_PKG="$current_game_pkg"
                     # Force a transition apply when switching games to clear stale settings
@@ -532,9 +560,19 @@ main_loop() {
                 fi
                 update_game_profile "$current_game_pkg" "$temp"
             fi
+
+            # Predictive pre-load detection (GPU Ramp Spike)
+            if [ -n "$PREV_GPU_LOAD" ]; then
+                local gpu_delta=$((gpu - PREV_GPU_LOAD))
+                if [ "$gpu_delta" -gt 20 ]; then
+                    log_info "Predictive Pre-load: GPU ramped +${gpu_delta}% in 1 cycle. Forcing 1-cycle performance boost to prevent stutter."
+                    apply_thermal_policy "performance" "$gaming" "$temp" "transition"
+                fi
+            fi
         else
             LAST_GAME_PKG=""
         fi
+        PREV_GPU_LOAD="$gpu"
 
         local screen_state; screen_state=$(get_screen_state)
         local new_policy
