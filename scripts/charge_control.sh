@@ -140,7 +140,7 @@ apply_charging_control() {
     # but some devices invert it. If current is very close to 0, it might be full or discharging.
     local current_now_ua_signed=$(cat /sys/class/power_supply/battery/current_now 2>/dev/null || echo 0)
     # Convert negative to positive strictly for wattage magnitude calculation ONLY IF we know it's charging
-    local current_now_ua="${current_now_ua_signed#-}"
+    local current_now_ua="$current_now_ua_signed"
     local voltage_now_uv=$(cat /sys/class/power_supply/battery/voltage_now 2>/dev/null || echo 0)
 
     local is_fast_charger=false

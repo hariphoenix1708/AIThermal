@@ -1,7 +1,7 @@
 id=thermalai
 name=ThermalAI - Intelligent Thermal Manager
-version=v2.3.15
-versionCode=245
+version=v2.3.16
+versionCode=246
 author=ThermalAI Project
-description=AI-driven adaptive thermal throttling for Android. v2.3.15: Fixed WebUI AI data logging source and improved daemon stop logic.
+description=AI-driven adaptive thermal throttling for Android. v2.3.16: Implemented trend-aware charging state machine with dedicated gaming limits and fixed discharge parsing.
 updateJson=
