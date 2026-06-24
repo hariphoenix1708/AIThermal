@@ -465,7 +465,7 @@
                     document.getElementById('daemon-status').style.color = 'var(--danger-color)';
                 }
 
-                const aiRes = await window.exec('grep -E "Policy change:|AI:" /data/local/tmp/thermalai.log | tail -1');
+                const aiRes = await window.exec('grep -E "Policy change:|AI:" /data/local/tmp/thermalai_verbose.log | tail -1');
                 const aiLog = aiRes.stdout;
                 if(aiLog) {
                     const tempMatch = aiLog.match(/cur=(\d+)/) || aiLog.match(/temp=(\d+)/);
