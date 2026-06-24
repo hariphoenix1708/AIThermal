@@ -43,6 +43,10 @@ keeping your device safe.
 - **Suspend Cooling**: Drops CPU and GPU to absolute minimal power states instantly when the screen is turned off.
 - **Background isolation**: Pushes non-game processes to little cores via cpuset during gaming conserve/powersave modes.
 
+### Changelog v2.3.15
+- Fixed an issue where the WebUI dashboard failed to display real-time AI and policy data because it was reading the wrong log file.
+- Improved daemon stop logic to guarantee the PID file is removed, preventing false "Running" states in the WebUI.
+
 ### Changelog v2.3.14
 - **7 New Advanced Heuristics**:
   - **Memory Pressure Tracking**: Monitors `/proc/meminfo`. Pre-emptively raises ZRAM swappiness if RAM > 85% during gaming to prevent OOM stutters.
