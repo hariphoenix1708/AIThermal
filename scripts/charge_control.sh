@@ -92,6 +92,9 @@ fi
 MIN_CURRENT_UA=500000
 MAX_CURRENT_UA=5000000
 
+LAST_APPLIED_CHARGE_LIMIT=""
+LAST_ENFORCE_TIME=0
+
 apply_charging_control() {
     local realtime_gaming="$1"  # Unlatched true/false indicating instant game status
     local max_current_ua="$DYNAMIC_CURRENT_UA"
@@ -236,12 +239,17 @@ apply_charging_control() {
         fi
 
         LAST_APPLIED_CHARGE_LIMIT="$max_current_ua"
+        LAST_ENFORCE_TIME="$NOW_TIME"
     else
         # Prevent hardware resetting it under our nose without spamming log
-        if [ -w "$BATT_CURRENT_MAX" ]; then
-            sysfs_write "$max_current_ua" "$BATT_CURRENT_MAX"
+        local time_since=$((NOW_TIME - LAST_ENFORCE_TIME))
+        if [ "$time_since" -ge 30 ]; then
+            if [ -w "$BATT_CURRENT_MAX" ]; then
+                sysfs_write "$max_current_ua" "$BATT_CURRENT_MAX"
+            fi
+            apply_universal_charging_control "$max_current_ua"
+            LAST_ENFORCE_TIME="$NOW_TIME"
         fi
-        apply_universal_charging_control "$max_current_ua"
     fi
 }
 
