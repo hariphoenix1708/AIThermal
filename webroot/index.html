@@ -957,7 +957,7 @@
 
                 if (stats.chargeLine) {
                     // Charging current limit set to 3000mA (batt_temp=35°C, state=NORMAL)
-                    const battMatch = stats.chargeLine.match(/batt_temp=(\d+)/);
+                    const battMatch = stats.chargeLine.match(/batt=(\d+)/);
                     const limitMatch = stats.chargeLine.match(/to\s+(\d+)mA/);
                     const stateMatch = stats.chargeLine.match(/state=(\w+)/);
 
