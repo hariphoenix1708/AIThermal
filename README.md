@@ -43,9 +43,18 @@ keeping your device safe.
 - **Suspend Cooling**: Drops CPU and GPU to absolute minimal power states instantly when the screen is turned off.
 - **Background isolation**: Pushes non-game processes to little cores via cpuset during gaming conserve/powersave modes.
 
+### Changelog v2.3.18
+- **JSON Telemetry State Engine**: WebUI now relies on a high-performance `thermalai_state.json` file written natively by the backend every cycle, completely eliminating fragile dashboard regex log parsing.
+- **True KSU API Bridge**: Redesigned the KSU backend execution bridge to properly prioritize native `ksu.exec()` calls for modern KernelSU compatibility.
+- **Accurate Daemon Lifeline**: The WebUI now checks liveness via `kill -0` rather than just assuming the presence of a PID file means the daemon is running.
+- **Advanced Adaptive Charging Enhancements**:
+  - Added USB / Connector thermal safety proxy.
+  - Dampened EMA prediction multipliers to reduce false-positive emergency limits.
+  - Enhanced Stable Current Learning with a strict upper cap and seasonal decay limits when dropping into HOT/EMERGENCY states.
+
 ### Changelog v2.3.17
 - **Advanced Adaptive Charging Architecture**: Completely rewrote the charging controller to function as a multi-layered predictive state machine.
-  - **Predictive EMA Slope**: Replaced simple delta temperature calculations with an Exponential Moving Average (EMA) slope. It now predicts where the temperature will be in ~1 minute to proactively taper current before heat spikes occur.
+  - **Predictive EMA Slope**: Replaced simple delta temperature calculations with an Exponential Moving Average (EMA) slope.
   - **Hardware Fast-Charger Detection**: Replaced inaccurate battery-side wattage estimation with direct hardware queries (e.g. `pd_active`, `real_type`) for true fast-charger awareness.
   - **Ambient Temperature Penalty**: Uses `quiet_therm`/skin temperature as an ambient proxy to automatically throttle limits harder in hot environments.
   - **Recovery Learning Engine**: The module now remembers your device's most stable "WARM" charging current. Once it finds a current that stabilizes the temperature, it saves it and instantly recovers to that limit on the next cycle to prevent aggressive limits bouncing.

@@ -717,17 +717,24 @@
             static async exec(cmd) {
                 try {
                     let result;
-                    if (window.ksuModuleExec) {
-                        result = await window.ksuModuleExec(cmd);
-                    } else if (window.ksu && window.ksu.exec) {
+                    // Native modern API
+                    if (typeof ksu !== 'undefined' && typeof ksu.exec === 'function') {
+                        result = await ksu.exec(cmd);
+                    }
+                    // Fallback for older WebView wrappers
+                    else if (typeof window.ksu !== 'undefined' && typeof window.ksu.exec === 'function') {
                         result = await window.ksu.exec(cmd);
-                    } else if (window.kernelsu && window.kernelsu.exec) {
+                    }
+                    else if (typeof window.ksuModuleExec === 'function') {
+                        result = await window.ksuModuleExec(cmd);
+                    }
+                    else if (typeof window.kernelsu !== 'undefined' && typeof window.kernelsu.exec === 'function') {
                         result = await window.kernelsu.exec(cmd);
-                    } else {
-                        return { stdout: "", stderr: "KernelSU API not available. Are you running this in the manager?", code: -1 };
+                    }
+                    else {
+                        return { stdout: "", stderr: "KernelSU API not available.", code: -1 };
                     }
 
-                    // Normalize result
                     return {
                         stdout: (result.stdout || "").trim(),
                         stderr: (result.stderr || "").trim(),
@@ -743,23 +750,24 @@
             }
 
             static async isRunning() {
-                const res = await this.exec('cat /data/local/tmp/thermalai.pid 2>/dev/null');
-                if (res.stdout && !res.stdout.includes("No such file")) {
-                    return res.stdout; // Returns PID
+                // Read PID and verify it actually exists via kill -0
+                const res = await this.exec('pid=$(cat /data/local/tmp/thermalai.pid 2>/dev/null); if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then echo "$pid"; fi');
+                if (res.stdout) {
+                    return res.stdout; // Returns PID if alive
                 }
                 return false;
             }
 
             static async getRealtimeStats() {
-                // Fetch the last AI line from verbose log
-                const aiRes = await this.exec('grep -E "Policy change:|AI:" /data/local/tmp/thermalai_verbose.log | tail -1');
-                // Fetch the last charging limit line
-                const chargeRes = await this.exec('grep "Charging current limit" /data/local/tmp/thermalai_verbose.log | tail -1');
-
-                return {
-                    aiLine: aiRes.stdout,
-                    chargeLine: chargeRes.stdout
-                };
+                const res = await this.exec('cat /data/local/tmp/thermalai_state.json 2>/dev/null');
+                if (res.stdout && res.stdout.startsWith('{')) {
+                    try {
+                        return JSON.parse(res.stdout);
+                    } catch(e) {
+                        return null;
+                    }
+                }
+                return null;
             }
         }
 
@@ -809,6 +817,33 @@
                     clearInterval(this.pollTimer);
                     this.pollTimer = null;
                 }
+            },
+
+            async pollDashboard() {
+                this.checkDaemonStatus();
+                const stats = await BackendAPI.getRealtimeStats();
+
+                if (stats.aiLine) {
+                    // Update raw box
+                    document.getElementById('val-ai-raw').innerText = stats.aiLine;
+
+                    // Parse AI Line: AI: cur=40°C pred=41°C gpu=20% gaming=false(...) -> balanced
+                    // Or Policy change: temp=40 gpu=20 gaming=false -> balanced
+                    const curMatch = stats.aiLine.match(/cur=(\d+)/) || stats.aiLine.match(/temp=(\d+)/);
+                    const policyMatch = stats.aiLine.match(/->\s+(\w+)/);
+                    const gpuMatch = stats.aiLine.match(/gpu=(\d+)/);
+                    const gamingMatch = stats.aiLine.match(/gaming=(true|false)/);
+
+                    if (curMatch) {
+                        const temp = parseInt(curMatch[1]);
+                        document.getElementById('val-temp').innerText = `${temp}°C`;
+                        this.updateChart(temp);
+                    }
+
+                    if (policyMatch) {
+                        const p = policyMatch[1];
+                        document.getElementById('val-policy').innerText = p.toUpperCase();
+                    }
 
                 // Trigger tab specific actions
                 if (tabId === 'tab-dashboard') {
@@ -915,57 +950,34 @@
                 this.checkDaemonStatus();
                 const stats = await BackendAPI.getRealtimeStats();
 
-                if (stats.aiLine) {
-                    // Update raw box
-                    document.getElementById('val-ai-raw').innerText = stats.aiLine;
+                if (stats) {
+                    document.getElementById('val-ai-raw').innerText = JSON.stringify(stats, null, 2);
 
-                    // Parse AI Line: AI: cur=40°C pred=41°C gpu=20% gaming=false(...) -> balanced
-                    // Or Policy change: temp=40 gpu=20 gaming=false -> balanced
-                    const curMatch = stats.aiLine.match(/cur=(\d+)/) || stats.aiLine.match(/temp=(\d+)/);
-                    const policyMatch = stats.aiLine.match(/->\s+(\w+)/);
-                    const gpuMatch = stats.aiLine.match(/gpu=(\d+)/);
-                    const gamingMatch = stats.aiLine.match(/gaming=(true|false)/);
+                    document.getElementById('val-temp').innerText = `${stats.ai_temp}°C`;
+                    this.updateChart(stats.ai_temp);
 
-                    if (curMatch) {
-                        const temp = parseInt(curMatch[1]);
-                        document.getElementById('val-temp').innerText = `${temp}°C`;
-                        this.updateChart(temp);
+                    document.getElementById('val-policy').innerText = stats.policy.toUpperCase();
+                    document.getElementById('val-gpu').innerText = `${stats.gpu_load}%`;
+
+                    document.getElementById('val-batt').innerText = `${stats.batt_temp}°C`;
+                    document.getElementById('val-charge').innerText = `${stats.charge_limit_ma}mA [${stats.charge_state}]`;
+
+                    const box = document.getElementById('box-gaming');
+                    if (stats.gaming) {
+                        document.getElementById('val-gaming').innerText = `ACTIVE (${stats.game_pkg !== 'none' ? stats.game_pkg : '...'})`;
+                        box.classList.add('highlight');
+                        document.getElementById('val-gaming').style.color = 'var(--accent-primary)';
+                        document.getElementById('val-gaming').style.fontSize = '14px'; // Shrink slightly to fit pkg name
+                    } else {
+                        document.getElementById('val-gaming').innerText = "INACTIVE";
+                        box.classList.remove('highlight');
+                        document.getElementById('val-gaming').style.color = 'var(--text-primary)';
+                        document.getElementById('val-gaming').style.fontSize = '24px';
                     }
-
-                    if (policyMatch) {
-                        const p = policyMatch[1];
-                        document.getElementById('val-policy').innerText = p.toUpperCase();
-                    }
-
-                    if (gpuMatch) {
-                        document.getElementById('val-gpu').innerText = `${gpuMatch[1]}%`;
-                    }
-
-                    if (gamingMatch) {
-                        const isGaming = gamingMatch[1] === 'true';
-                        document.getElementById('val-gaming').innerText = isGaming ? "ACTIVE" : "INACTIVE";
-                        const box = document.getElementById('box-gaming');
-                        if(isGaming) {
-                            box.classList.add('highlight');
-                            document.getElementById('val-gaming').style.color = 'var(--accent-primary)';
-                        } else {
-                            box.classList.remove('highlight');
-                            document.getElementById('val-gaming').style.color = 'var(--text-primary)';
-                        }
-                    }
+                } else {
+                    document.getElementById('val-ai-raw').innerText = "Waiting for JSON telemetry...";
                 }
-
-                if (stats.chargeLine) {
-                    // Charging current limit set to 3000mA (batt_temp=35°C, state=NORMAL)
-                    const battMatch = stats.chargeLine.match(/batt=(\d+)/);
-                    const limitMatch = stats.chargeLine.match(/to\s+(\d+)mA/);
-                    const stateMatch = stats.chargeLine.match(/state=(\w+)/);
-
-                    if (battMatch) document.getElementById('val-batt').innerText = `${battMatch[1]}°C`;
-                    if (limitMatch && stateMatch) {
-                        document.getElementById('val-charge').innerText = `${limitMatch[1]}mA [${stateMatch[1]}]`;
-                    }
-                }
+            }
             },
 
             // --- Chart Logic ---
