@@ -817,6 +817,33 @@
                     clearInterval(this.pollTimer);
                     this.pollTimer = null;
                 }
+            },
+
+            async pollDashboard() {
+                this.checkDaemonStatus();
+                const stats = await BackendAPI.getRealtimeStats();
+
+                if (stats.aiLine) {
+                    // Update raw box
+                    document.getElementById('val-ai-raw').innerText = stats.aiLine;
+
+                    // Parse AI Line: AI: cur=40°C pred=41°C gpu=20% gaming=false(...) -> balanced
+                    // Or Policy change: temp=40 gpu=20 gaming=false -> balanced
+                    const curMatch = stats.aiLine.match(/cur=(\d+)/) || stats.aiLine.match(/temp=(\d+)/);
+                    const policyMatch = stats.aiLine.match(/->\s+(\w+)/);
+                    const gpuMatch = stats.aiLine.match(/gpu=(\d+)/);
+                    const gamingMatch = stats.aiLine.match(/gaming=(true|false)/);
+
+                    if (curMatch) {
+                        const temp = parseInt(curMatch[1]);
+                        document.getElementById('val-temp').innerText = `${temp}°C`;
+                        this.updateChart(temp);
+                    }
+
+                    if (policyMatch) {
+                        const p = policyMatch[1];
+                        document.getElementById('val-policy').innerText = p.toUpperCase();
+                    }
 
                 // Trigger tab specific actions
                 if (tabId === 'tab-dashboard') {
