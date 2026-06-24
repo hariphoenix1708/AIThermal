@@ -7,6 +7,7 @@ LOG_FILE="/data/local/tmp/thermalai.log"
 PID_FILE="/data/local/tmp/thermalai.pid"
 
 . "$MODDIR/scripts/logger.sh"       2>/dev/null || true
+. "$MODDIR/scripts/advanced_ai.sh" 2>/dev/null || true
 . "$MODDIR/scripts/governor_tuner.sh" 2>/dev/null || true
 . "$MODDIR/scripts/game_detector.sh"  2>/dev/null || true
 
@@ -20,15 +21,83 @@ cmd_status() {
     local pid
     pid=$(cat "$PID_FILE" 2>/dev/null)
     if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
-        echo "  Daemon : RUNNING (PID=$pid)"
+        echo "  Daemon      : RUNNING (PID=$pid)"
     else
-        echo "  Daemon : STOPPED"
+        echo "  Daemon      : STOPPED / FAILED"
     fi
 
-    # Current policy (last logged)
-    local policy
-    policy=$(grep "AI:.*->" "$LOG_FILE" 2>/dev/null | tail -1 | grep -o '-> .*' | cut -d' ' -f2)
-    echo "  Policy : ${policy:-unknown}"
+    # Bootloop protection
+    if [ -f "/data/local/tmp/thermalai.lock" ]; then
+        echo "  Stability   : VERIFYING (Lock Active)"
+    else
+        echo "  Stability   : STABLE (Lock Cleared)"
+    fi
+
+    # Self-Calibration
+    local calib=$(cat /data/local/tmp/thermalai.calibration 2>/dev/null || echo "0")
+    if [ "$calib" != "0" ]; then
+        echo "  Calibration : OFFSET -2°C (Device hot)"
+    else
+        echo "  Calibration : STANDARD"
+    fi
+
+    # Tweaks
+    if [ -f "/data/local/tmp/thermalai.gaming_tweaks_state" ]; then
+        echo "  Game Tweaks : ACTIVE (Net/Touch Boosted)"
+    else
+        echo "  Game Tweaks : INACTIVE"
+    fi
+
+    # Blacklist
+    local blacklist_count=$(ls /data/local/tmp/thermalai.blacklist/*.blacklisted 2>/dev/null | wc -l)
+    if [ "$blacklist_count" -gt 0 ]; then
+        echo "  Blacklist   : ACTIVE ($blacklist_count nodes)"
+    else
+        echo "  Blacklist   : CLEAN"
+    fi
+
+    # Parse last AI state from log file (verbose holds the detailed per-tick AI output now)
+    local last_ai=$(grep "AI: cur=" "/data/local/tmp/thermalai_verbose.log" 2>/dev/null | tail -1)
+    if [ -n "$last_ai" ]; then
+        local cur=$(echo "$last_ai" | grep -o "cur=[0-9]*" | cut -d= -f2)
+        local pred=$(echo "$last_ai" | grep -o "pred=[0-9]*" | cut -d= -f2)
+        local gpu=$(echo "$last_ai" | grep -o "gpu=[0-9]*" | cut -d= -f2)
+
+        local gaming_str=$(echo "$last_ai" | grep -o 'gaming=[^(]*([^)]*)')
+        local gaming_bool=$(echo "$gaming_str" | cut -d= -f2 | cut -d\( -f1)
+        local gaming_pkg=$(echo "$gaming_str" | cut -d\( -f2 | cut -d\) -f1)
+        [ -z "$gaming_pkg" ] && gaming_pkg="None"
+
+        local policy=$(echo "$last_ai" | awk -F'-> ' '{print $2}')
+
+        echo "  Policy      : $(echo "$policy" | tr '[:lower:]' '[:upper:]')"
+        local trend_score=$(echo "$last_ai" | grep -o "tr=[0-9-]*" | cut -d= -f2)
+        local ai_score=$(echo "$last_ai" | grep -o "score=[0-9-]*" | cut -d= -f2)
+        echo "  AI Score    : $ai_score (Trend: $trend_score)"
+        local ctx_score=$(grep "ctx=" "$LOG_FILE" 2>/dev/null | tail -1 | grep -o "ctx=[0-9-]*" | cut -d= -f2 || echo 0)
+        local comfort_score=$(grep "comf=" "$LOG_FILE" 2>/dev/null | tail -1 | grep -o "comf=[0-9-]*" | cut -d= -f2 || echo 0)
+        echo "  Comfort     : $comfort_score"
+        echo "  Ctx Score   : $ctx_score"
+
+        # Live Memory Calculation from /proc/meminfo
+        local mem_total=$(awk '/MemTotal/{print int($2/1024)}' /proc/meminfo 2>/dev/null || echo 0)
+        local mem_avail=$(awk '/MemAvailable/{print int($2/1024)}' /proc/meminfo 2>/dev/null || echo 0)
+        local mem_str="0MB / 0MB (0%)"
+        if [ "$mem_total" -gt 0 ]; then
+            local mem_used=$((mem_total - mem_avail))
+            local mem_pct=$((mem_used * 100 / mem_total))
+            mem_str="${mem_used}MB / ${mem_total}MB (${mem_pct}%)"
+        fi
+
+        echo "  Mem Pressur : $mem_str"
+        echo "  Stutter Idx : (View via verbose logs)"
+
+        echo "  Gaming      : $gaming_bool (Pkg: $gaming_pkg)"
+        echo "  AI Temp     : ${cur}°C (Predicted: ${pred}°C)"
+        echo "  GPU Load    : ${gpu}%"
+    else
+        echo "  Data        : No recent AI data found in logs."
+    fi
 
     # mi_thermald
     local mipid
@@ -103,19 +172,38 @@ cmd_logs() {
     tail -n "$n" "$LOG_FILE" 2>/dev/null || echo "No log at $LOG_FILE"
 }
 
+cmd_verbose() {
+    local action="${1:-60}"
+    if [ "$action" = "clear" ]; then
+        > "/data/local/tmp/thermalai_verbose.log"
+        echo "Verbose logs cleared."
+    else
+        echo "── Last $action ThermalAI Verbose log lines ──"
+        tail -n "$action" "/data/local/tmp/thermalai_verbose.log" 2>/dev/null || echo "No log at /data/local/tmp/thermalai_verbose.log"
+    fi
+}
+
 # ─── Gaming detection status ──────────────────────────────────────────────────
 cmd_gaming() {
     discover_cpu_topology 2>/dev/null
-    local pkg gpu rt game
-    pkg=$(get_foreground_package)
+    . "$MODDIR/scripts/game_detector.sh"
+
+    # Export NOW_TIME since the detector relies on it from the main loop
+    export NOW_TIME=$(date +%s)
+
+    local gpu game pkg
     gpu=$(get_gpu_load)
-    rt=$(has_render_thread "$pkg")
-    game=$(detect_gaming_context)
-    echo "Foreground package : ${pkg:-<not detected>}"
-    echo "Known game pkg     : $(is_known_game_package "$pkg")"
+    detect_gaming_context
+    game="$_LAST_DETECTION_RESULT"
+    pkg="$_CONFIRMED_GAME_PKG"
+
+    echo "Detected Game Pkg  : ${pkg:-<not detected>}"
+    echo "Known Game Pkg?    : $(is_known_game_package "$pkg")"
     echo "GPU load           : ${gpu}%"
-    echo "Has RenderThread   : $rt"
-    echo "Gaming detected    : $game"
+    echo "Gaming Mode Active : $game"
+    echo ""
+    echo "Note: The v3.0 detection engine uses oom_score_adj, RenderThreads,"
+    echo "and GPU load. Check logs to see which detection layer fired."
 }
 
 # ─── Stop ─────────────────────────────────────────────────────────────────────
@@ -157,16 +245,60 @@ cmd_policy() {
 }
 
 # ─── Dispatch ─────────────────────────────────────────────────────────────────
+cmd_history() {
+    local n="${1:-30}"
+    echo "── ThermalAI Session History (last $n policy changes) ──"
+    printf "  %-19s  %-6s  %-4s  %-12s  %s\n" "Time" "Temp" "GPU" "Gaming" "Policy"
+    echo "  ─────────────────────────────────────────────────────────────"
+    grep "Policy change:" "$LOG_FILE" 2>/dev/null | tail -n "$n" | while IFS= read -r line; do
+        local ts cur gpu gaming policy
+        ts=$(echo "$line"   | grep -o '\[.*\]' | head -1 | tr -d '[]')
+        cur=$(echo "$line"  | grep -o 'temp=[0-9]*'    | cut -d= -f2)
+        gpu=$(echo "$line"  | grep -o 'gpu=[0-9]*'     | cut -d= -f2)
+        gaming=$(echo "$line" | grep -o 'gaming=[a-z]*' | cut -d= -f2)
+        policy=$(echo "$line" | grep -o '-> .*'         | sed 's/-> //' )
+        printf "  %-19s  %-6s  %-4s  %-12s  %s\n" "$ts" "${cur}C" "${gpu}%" "$gaming" "$policy"
+    done
+    echo ""
+    echo "  Tip: run 'thermalair logs' for full verbose output."
+}
+
+cmd_calibrate() {
+    local subcmd="${1:-status}"
+    case "$subcmd" in
+        reset)
+            rm -f /data/local/tmp/thermalai.calibration
+            rm -f /data/local/tmp/thermalai.calibration_offset
+            echo "Calibration data cleared."
+            echo "Thresholds will reset to base values on next daemon start."
+            ;;
+        status)
+            local offset
+            offset=$(cat /data/local/tmp/thermalai.calibration_offset 2>/dev/null || echo "0")
+            local counter
+            counter=$(cat /data/local/tmp/thermalai.calibration 2>/dev/null || echo "0")
+            echo "Calibration offset : ${offset} degrees C (max allowed: -6)"
+            echo "Hot-tick counter   : $counter / 60"
+            ;;
+        *)
+            echo "Usage: thermalair calibrate [status|reset]"
+            ;;
+    esac
+}
+
 case "${1:-status}" in
     status)  cmd_status ;;
     temps)   cmd_temps ;;
     logs)    cmd_logs "${2:-60}" ;;
+    verbose) cmd_verbose "$2" ;;
+    history) cmd_history "${2:-30}" ;;
+    calibrate) cmd_calibrate "$2" ;;
     gaming)  cmd_gaming ;;
     stop)    cmd_stop ;;
     start)   cmd_start ;;
     restart) cmd_stop; sleep 2; cmd_start ;;
     policy)  cmd_policy "$2" ;;
     *)
-        echo "Usage: thermalair [status|temps|logs [N]|gaming|stop|start|restart|policy <name>]"
+        echo "Usage: thermalair [status|temps|logs [N]|history [N]|gaming|stop|start|restart|policy <name>|calibrate reset]"
         exit 1 ;;
 esac
