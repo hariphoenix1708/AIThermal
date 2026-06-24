@@ -43,6 +43,24 @@ keeping your device safe.
 - **Suspend Cooling**: Drops CPU and GPU to absolute minimal power states instantly when the screen is turned off.
 - **Background isolation**: Pushes non-game processes to little cores via cpuset during gaming conserve/powersave modes.
 
+### Changelog v2.3.17
+- **Advanced Adaptive Charging Architecture**: Completely rewrote the charging controller to function as a multi-layered predictive state machine.
+  - **Predictive EMA Slope**: Replaced simple delta temperature calculations with an Exponential Moving Average (EMA) slope. It now predicts where the temperature will be in ~1 minute to proactively taper current before heat spikes occur.
+  - **Hardware Fast-Charger Detection**: Replaced inaccurate battery-side wattage estimation with direct hardware queries (e.g. `pd_active`, `real_type`) for true fast-charger awareness.
+  - **Ambient Temperature Penalty**: Uses `quiet_therm`/skin temperature as an ambient proxy to automatically throttle limits harder in hot environments.
+  - **Recovery Learning Engine**: The module now remembers your device's most stable "WARM" charging current. Once it finds a current that stabilizes the temperature, it saves it and instantly recovers to that limit on the next cycle to prevent aggressive limits bouncing.
+  - **SOC & GPU Degradation**: Battery charging limits are now automatically tapered gracefully when the battery exceeds 50% and 80%, and when GPU load spikes above 80%.
+  - **Node Priority Enforcement**: Cleaned up the sysfs writer to strictly enforce limits on the most critical hardware nodes first (e.g. `constant_charge_current_max`), preventing overlapping and conflicting hardware commands.
+
+### Changelog v2.3.16
+- **Trend-Aware Charging State Machine**: Replaced crude charging limits with a proper `COOL`/`NORMAL`/`WARM`/`HOT`/`EMERGENCY` state machine that watches battery temperature *slope* (how fast it is heating), allowing faster charging when cooling and earlier tapering when heating rapidly.
+- **Dedicated Gaming Charging Profiles**: Instead of a blanket 1A limit, active gaming now uses structured charging targets (~2500mA cool, ~1200mA warm, ~750mA hot) to maintain thermals without crippling charging speed.
+- **Robust Current Parsing**: Fixed a bug where discharging currents were incorrectly parsed as positive charging inputs on certain devices, confusing the fast-charger detection logic.
+
+### Changelog v2.3.15
+- Fixed an issue where the WebUI dashboard failed to display real-time AI and policy data because it was reading the wrong log file.
+- Improved daemon stop logic to guarantee the PID file is removed, preventing false "Running" states in the WebUI.
+
 ### Changelog v2.3.14
 - **7 New Advanced Heuristics**:
   - **Memory Pressure Tracking**: Monitors `/proc/meminfo`. Pre-emptively raises ZRAM swappiness if RAM > 85% during gaming to prevent OOM stutters.
@@ -116,7 +134,7 @@ keeping your device safe.
 - Fixed blocking offline network pings causing latency during game transitions.
 - Fixed self-calibration data wiping upon device reboot.
 - Added 90-second game-exit cool-down profile to prevent post-game heat spikes.
-- Added proactive 1A compound charge limit when actively gaming and charging.
+- Added proactive compound charge limits when actively gaming and charging.
 - Updated smart charging algorithm to use battery temperature (rather than SoC temp) with fine-grained stepped current limits targeting <39°C.
 - Added ambient IIO sensor tracking to penalize thermal limits in hot environments.
 - Added dual-log system (`thermalai.log` and `thermalai_verbose.log`) for better debugging without noise.
