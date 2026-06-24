@@ -620,7 +620,27 @@ main_loop() {
             LAST_POLICY_CHANGE="$NOW_TIME"
         fi
 
-        if [ "$screen_state" = "off" ]; then
+
+        # --- Telemetry JSON Export ---
+        local json_tmp="/data/local/tmp/thermalai_state.tmp"
+        cat << JSONEOF > "$json_tmp"
+{
+  "timestamp": $NOW_TIME,
+  "ai_temp": $temp,
+  "predicted_temp": $pred,
+  "policy": "$CURRENT_POLICY",
+  "gpu_load": $gpu,
+  "gaming": $gaming,
+  "game_pkg": "${current_game_pkg:-none}",
+  "batt_temp": ${G_BATT_TEMP:-0},
+  "charge_state": "${G_CHARGE_STATE:-NORMAL}",
+  "charge_limit_ma": ${G_CHARGE_LIMIT:-0},
+  "trend_score": $TREND_SCORE,
+  "screen": "$screen_state"
+}
+JSONEOF
+        mv "$json_tmp" "/data/local/tmp/thermalai_state.json"
+if [ "$screen_state" = "off" ]; then
             sleep "$((POLL_INTERVAL * 2))" # Poll slower when screen is off
         elif [ "$gaming" = "true" ] || [ "$gpu" -ge "$GPU_GAMING_THRESHOLD" ]; then
             if [ "$TREND_SCORE" -gt 15 ]; then

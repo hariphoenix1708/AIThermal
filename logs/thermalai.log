@@ -1,0 +1,58 @@
+[2026-06-24 17:57:44] [INFO] ════════════════════════════════════════
+[2026-06-24 17:57:44] [INFO]  ThermalAI boot service starting
+[2026-06-24 17:57:44] [INFO]  Device  : 24069PC21I (peridot)
+[2026-06-24 17:57:44] [INFO]  ROM     : lineage_peridot-userdebug 15 BP1A.250505.005 eng.fwlta release-keys
+[2026-06-24 17:57:45] [INFO]  Android : 15
+[2026-06-24 17:57:45] [INFO]  SoC     : pineapple
+[2026-06-24 17:57:45] [INFO]  KSU     : ksud 3.2.0
+[2026-06-24 17:57:45] [INFO] ════════════════════════════════════════
+[2026-06-24 17:57:45] [INFO] Detected active CPU governor: walt
+[2026-06-24 17:57:45] [INFO] Cluster 0 (LITTLE): CPUs=0 1 2  max=2016000
+[2026-06-24 17:57:45] [INFO] Cluster 1 (BIG)   : CPUs=3 4 5 6  max=2803200
+[2026-06-24 17:57:45] [INFO] Cluster 2 (PRIME) : CPUs=7  max=3014400
+[2026-06-24 17:57:47] [INFO] Stock thermal daemons stopped and cooling devices reset
+[2026-06-24 17:57:47] [INFO] Taking full state snapshot...
+[2026-06-24 17:57:47] [INFO] Launching AI thermal daemon...
+[2026-06-24 17:57:47] [INFO] ThermalAI daemon started (PID=7234)
+[2026-06-24 17:57:47] [INFO] Log: /data/local/tmp/thermalai.log
+[2026-06-24 17:57:48] [INFO] ════════════════════════════════════════
+[2026-06-24 17:57:48] [INFO]  ThermalAI v3.0 daemon starting
+[2026-06-24 17:57:48] [INFO]  Device : POCO F6 (peridot)
+[2026-06-24 17:57:48] [INFO]  SoC    : Snapdragon 8s Gen 3 (pineapple)
+[2026-06-24 17:57:48] [INFO]  Kernel : 6.1.170-Zen-Itsu+
+[2026-06-24 17:57:48] [INFO]  Config : poll=2s game_poll=1s
+[2026-06-24 17:57:49] [INFO]           debounce=10s latch=45s
+[2026-06-24 17:57:49] [INFO]           gpu_thresh=20% rotate=60min
+[2026-06-24 17:57:49] [INFO]  Detect : oom_score_adj+RenderThread+dumpsys(fallback)
+[2026-06-24 17:57:49] [INFO] ════════════════════════════════════════
+[2026-06-24 17:57:49] [INFO] Building weighted thermal zone map...
+[2026-06-24 17:57:51] [INFO] Active zones: 63 used, 12 skipped
+[2026-06-24 17:57:51] [INFO] Detected active CPU governor: walt
+[2026-06-24 17:57:51] [INFO] Cluster 0 (LITTLE): CPUs=0 1 2  max=2016000
+[2026-06-24 17:57:51] [INFO] Cluster 1 (BIG)   : CPUs=3 4 5 6  max=2803200
+[2026-06-24 17:57:51] [INFO] Cluster 2 (PRIME) : CPUs=7  max=3014400
+[2026-06-24 17:57:51] [INFO] Log rotation started (every 60 min)
+[2026-06-24 17:57:51] [INFO] Applying policy: balanced (gaming=false, event=transition)
+[2026-06-24 17:57:52] [INFO] Policy BALANCED applied (gaming=false)
+[2026-06-24 17:59:17] [INFO] Applying policy: conservative (gaming=false, event=transition)
+[2026-06-24 17:59:19] [INFO] Policy CONSERVATIVE applied (gaming=false)
+[2026-06-24 17:59:20] [INFO] Policy change: temp=66 gpu=8 gaming=false -> conservative
+[2026-06-24 17:59:47] [INFO] System stable for 2 minutes. Bootloop lock cleared.
+[2026-06-24 18:02:51] [INFO] Applying policy: powersave (gaming=false, event=transition)
+[2026-06-24 18:02:53] [INFO] Policy POWERSAVE applied (gaming=false)
+[2026-06-24 18:02:53] [INFO] Policy change: temp=45 gpu=0 gaming=false -> powersave
+[2026-06-24 18:03:45] [INFO] Gaming confirmed (L1/oom): com.activision.callofduty.shooter latch=45s
+[2026-06-24 18:03:46] [INFO] Applying policy: powersave (gaming=true, event=transition)
+[2026-06-24 18:03:49] [INFO] Policy POWERSAVE applied (gaming=true)
+[2026-06-24 18:03:49] [WARN] Network quality poor, bypassing gaming network enhancements.
+[2026-06-24 18:03:50] [INFO] Applying policy: conservative (gaming=true, event=transition)
+[2026-06-24 18:03:53] [INFO] Policy CONSERVATIVE applied (gaming=true)
+[2026-06-24 18:03:53] [INFO] Policy change: temp=45 gpu=4 gaming=true -> conservative
+[2026-06-24 18:04:45] [INFO] Gaming confirmed (L1/oom): com.activision.callofduty.shooter latch=45s
+[2026-06-24 18:04:46] [INFO] Applying policy: powersave (gaming=true, event=transition)
+[2026-06-24 18:04:49] [INFO] Policy POWERSAVE applied (gaming=true)
+[2026-06-24 18:04:50] [INFO] Policy change: temp=57 gpu=1 gaming=true -> powersave
+[2026-06-24 18:05:42] [INFO] Gaming confirmed (L1/oom): com.activision.callofduty.shooter latch=45s
+[2026-06-24 18:05:42] [INFO] Predictive Pre-load: GPU ramped +23% in 1 cycle. Forcing 1-cycle performance boost to prevent stutter.
+[2026-06-24 18:05:42] [INFO] Applying policy: performance (gaming=true, event=transition)
+[2026-06-24 18:05:45] [INFO] Policy PERFORMANCE applied (gaming=true)
