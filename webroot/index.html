@@ -508,7 +508,7 @@
     <header>
         <div class="brand">
             <div class="brand-icon">T</div>
-            <h1>ThermalAI</h1>
+            <h1>ThermalAI <span style="font-size: 14px; color: var(--text-muted); font-weight: normal; margin-left: 8px;">v2.3.19</span></h1>
         </div>
         <div class="daemon-status" id="header-status">
             <div class="status-dot"></div>
@@ -740,35 +740,56 @@
          * Robust Backend Bridge
          */
         class BackendAPI {
-            static async exec(cmd) {
-                try {
-                    let result;
-                    // Native modern API
-                    if (typeof ksu !== 'undefined' && typeof ksu.exec === 'function') {
-                        result = await ksu.exec(cmd);
-                    }
-                    // Fallback for older WebView wrappers
-                    else if (typeof window.ksu !== 'undefined' && typeof window.ksu.exec === 'function') {
-                        result = await window.ksu.exec(cmd);
-                    }
-                    else if (typeof window.ksuModuleExec === 'function') {
-                        result = await window.ksuModuleExec(cmd);
-                    }
-                    else if (typeof window.kernelsu !== 'undefined' && typeof window.kernelsu.exec === 'function') {
-                        result = await window.kernelsu.exec(cmd);
-                    }
-                    else {
-                        return { stdout: "", stderr: "KernelSU API not available.", code: -1 };
-                    }
+                        static async exec(cmd) {
+                return new Promise(async (resolve) => {
+                    try {
+                        let execFunc = null;
 
-                    return {
-                        stdout: (result.stdout || "").trim(),
-                        stderr: (result.stderr || "").trim(),
-                        code: result.errno !== undefined ? result.errno : 0
-                    };
-                } catch (error) {
-                    return { stdout: "", stderr: error.toString(), code: -1 };
-                }
+                        if (typeof ksu !== 'undefined' && typeof ksu.exec === 'function') execFunc = ksu.exec;
+                        else if (typeof window.ksu !== 'undefined' && typeof window.ksu.exec === 'function') execFunc = window.ksu.exec;
+                        else if (typeof window.ksuModuleExec === 'function') execFunc = window.ksuModuleExec;
+                        else if (typeof window.kernelsu !== 'undefined' && typeof window.kernelsu.exec === 'function') execFunc = window.kernelsu.exec;
+
+                        if (!execFunc) {
+                            resolve({ stdout: "", stderr: "KernelSU API not available.", code: -1 });
+                            return;
+                        }
+
+                        // Try calling it
+                        let result;
+                        try {
+                            // Some older wrappers require args and a callback
+                            // ksu.exec(cmd, args, callback) or ksu.exec(cmd, callback)
+                            if (execFunc.length >= 2) {
+                                // Try callback style first if function signature expects multiple args
+                                execFunc(cmd, (res) => {
+                                    resolve({
+                                        stdout: (res && res.stdout) ? res.stdout.trim() : "",
+                                        stderr: (res && res.stderr) ? res.stderr.trim() : "",
+                                        code: (res && res.errno !== undefined) ? res.errno : (res && res.code !== undefined ? res.code : 0)
+                                    });
+                                });
+                                return;
+                            } else {
+                                // Standard promise-based execution
+                                result = await execFunc(cmd);
+                            }
+                        } catch (e) {
+                            resolve({ stdout: "", stderr: e.toString(), code: -1 });
+                            return;
+                        }
+
+                        // Normalize promise result
+                        resolve({
+                            stdout: (result && result.stdout) ? result.stdout.trim() : "",
+                            stderr: (result && result.stderr) ? result.stderr.trim() : "",
+                            code: (result && result.errno !== undefined) ? result.errno : (result && result.code !== undefined ? result.code : 0)
+                        });
+
+                    } catch (error) {
+                        resolve({ stdout: "", stderr: error.toString(), code: -1 });
+                    }
+                });
             }
 
             static async readLog(file, lines = 100) {
@@ -776,6 +797,13 @@
             }
 
             static async isRunning() {
+                // Quick connectivity check
+                const testRes = await this.exec('echo "ok"');
+                if (testRes.code === -1 || testRes.stderr.includes("KernelSU API not available")) {
+                    return "UNAVAILABLE";
+                }
+            }
+
                 // Read PID and verify it actually exists via kill -0
                 const res = await this.exec('pid=$(cat /data/local/tmp/thermalai.pid 2>/dev/null); if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then echo "$pid"; fi');
                 if (res.stdout) {
@@ -786,14 +814,16 @@
 
             static async getRealtimeStats() {
                 const res = await this.exec('cat /data/local/tmp/thermalai_state.json 2>/dev/null');
+                if (res.code === -1) return { error: "Backend Unavailable" };
+                if (!res.stdout) return { error: "Telemetry file not found" };
                 if (res.stdout && res.stdout.startsWith('{')) {
                     try {
                         return JSON.parse(res.stdout);
                     } catch(e) {
-                        return null;
+                        return { error: "Failed to parse JSON telemetry" };
                     }
                 }
-                return null;
+                return { error: "Invalid telemetry format" };
             }
         }
 
@@ -942,11 +972,17 @@
 
                 loader.style.display = 'none';
 
-                if (pid) {
+                if (pid === "UNAVAILABLE") {
+                    statDiv.className = 'daemon-status stopped';
+                    statDiv.style.backgroundColor = 'var(--status-warning)';
+                    statText.innerText = 'Backend Unavailable';
+                } else if (pid) {
                     statDiv.className = 'daemon-status running';
+                    statDiv.style.backgroundColor = 'var(--status-running)';
                     statText.innerText = `Running (${pid})`;
                 } else {
                     statDiv.className = 'daemon-status stopped';
+                    statDiv.style.backgroundColor = 'var(--status-stopped)';
                     statText.innerText = 'Stopped';
                 }
             },
@@ -955,7 +991,7 @@
                 this.checkDaemonStatus();
                 const stats = await BackendAPI.getRealtimeStats();
 
-                if (stats) {
+                if (stats && !stats.error) {
                     document.getElementById('val-ai-raw').innerText = JSON.stringify(stats, null, 2);
 
                     document.getElementById('val-temp').innerText = `${stats.ai_temp}°C`;
@@ -1041,6 +1077,9 @@
                         document.getElementById('policy-timeline').innerText = tLines;
                     }
 
+                } else if (stats && stats.error) {
+                    document.getElementById('val-ai-raw').innerText = `Error: ${stats.error}`;
+                    document.getElementById('analytics-panel').innerText = `Telemetry unavailable: ${stats.error}`;
                 } else {
                     document.getElementById('val-ai-raw').innerText = "Waiting for JSON telemetry...";
                 }
@@ -1133,6 +1172,10 @@
                 viewer.innerHTML = "Loading...";
 
                 const res = await BackendAPI.readLog(file, 200);
+                if (res.code === -1) {
+                    viewer.innerHTML = `<span style="color:var(--status-warning);">Error accessing logs (Backend Unavailable).</span>`;
+                    return;
+                }
                 if (!res.stdout) {
                     viewer.innerHTML = "No logs found or file is empty.";
                     return;
@@ -1177,10 +1220,20 @@
                 const res = await BackendAPI.exec(`cat ${CFG} 2>/dev/null`);
                 if(res.stdout) {
                     const lines = res.stdout.split('\n');
+                    const map = {
+                        'POLL_INTERVAL': 'cfg_poll',
+                        'GAME_POLL_INTERVAL': 'cfg_game_poll',
+                        'TEMP_COOL': 'cfg_tcool',
+                        'TEMP_WARM': 'cfg_twarm',
+                        'TEMP_HOT': 'cfg_thot',
+                        'TEMP_POWERSAVE': 'cfg_tpsave',
+                        'TEMP_CRITICAL': 'cfg_tcrit',
+                        'GAMING_SCORE_BOOST': 'cfg_gboost'
+                    };
                     lines.forEach(line => {
                         const [k, v] = line.split('=');
-                        if(!k || !v) return;
-                        const el = document.getElementById(`cfg_${k.toLowerCase().replace('temp_','t').replace('gaming_score_boost','gboost').replace('poll_interval','poll').replace('game_poll_interval','game_poll')}`);
+                        if(!k || !v || !map[k]) return;
+                        const el = document.getElementById(map[k]);
                         if(el) el.value = v.trim();
                     });
                 }
@@ -1233,8 +1286,13 @@
                 const pRes = await BackendAPI.exec(`ls -1 /data/local/tmp/thermalai.game_profiles/ 2>/dev/null`);
                 const listDiv = document.getElementById('game-profiles-list');
 
+                if(pRes.code === -1) {
+                    listDiv.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--status-warning);">Profile data unavailable (Backend Error).</div>`;
+                    return;
+                }
+
                 if(!pRes.stdout || pRes.stdout.includes("No such file")) {
-                    listDiv.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-muted);">No dynamic profiles recorded yet.</div>`;
+                    listDiv.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-muted);">No dynamic profiles recorded yet. Play a game once and the daemon will start learning.</div>`;
                     return;
                 }
 

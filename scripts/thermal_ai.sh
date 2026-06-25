@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# ThermalAI - Core AI Daemon v3.0
+# ThermalAI - Core AI Daemon v2.3.19
 # Device: POCO F6 (peridot) / AOSP Android 16 / GlaciumKernel
 #
 # Changes vs v2.0:
@@ -420,7 +420,7 @@ get_screen_state() {
 # ─── Main Loop ────────────────────────────────────────────────────────────────
 main_loop() {
     log_info "════════════════════════════════════════"
-    log_info " ThermalAI v3.0 daemon starting"
+    log_info " ThermalAI v2.3.19 daemon starting"
     log_info " Device : POCO F6 (peridot)"
     log_info " SoC    : Snapdragon 8s Gen 3 (pineapple)"
     log_info " Kernel : $(uname -r)"

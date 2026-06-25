@@ -43,6 +43,12 @@ keeping your device safe.
 - **Suspend Cooling**: Drops CPU and GPU to absolute minimal power states instantly when the screen is turned off.
 - **Background isolation**: Pushes non-game processes to little cores via cpuset during gaming conserve/powersave modes.
 
+### Changelog v2.3.19
+* **WebUI Bridge Normalization:** The KernelSU API execution bridge is completely abstracted into a robust Promise/Callback hybrid layer, entirely eliminating visual glitches from asynchronous backend failures.
+* **Bootloop Safety:** Replaced simplistic file-based bootloop protection with an uptime-validated method to prevent normal rapid reboots from falsely locking out the module.
+* **Prediction Web Analytics:** The WebUI now visually parses the underlying JSON telemetry state array into a timeline graph to fully explain why AI logic makes thermal decisions.
+* **Charging Constraint Sophistication:** Integrated dedicated SOC-based charging restrictions while aggressively gaming, alongside hardware-priority connector thermal sensing arrays to prevent structural damage.
+
 ### Changelog v2.3.18
 - **JSON Telemetry State Engine**: WebUI now relies on a high-performance `thermalai_state.json` file written natively by the backend every cycle, completely eliminating fragile dashboard regex log parsing.
 - **True KSU API Bridge**: Redesigned the KSU backend execution bridge to properly prioritize native `ksu.exec()` calls for modern KernelSU compatibility.

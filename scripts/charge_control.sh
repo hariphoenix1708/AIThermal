@@ -78,7 +78,7 @@ get_usb_proxy_temp() {
     for tz_type in /sys/class/thermal/thermal_zone*/type; do
         [ -f "$tz_type" ] || continue
         local type_val=$(cat "$tz_type" 2>/dev/null | tr -d '\n')
-        if echo "$type_val" | grep -iqE "usb|charger_therm|pmic_therm"; then
+        if echo "$type_val" | grep -iqE "usb|charger_therm|pmic_therm|chg-therm|usbc-therm|connector_therm|pmic"; then
             local tz_dir="${tz_type%/*}"
             if [ -f "$tz_dir/temp" ]; then
                 local raw=$(cat "$tz_dir/temp" 2>/dev/null || echo 0)
@@ -179,13 +179,23 @@ apply_charging_control() {
     if [ "$gpu_load" -gt 80 ]; then predicted_temp=$((predicted_temp + 1)); fi
     if [ "$is_fast" = "true" ]; then predicted_temp=$((predicted_temp + 1)); fi
 
-    # State Machine Escalation Guard (Requires 3 consecutive predictions to escalate severely)
+    # State Machine Escalation Guard (Requires consecutive predictions to escalate severely)
     local proposed_state="$CHARGE_STATE"
-    if [ "$predicted_temp" -ge 42 ]; then proposed_state="EMERGENCY"
-    elif [ "$predicted_temp" -ge 40 ]; then proposed_state="HOT"
-    elif [ "$predicted_temp" -ge 38 ]; then proposed_state="WARM"
-    elif [ "$predicted_temp" -ge 34 ]; then proposed_state="NORMAL"
-    else proposed_state="COOL"
+
+    # Priority hardware safety checks override battery prediction
+    if [ "$usb_temp" -gt 52 ]; then
+        proposed_state="EMERGENCY"
+        log_debug "Connector/PMIC is extremely hot (${usb_temp}°C) - forcing EMERGENCY"
+    elif [ "$usb_temp" -gt 48 ]; then
+        proposed_state="HOT"
+        log_debug "Connector/PMIC is hot (${usb_temp}°C) - forcing HOT"
+    else
+        if [ "$predicted_temp" -ge 42 ]; then proposed_state="EMERGENCY"
+        elif [ "$predicted_temp" -ge 40 ]; then proposed_state="HOT"
+        elif [ "$predicted_temp" -ge 38 ]; then proposed_state="WARM"
+        elif [ "$predicted_temp" -ge 34 ]; then proposed_state="NORMAL"
+        else proposed_state="COOL"
+        fi
     fi
 
     # Smoothing jump escalation
@@ -195,10 +205,24 @@ apply_charging_control() {
 
     local next_state="$proposed_state"
 
-    # Hysteresis guards
-    if [ "$CHARGE_STATE" = "HOT" ] && [ "$predicted_temp" -ge 39 ]; then next_state="HOT"; fi
-    if [ "$CHARGE_STATE" = "WARM" ] && [ "$predicted_temp" -ge 37 ]; then next_state="WARM"; fi
-    if [ "$CHARGE_STATE" = "NORMAL" ] && [ "$predicted_temp" -ge 33 ]; then next_state="NORMAL"; fi
+    # Hysteresis guards (wait for lower temps before stepping down)
+    if [ "$CHARGE_STATE" = "EMERGENCY" ] && [ "$predicted_temp" -ge 40 ]; then next_state="EMERGENCY"; fi
+    if [ "$CHARGE_STATE" = "HOT" ] && [ "$predicted_temp" -ge 38 ]; then next_state="HOT"; fi
+    if [ "$CHARGE_STATE" = "WARM" ] && [ "$predicted_temp" -ge 36 ]; then next_state="WARM"; fi
+    if [ "$CHARGE_STATE" = "NORMAL" ] && [ "$predicted_temp" -ge 32 ]; then next_state="NORMAL"; fi
+
+    # Strike tracking to reduce false jumps into aggressive states
+    if [ "$next_state" = "HOT" ] || [ "$next_state" = "EMERGENCY" ]; then
+        if [ "$CHARGE_STATE" != "$next_state" ]; then
+            export PREDICTION_STRIKES=$((PREDICTION_STRIKES + 1))
+            if [ "$PREDICTION_STRIKES" -lt 2 ]; then
+                log_debug "Prediction suggested $next_state, holding until confirmed ($PREDICTION_STRIKES strikes)."
+                next_state="$CHARGE_STATE"
+            fi
+        fi
+    else
+        export PREDICTION_STRIKES=0
+    fi
 
     if [ "$CHARGE_STATE" != "$next_state" ]; then
         log_info "Charging State: $CHARGE_STATE -> $next_state (t=${batt_temp}°C p=${predicted_temp}°C u=${usb_temp}°C s=${EMA_SLOPE})"
@@ -217,14 +241,32 @@ apply_charging_control() {
     local target_current_ua=2000000
 
     if [ "$realtime_gaming" = "true" ]; then
-        case "$CHARGE_STATE" in
-            COOL)       target_current_ua=3000000 ;;
-            NORMAL)     target_current_ua=2500000 ;;
-            WARM)       target_current_ua=1800000 ;;
-            HOT)        target_current_ua=1200000 ;;
-            EMERGENCY)  target_current_ua=800000  ;;
-            *)          target_current_ua=1500000 ;;
-        esac
+        if [ "$batt_level" -lt 50 ]; then
+            case "$CHARGE_STATE" in
+                COOL)       target_current_ua=3500000 ;;
+                NORMAL)     target_current_ua=3000000 ;;
+                WARM)       target_current_ua=2000000 ;;
+                HOT)        target_current_ua=1200000 ;;
+                EMERGENCY)  target_current_ua=800000  ;;
+                *)          target_current_ua=1500000 ;;
+            esac
+        elif [ "$batt_level" -lt 80 ]; then
+            case "$CHARGE_STATE" in
+                COOL)       target_current_ua=3000000 ;;
+                NORMAL)     target_current_ua=2500000 ;;
+                WARM)       target_current_ua=1800000 ;;
+                HOT)        target_current_ua=1200000 ;;
+                EMERGENCY)  target_current_ua=800000  ;;
+                *)          target_current_ua=1500000 ;;
+            esac
+        else
+            case "$CHARGE_STATE" in
+                COOL|NORMAL|WARM) target_current_ua=1200000 ;;
+                HOT)              target_current_ua=800000 ;;
+                EMERGENCY)        target_current_ua=500000 ;;
+                *)                target_current_ua=1000000 ;;
+            esac
+        fi
 
         # Improvement 4: Game-specific Charge Aggressiveness
         if [ "$CHARGE_STATE" = "WARM" ] || [ "$CHARGE_STATE" = "HOT" ]; then
