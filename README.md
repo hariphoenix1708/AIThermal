@@ -43,6 +43,12 @@ keeping your device safe.
 - **Suspend Cooling**: Drops CPU and GPU to absolute minimal power states instantly when the screen is turned off.
 - **Background isolation**: Pushes non-game processes to little cores via cpuset during gaming conserve/powersave modes.
 
+### Changelog v2.4.0
+- **Stock Charging Mimicry**: Completely rebuilt the battery charging module based on physical POCO F6 stock testing behavior. Eliminates aggressive ratchets and introduces bidirectional proportional curve fitting to reach target temperatures smoothly.
+- **Normal vs Gaming Target Profiles**: Hardcoded explicit upper bounds (44°C Normal, 39°C Gaming). Added new battery charge minimums (3500mA baseline, dropping to 1500mA only during emergencies or extreme thermal thresholds).
+- **Graceful High-SOC Degradation**: Dynamically introduces hard conservative tapers at >50% and >80% SOC limits to prevent end-of-charge heat saturation.
+- **Predictive Slope Hold**: Current limits will now explicitly look ahead and hold charge currents flat when temperature slopes are naturally falling, preventing oscillations.
+
 ### Changelog v2.3.14
 - **7 New Advanced Heuristics**:
   - **Memory Pressure Tracking**: Monitors `/proc/meminfo`. Pre-emptively raises ZRAM swappiness if RAM > 85% during gaming to prevent OOM stutters.
