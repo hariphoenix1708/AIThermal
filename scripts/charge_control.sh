@@ -8,6 +8,9 @@
 BATT_CURRENT_MAX="/sys/class/power_supply/battery/constant_charge_current_max"
 BATT_CAPACITY="/sys/class/power_supply/battery/capacity"
 
+SOC_80_CAP_UA="${SOC_80_CAP_UA:-1200000}"
+SOC_50_CAP_UA="${SOC_50_CAP_UA:-2500000}"
+
 # ─── Robust Battery Temp Read ─────────────────────────────────────────────────
 get_robust_battery_temp() {
     local primary_path="/sys/class/power_supply/battery/temp"
@@ -150,6 +153,13 @@ apply_charging_control() {
     local batt_level=$(cat "$BATT_CAPACITY" 2>/dev/null || echo 50)
     local gpu_load=${PREV_GPU_LOAD:-0}
 
+    # Input Wattage Calculation
+    local v_now=$(cat /sys/class/power_supply/usb/voltage_now 2>/dev/null || echo 0)
+    local i_now=$(cat /sys/class/power_supply/usb/current_now 2>/dev/null || echo 0)
+    # Absolute value for current (some kernels report negative during discharge)
+    if [ "$i_now" -lt 0 ]; then i_now=$((i_now * -1)); fi
+    export G_INPUT_WATTS=$(( (v_now / 1000) * (i_now / 1000) / 1000000 ))
+
     # EMA Slope Calculation
     if [ "$PREV_BATT_TEMP" -ne 0 ]; then
         local delta=$((batt_temp - PREV_BATT_TEMP))
@@ -215,6 +225,18 @@ apply_charging_control() {
             EMERGENCY)  target_current_ua=800000  ;;
             *)          target_current_ua=1500000 ;;
         esac
+
+        # Improvement 4: Game-specific Charge Aggressiveness
+        if [ "$CHARGE_STATE" = "WARM" ] || [ "$CHARGE_STATE" = "HOT" ]; then
+            local is_aggressive="false"
+            if [ -n "$_CONFIRMED_GAME_PKG" ]; then
+                is_aggressive=$(grep CHARGE_AGGRESSIVE /data/local/tmp/thermalai.game_profiles/"$_CONFIRMED_GAME_PKG".conf 2>/dev/null | cut -d= -f2 || echo "false")
+            fi
+            if [ "$is_aggressive" = "true" ]; then
+                target_current_ua=$((target_current_ua * 80 / 100))
+                log_debug "Applying CHARGE_AGGRESSIVE 80% multiplier for $_CONFIRMED_GAME_PKG -> ${target_current_ua}uA"
+            fi
+        fi
     else
         case "$CHARGE_STATE" in
             COOL)       target_current_ua=4500000 ;;
@@ -227,10 +249,10 @@ apply_charging_control() {
 
     # SOC Modification Layer (Applies to both gaming and non-gaming)
     if [ "$CHARGE_STATE" != "EMERGENCY" ]; then
-        if [ "$batt_level" -gt 80 ]; then
-            [ "$target_current_ua" -gt 1200000 ] && target_current_ua=1200000
-        elif [ "$batt_level" -gt 50 ]; then
-            [ "$target_current_ua" -gt 2500000 ] && target_current_ua=2500000
+        if [ "$batt_level" -ge 80 ]; then
+            [ "$target_current_ua" -gt "$SOC_80_CAP_UA" ] && target_current_ua="$SOC_80_CAP_UA"
+        elif [ "$batt_level" -ge 50 ]; then
+            [ "$target_current_ua" -gt "$SOC_50_CAP_UA" ] && target_current_ua="$SOC_50_CAP_UA"
         fi
     fi
 

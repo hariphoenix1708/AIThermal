@@ -531,7 +531,7 @@
             <h2 class="section-title">Live Telemetry</h2>
             <div class="grid-stats">
                 <div class="stat-box highlight">
-                    <div class="stat-value" id="val-temp">--°C</div>
+                    <div class="stat-value"><span id="val-temp">--°C</span><span id="val-trend" style="font-size: 14px; margin-left: 5px;"></span></div>
                     <div class="stat-label">AI Temp</div>
                 </div>
                 <div class="stat-box">
@@ -564,7 +564,28 @@
             </div>
 
             <div class="card">
-                <h2 class="section-title">AI Engine Analysis</h2>
+                <h2 class="section-title">Prediction Analytics</h2>
+                <div id="analytics-panel" style="font-family: monospace; color: var(--text-secondary); line-height: 1.5; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                    Waiting for data...
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="section-title">AI Decision Logic</h2>
+                <div id="ai-explanation" style="color: var(--text-primary); font-size: 14px; line-height: 1.6; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                    Waiting for data...
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="section-title">Policy Timeline</h2>
+                <div id="policy-timeline" style="font-family: monospace; font-size: 13px; color: var(--text-secondary); line-height: 1.4; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; white-space: pre;">
+                    Waiting for data...
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="section-title">Raw Telemetry JSON</h2>
                 <div class="raw-output" id="val-ai-raw">Waiting for daemon data...</div>
             </div>
         </div>
@@ -620,6 +641,10 @@
                     <button class="btn primary" id="btn-save-cfg">Save & Restart Daemon</button>
                 </div>
                 <p style="color:var(--text-secondary); font-size:13px; margin-top:-10px; margin-bottom: 20px;">/data/adb/modules/thermalai/config/profiles.conf</p>
+
+                <p style="color:var(--text-secondary); font-size:13px; margin-top:-10px; margin-bottom: 20px;">
+                    Note: During rapid temperature rises (slope &gt; 15), the daemon automatically polls every 0 seconds (immediate). During stable idle periods it relaxes to 4 seconds automatically. The values below are the normal baselines.
+                </p>
 
                 <div class="grid-stats">
                     <div class="input-group">
@@ -684,6 +709,7 @@
                 <div class="btn-group">
                     <button class="btn" data-cmd="su -c rm -f /data/local/tmp/thermalai*.log*">Clear All Logs</button>
                     <button class="btn" data-cmd="su -c /data/adb/modules/thermalai/system/bin/thermalair calibrate reset">Reset AI Calibration</button>
+                    <button class="btn" data-cmd="su -c rm -f /data/local/tmp/thermalai.lock">Clear Bootloop Lock</button>
                 </div>
             </div>
 
@@ -817,33 +843,6 @@
                     clearInterval(this.pollTimer);
                     this.pollTimer = null;
                 }
-            },
-
-            async pollDashboard() {
-                this.checkDaemonStatus();
-                const stats = await BackendAPI.getRealtimeStats();
-
-                if (stats.aiLine) {
-                    // Update raw box
-                    document.getElementById('val-ai-raw').innerText = stats.aiLine;
-
-                    // Parse AI Line: AI: cur=40°C pred=41°C gpu=20% gaming=false(...) -> balanced
-                    // Or Policy change: temp=40 gpu=20 gaming=false -> balanced
-                    const curMatch = stats.aiLine.match(/cur=(\d+)/) || stats.aiLine.match(/temp=(\d+)/);
-                    const policyMatch = stats.aiLine.match(/->\s+(\w+)/);
-                    const gpuMatch = stats.aiLine.match(/gpu=(\d+)/);
-                    const gamingMatch = stats.aiLine.match(/gaming=(true|false)/);
-
-                    if (curMatch) {
-                        const temp = parseInt(curMatch[1]);
-                        document.getElementById('val-temp').innerText = `${temp}°C`;
-                        this.updateChart(temp);
-                    }
-
-                    if (policyMatch) {
-                        const p = policyMatch[1];
-                        document.getElementById('val-policy').innerText = p.toUpperCase();
-                    }
 
                 // Trigger tab specific actions
                 if (tabId === 'tab-dashboard') {
@@ -890,7 +889,13 @@
                         outDiv.innerText = "Executing...\n";
 
                         const res = await BackendAPI.exec(cmd);
-                        outDiv.innerText = res.stdout || res.stderr || "No output";
+                        if (!res.stdout && !res.stderr) {
+                            alert("No output received. The daemon may be stopped.\nTry starting it from the Controls tab first.");
+                            outDiv.style.display = 'none';
+                        } else {
+                            outDiv.style.display = 'block';
+                            outDiv.innerText = res.stdout || res.stderr;
+                        }
                     });
                 });
 
@@ -954,13 +959,33 @@
                     document.getElementById('val-ai-raw').innerText = JSON.stringify(stats, null, 2);
 
                     document.getElementById('val-temp').innerText = `${stats.ai_temp}°C`;
+
+                    // Improvement 3: Trend Arrow Indicator
+                    let trendArrow = "—";
+                    let trendColor = "var(--text-secondary)";
+                    if (stats.trend_score > 8) { trendArrow = "↑"; trendColor = "var(--status-danger)"; }
+                    else if (stats.trend_score > 2) { trendArrow = "↑"; trendColor = "var(--status-warning)"; }
+                    else if (stats.trend_score < -2) { trendArrow = "↓"; trendColor = "var(--accent-primary)"; }
+                    document.getElementById('val-trend').innerText = trendArrow;
+                    document.getElementById('val-trend').style.color = trendColor;
+
                     this.updateChart(stats.ai_temp);
 
                     document.getElementById('val-policy').innerText = stats.policy.toUpperCase();
                     document.getElementById('val-gpu').innerText = `${stats.gpu_load}%`;
 
                     document.getElementById('val-batt').innerText = `${stats.batt_temp}°C`;
-                    document.getElementById('val-charge').innerText = `${stats.charge_limit_ma}mA [${stats.charge_state}]`;
+
+                    // Feature 4: Input Wattage on charging
+                    let chargeStr = `${stats.charge_limit_ma}mA [${stats.charge_state}]`;
+                    if (stats.input_watts && stats.input_watts > 0) {
+                        chargeStr += `\n(${stats.input_watts}W)`;
+                    }
+                    document.getElementById('val-charge').innerText = chargeStr;
+                    document.getElementById('val-charge').style.whiteSpace = "pre-wrap";
+                    if (stats.input_watts && stats.input_watts > 0) {
+                        document.getElementById('val-charge').style.fontSize = "16px";
+                    }
 
                     const box = document.getElementById('box-gaming');
                     if (stats.gaming) {
@@ -974,10 +999,51 @@
                         document.getElementById('val-gaming').style.color = 'var(--text-primary)';
                         document.getElementById('val-gaming').style.fontSize = '24px';
                     }
+
+                    // Feature 2: Prediction Analytics
+                    let analyticsHtml = `Predicted Temp: ${stats.predicted_temp}°C (Trend Score: ${stats.trend_score})<br>`;
+                    analyticsHtml += `Memory Pressure: ${stats.mem_pressure}%<br>`;
+                    if (stats.slow_cooler === "true") {
+                        analyticsHtml += `<span style="color:var(--status-warning)">⚠️ External Cooling Suggested (Slow Recovery Detected)</span><br>`;
+                    }
+                    document.getElementById('analytics-panel').innerHTML = analyticsHtml;
+
+                    // Feature 6: Explanation Panel
+                    let exp = `<strong>Current Policy: ${stats.policy.toUpperCase()}</strong><br>Reason: `;
+                    let reasons = [];
+                    if (stats.ai_temp >= 48) reasons.push(`Temperature is high (${stats.ai_temp}°C)`);
+                    else if (stats.ai_temp >= 42) reasons.push(`Temperature is warm (${stats.ai_temp}°C)`);
+                    else reasons.push(`Temperature is cool (${stats.ai_temp}°C)`);
+
+                    if (stats.gaming) reasons.push("gaming is active");
+                    if (stats.gpu_load > 60) reasons.push(`GPU load is high (${stats.gpu_load}%)`);
+
+                    exp += reasons.join(", ") + `.`;
+                    if (stats.trend_score > 5) exp += `<br><em>AI is predicting a rapid temperature rise.</em>`;
+                    if (stats.charge_state === "HOT" || stats.charge_state === "EMERGENCY") {
+                        exp += `<br><em>Thermal charging guard is active (State: ${stats.charge_state}).</em>`;
+                    }
+                    document.getElementById('ai-explanation').innerHTML = exp;
+
+                    // Feature 3: Policy Timeline
+                    const logRes = await BackendAPI.exec(`grep "Policy change:" /data/local/tmp/thermalai.log | tail -5`);
+                    if (logRes.stdout) {
+                        // "06:15:22  Policy change: temp=48 gpu=67 gaming=true -> conservative" -> "06:15:22 temp=48 gpu=67 -> conservative"
+                        const tLines = logRes.stdout.split('\n').map(l => {
+                           const parts = l.split("Policy change:");
+                           if (parts.length === 2) {
+                               const time = parts[0].substring(0,8).trim() || "";
+                               const detail = parts[1].replace("gaming=true","[Game]").replace("gaming=false","[Idle]").trim();
+                               return `[${time}] ${detail}`;
+                           }
+                           return l;
+                        }).reverse().join('\n');
+                        document.getElementById('policy-timeline').innerText = tLines;
+                    }
+
                 } else {
                     document.getElementById('val-ai-raw').innerText = "Waiting for JSON telemetry...";
                 }
-            }
             },
 
             // --- Chart Logic ---
@@ -1122,19 +1188,34 @@
 
             async saveConfig() {
                 const CFG = "/data/adb/modules/thermalai/config/profiles.conf";
-                const v = id => document.getElementById(id).value || '';
+                const v = id => (document.getElementById(id).value || '').trim();
 
-                const content = `POLL_INTERVAL=${v('cfg_poll')}
-GAME_POLL_INTERVAL=${v('cfg_game_poll')}
-TEMP_COOL=${v('cfg_tcool')}
-TEMP_WARM=${v('cfg_twarm')}
-TEMP_HOT=${v('cfg_thot')}
-TEMP_POWERSAVE=${v('cfg_tpsave')}
-TEMP_CRITICAL=${v('cfg_tcrit')}
-GAMING_SCORE_BOOST=${v('cfg_gboost')}`;
+                const fields = {
+                    'POLL_INTERVAL': v('cfg_poll'),
+                    'GAME_POLL_INTERVAL': v('cfg_game_poll'),
+                    'TEMP_COOL': v('cfg_tcool'),
+                    'TEMP_WARM': v('cfg_twarm'),
+                    'TEMP_HOT': v('cfg_thot'),
+                    'TEMP_POWERSAVE': v('cfg_tpsave'),
+                    'TEMP_CRITICAL': v('cfg_tcrit'),
+                    'GAMING_SCORE_BOOST': v('cfg_gboost')
+                };
+
+                for (const [key, val] of Object.entries(fields)) {
+                    if (!/^\d+$/.test(val)) {
+                        alert(`Invalid numeric value for ${key}. Save aborted.`);
+                        return;
+                    }
+                }
 
                 document.getElementById('btn-save-cfg').innerText = "Saving...";
-                await BackendAPI.exec(`echo "${content}" > /data/local/tmp/t_cfg.tmp && su -c cp /data/local/tmp/t_cfg.tmp ${CFG}`);
+
+                let commands = "";
+                for (const [key, val] of Object.entries(fields)) {
+                    commands += `sed -i "s/^${key}=.*/${key}=${val}/" ${CFG};\n`;
+                }
+
+                await BackendAPI.exec(`su -c '${commands}'`);
                 await BackendAPI.exec(`su -c /data/adb/modules/thermalai/system/bin/thermalair restart`);
                 document.getElementById('btn-save-cfg').innerText = "Save & Restart Daemon";
                 alert("Config saved and Daemon restarted.");
@@ -1164,14 +1245,17 @@ GAMING_SCORE_BOOST=${v('cfg_gboost')}`;
                     const dRes = await BackendAPI.exec(`cat /data/local/tmp/thermalai.game_profiles/${file}`);
                     const maxT = dRes.stdout.match(/MAX_TEMP=(\d+)/)?.[1] || "N/A";
                     const hot = dRes.stdout.match(/KNOWN_HOT=(true|false)/)?.[1] || "false";
+                    const sessions = dRes.stdout.match(/SESSION_COUNT=(\d+)/)?.[1] || "0";
+                    const pkgName = file.replace('.conf', '');
 
                     html += `
                         <div class="list-item">
-                            <div>
+                            <div style="flex-grow: 1;">
                                 <div class="list-title">${file}</div>
-                                <div class="list-subtitle">Max Recorded Temp: ${maxT}°C</div>
+                                <div class="list-subtitle">Max Recorded Temp: ${maxT}°C | Sessions: ${sessions}</div>
                             </div>
-                            <div class="badge ${hot === 'true' ? 'hot' : ''}">HOT: ${hot.toUpperCase()}</div>
+                            <div class="badge ${hot === 'true' ? 'hot' : ''}" style="margin-right: 10px;">HOT: ${hot.toUpperCase()}</div>
+                            <button class="btn btn-sm" onclick="BackendAPI.exec('su -c rm -f /data/local/tmp/thermalai.game_profiles/${file}').then(() => UI.loadGames())">Reset</button>
                         </div>
                     `;
                 }
@@ -1182,7 +1266,10 @@ GAMING_SCORE_BOOST=${v('cfg_gboost')}`;
                 const LIST_FILE = "/data/adb/modules/thermalai/config/game_list.conf";
                 const val = document.getElementById('input-game-list').value;
                 document.getElementById('btn-save-games').innerText = "Saving...";
-                await BackendAPI.exec(`echo "${val}" > /data/local/tmp/g_cfg.tmp && su -c cp /data/local/tmp/g_cfg.tmp ${LIST_FILE}`);
+
+                const b64 = btoa(val);
+                await BackendAPI.exec(`echo "${b64}" | base64 -d > /data/local/tmp/g_cfg.tmp && su -c cp /data/local/tmp/g_cfg.tmp ${LIST_FILE}`);
+
                 document.getElementById('btn-save-games').innerText = "Save List";
                 alert("Static game list saved.");
             },
@@ -1196,11 +1283,17 @@ GAMING_SCORE_BOOST=${v('cfg_gboost')}`;
         };
 
         // Initialize on load
-        window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
+        function waitForKsuAndInit(attempts) {
+            if (typeof ksu !== 'undefined' || typeof window.ksu !== 'undefined' || typeof window.ksuModuleExec !== 'undefined' || typeof window.kernelsu !== 'undefined') {
                 UI.init();
-            }, 200); // Slight delay to ensure KernelSU API bridges
-        });
+            } else if (attempts < 50) {
+                setTimeout(() => waitForKsuAndInit(attempts + 1), 100);
+            } else {
+                console.error("KernelSU API not found after 5 seconds.");
+                UI.init(); // Init anyway, will show API unavailable error
+            }
+        }
+        window.addEventListener('DOMContentLoaded', () => waitForKsuAndInit(0));
 
     </script>
 </body>
