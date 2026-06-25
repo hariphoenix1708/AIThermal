@@ -58,7 +58,6 @@ keeping your device safe.
 - **Stutter Recovery Fix**: Fixed a kernel boundary bug where waking the phone from deep sleep (or recovering from an emergency) caused severe lag because `cpufreq` policies were silently rejected by the kernel. The module now correctly inverts bounds-write order dynamically.
 
 ### Changelog v2.3.12
-- **KernelSU WebUI**: Added a fully functional WebUI dashboard accessible directly inside the KernelSU Manager app. It features a real-time stat dashboard, live scrolling log viewer, visual temperature graph, and a direct config editor that restarts the daemon automatically upon saving.
 
 ### Changelog v2.3.11
 - **CPU Overhead Optimization**: Slashed the daemon's background CPU consumption by eliminating redundant subshell forks (e.g., `date +%s`, `get_current_game`, and `detect_realtime_gaming_status`) and replacing them with optimized global variables.
