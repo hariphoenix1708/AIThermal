@@ -436,6 +436,13 @@ main_loop() {
     start_log_rotation
     apply_thermal_policy "balanced" "false" "40" "transition"
 
+    GPU_RAMP_BOOST_UNTIL=0
+
+    if [ -f /data/local/tmp/thermalai.slow_cooler ]; then
+        export SLOW_COOLER_FLAG="true"
+        log_info "Persistent SLOW_COOLER flag loaded from previous session"
+    fi
+
     while true; do
         export NOW_TIME=$(date +%s)
 
@@ -495,9 +502,18 @@ main_loop() {
                  local cooled_amount=$((LAST_GAME_END_TEMP - temp))
                  if [ "$cooled_amount" -lt 2 ] && [ "$temp" -gt 38 ]; then
                      export SLOW_COOLER_FLAG="true"
+                     echo "true" > /data/local/tmp/thermalai.slow_cooler
                      log_info "Thermal Recovery: Device cooled only ${cooled_amount}°C in 2 mins. Flagged as SLOW_COOLER."
+                     export GOOD_COOLER_COUNT=0
                  else
-                     export SLOW_COOLER_FLAG="false"
+                     if [ "$cooled_amount" -ge 4 ]; then
+                         export GOOD_COOLER_COUNT=$(( ${GOOD_COOLER_COUNT:-0} + 1 ))
+                         if [ "$GOOD_COOLER_COUNT" -ge 3 ]; then
+                             export SLOW_COOLER_FLAG="false"
+                             rm -f /data/local/tmp/thermalai.slow_cooler
+                             log_info "Thermal Recovery: Consistently good cooling. Persistent SLOW_COOLER flag cleared."
+                         fi
+                     fi
                  fi
              fi
         fi
@@ -552,8 +568,8 @@ main_loop() {
             current_game_pkg="$_CONFIRMED_GAME_PKG"
             if [ -n "$current_game_pkg" ]; then
                 if [ "$current_game_pkg" != "$LAST_GAME_PKG" ]; then
-                    export GAMING_SESSION_COUNT=$((GAMING_SESSION_COUNT + 1))
                     load_game_profile "$current_game_pkg"
+                    increment_game_session "$current_game_pkg"
                     LAST_GAME_PKG="$current_game_pkg"
                     # Force a transition apply when switching games to clear stale settings
                     apply_thermal_policy "$CURRENT_POLICY" "$gaming" "$temp" "transition"
@@ -565,7 +581,8 @@ main_loop() {
             if [ -n "$PREV_GPU_LOAD" ]; then
                 local gpu_delta=$((gpu - PREV_GPU_LOAD))
                 if [ "$gpu_delta" -gt 20 ]; then
-                    log_info "Predictive Pre-load: GPU ramped +${gpu_delta}% in 1 cycle. Forcing 1-cycle performance boost to prevent stutter."
+                    log_info "Predictive Pre-load: GPU ramped +${gpu_delta}% in 1 cycle. Forcing performance boost to prevent stutter."
+                    GPU_RAMP_BOOST_UNTIL=$((NOW_TIME + 3))
                     apply_thermal_policy "performance" "$gaming" "$temp" "transition"
                 fi
             fi
@@ -612,6 +629,11 @@ main_loop() {
             fi
         fi
 
+        if [ "$NOW_TIME" -lt "$GPU_RAMP_BOOST_UNTIL" ]; then
+            new_policy="performance"
+            log_debug "GPU ramp boost holding performance ($((GPU_RAMP_BOOST_UNTIL - NOW_TIME))s remaining)"
+        fi
+
         if [ "$new_policy" != "$CURRENT_POLICY" ]; then
             apply_thermal_policy "$new_policy" "$gaming" "$temp" "transition"
             log_info "Policy change: temp=${temp} gpu=${gpu} gaming=${gaming} -> ${new_policy}"
@@ -620,7 +642,32 @@ main_loop() {
             LAST_POLICY_CHANGE="$NOW_TIME"
         fi
 
-        if [ "$screen_state" = "off" ]; then
+
+        # --- Telemetry JSON Export ---
+        local json_tmp="/data/local/tmp/thermalai_state.tmp"
+        cat << JSONEOF > "$json_tmp"
+{
+  "timestamp": $NOW_TIME,
+  "ai_temp": $temp,
+  "predicted_temp": $pred,
+  "policy": "$CURRENT_POLICY",
+  "gpu_load": $gpu,
+  "gaming": $gaming,
+  "game_pkg": "${current_game_pkg:-none}",
+  "batt_temp": ${G_BATT_TEMP:-0},
+  "charge_state": "${G_CHARGE_STATE:-NORMAL}",
+  "charge_limit_ma": ${G_CHARGE_LIMIT:-0},
+  "trend_score": $TREND_SCORE,
+  "screen": "$screen_state",
+  "mem_pressure": ${MEM_PRESSURE:-0},
+  "slow_cooler": "${SLOW_COOLER_FLAG:-false}",
+  "session_count": ${GAMING_SESSION_COUNT:-0},
+  "calibration_offset": ${saved_offset:-0},
+  "input_watts": ${G_INPUT_WATTS:-0}
+}
+JSONEOF
+        mv "$json_tmp" "/data/local/tmp/thermalai_state.json"
+if [ "$screen_state" = "off" ]; then
             sleep "$((POLL_INTERVAL * 2))" # Poll slower when screen is off
         elif [ "$gaming" = "true" ] || [ "$gpu" -ge "$GPU_GAMING_THRESHOLD" ]; then
             if [ "$TREND_SCORE" -gt 15 ]; then
