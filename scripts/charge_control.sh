@@ -249,6 +249,7 @@ apply_charging_control() {
     if [ $((NOW_TIME % 60)) -eq 0 ]; then
         echo "$DYNAMIC_CURRENT_UA" > "$LEARNED_CHARGE_PROFILE"
     fi
+    # 0-50% Aggressive charging allows up to MAX_CURRENT_UA if temps permit
 
     # 5. Hardware Enforcement
     if [ "$LAST_APPLIED_CHARGE_LIMIT" != "$max_current_ua" ]; then
