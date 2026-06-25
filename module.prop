@@ -1,7 +1,7 @@
 id=thermalai
 name=ThermalAI - Intelligent Thermal Manager
-version=v2.3.14
-versionCode=244
+version=v2.3.19
+versionCode=249
 author=ThermalAI Project
-description=AI-driven adaptive thermal throttling for Android. v2.3.14: Added 7 new advanced heuristics including Memory Pressure tracking, GPU Pre-load Spikes, and Thermal Fatigue tracking.
+description=AI-driven adaptive thermal throttling for Android. v2.3.19: Normalized WebUI BackendAPI bridge, fixed bootloop protection, refined EMA charging constraints, and integrated Prediction Analytics/Timeline in WebUI.
 updateJson=

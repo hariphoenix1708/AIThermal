@@ -2,704 +2,1340 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ThermalAI Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ThermalAI Control Center</title>
     <style>
         :root {
-            --bg-color: #121212;
-            --panel-bg: #1e1e1e; --tab-hover: rgba(0, 188, 212, 0.1);
-            --text-color: #e0e0e0;
-            --accent-color: #00bcd4;
-            --border-color: #333;
-            --danger-color: #f44336;
-            --warn-color: #ff9800;
-            --success-color: #4caf50;
+            --bg-base: #0f1115;
+            --bg-surface: #1a1d24;
+            --bg-surface-elevated: #242832;
+            --bg-surface-highlight: #2c313d;
+
+            --text-primary: #f0f2f5;
+            --text-secondary: #9ea3b0;
+            --text-muted: #6b7280;
+
+            --accent-primary: #00d2ff;
+            --accent-glow: rgba(0, 210, 255, 0.2);
+            --accent-secondary: #3a82f6;
+
+            --status-success: #10b981;
+            --status-warning: #f59e0b;
+            --status-danger: #ef4444;
+            --status-info: #3b82f6;
+
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-light: rgba(255, 255, 255, 0.15);
+
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+
+            --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.2);
+
+            --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+
+            --header-height: 64px;
+            --nav-height: 60px;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color); font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            color: var(--text-color);
             margin: 0;
             padding: 0;
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
             display: flex;
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
+            overscroll-behavior-y: none;
         }
 
+        /* --- Header --- */
         header {
-            background-color: var(--panel-bg);
-            padding: 1rem;
-            text-align: center;
-            border-bottom: 1px solid var(--border-color);
+            height: var(--header-height);
+            background-color: var(--bg-surface);
+            border-bottom: 1px solid var(--border-subtle);
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 10;
+            box-shadow: var(--shadow-subtle);
         }
 
-        header h1 {
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #fff;
+            font-size: 18px;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .brand h1 {
             margin: 0;
-            font-size: 1.2rem;
-            color: var(--accent-color);
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
 
+        .daemon-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            background: var(--bg-surface-elevated);
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border-subtle);
+            transition: all 0.3s ease;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--text-muted);
+            box-shadow: 0 0 0 transparent;
+            transition: all 0.3s ease;
+        }
+
+        .daemon-status.running .status-dot {
+            background-color: var(--status-success);
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+        }
+
+        .daemon-status.running {
+            border-color: rgba(16, 185, 129, 0.3);
+            color: var(--status-success);
+        }
+
+        .daemon-status.stopped .status-dot {
+            background-color: var(--status-danger);
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+        }
+
+        /* --- Navigation --- */
         nav {
             display: flex;
-            background-color: var(--panel-bg);
-            border-bottom: 1px solid var(--border-color);
+            background-color: var(--bg-surface);
+            padding: 0 10px;
             overflow-x: auto;
+            scrollbar-width: none;
+            border-bottom: 1px solid var(--border-subtle);
         }
+        nav::-webkit-scrollbar { display: none; }
 
-        nav button {
+        .nav-btn {
             background: none;
             border: none;
-            color: var(--text-color);
-            padding: 1rem;
-            font-size: 1rem;
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 16px 20px;
             cursor: pointer;
-            border-bottom: 3px solid transparent; transition: all 0.2s ease-in-out;
+            position: relative;
             white-space: nowrap;
+            transition: color 0.2s ease;
         }
 
-        nav button:hover { background-color: var(--tab-hover); }
-        nav button.active {
-            border-bottom-color: var(--accent-color);
-            color: var(--accent-color);
+        .nav-btn:hover { color: var(--text-primary); }
+
+        .nav-btn::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 3px;
+            background: var(--accent-primary);
+            border-radius: 3px 3px 0 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(-50%);
         }
 
+        .nav-btn.active {
+            color: var(--accent-primary);
+        }
+
+        .nav-btn.active::after {
+            width: 80%;
+            box-shadow: 0 -2px 10px var(--accent-glow);
+        }
+
+        /* --- Main Content Area --- */
         main {
             flex: 1;
             overflow-y: auto;
-            padding: 1rem;
+            overflow-x: hidden;
+            padding: 20px;
+            position: relative;
+            scrollbar-width: thin;
+            scrollbar-color: var(--bg-surface-highlight) var(--bg-base);
         }
+
+        main::-webkit-scrollbar { width: 6px; }
+        main::-webkit-scrollbar-track { background: var(--bg-base); }
+        main::-webkit-scrollbar-thumb { background: var(--bg-surface-highlight); border-radius: 10px; }
 
         .tab-content {
             display: none;
+            animation: fadeIn 0.3s ease forwards;
+            opacity: 0;
+            transform: translateY(10px);
         }
 
         .tab-content.active {
             display: block;
         }
 
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Cards & Grid --- */
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0 0 16px 0;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         .card {
-            background-color: var(--panel-bg);
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border: 1px solid var(--border-color);
+            background: var(--bg-surface);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-subtle);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
-        .card h2 {
-            margin-top: 0;
-            font-size: 1.1rem;
-            margin-bottom: 1rem;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 0.5rem;
-        }
-
-        .grid-2 {
+        .grid-stats {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
         }
 
         .stat-box {
-            background-color: rgba(255, 255, 255, 0.05);
-            padding: 0.8rem;
-            border-radius: 6px;
-            text-align: center;
+            background: var(--bg-surface-elevated);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            border: 1px solid var(--border-subtle);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s, border-color 0.2s;
         }
 
+        .stat-box:hover {
+            transform: translateY(-2px);
+            border-color: var(--border-light);
+        }
+
+        .stat-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
+            background: var(--bg-surface-highlight);
+        }
+
+        .stat-box.highlight::before {
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+        }
+
+        .stat-box.danger::before { background: var(--status-danger); }
+        .stat-box.warning::before { background: var(--status-warning); }
+
         .stat-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--accent-color);
-            margin-bottom: 0.2rem;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            font-family: var(--font-mono);
+            letter-spacing: -0.5px;
         }
 
         .stat-label {
-            font-size: 0.8rem;
-            color: #999;
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
         }
 
-        pre, code {
-            font-family: "Courier New", Courier, monospace;
-            background-color: #000;
-            padding: 0.5rem;
-            border-radius: 4px;
-            overflow-x: auto;
-            margin: 0;
-            font-size: 0.85rem;
-        }
-
-        .log-viewer {
-            height: 400px;
-            overflow-y: auto;
-            background-color: #000;
-            padding: 0.5rem;
-            border-radius: 4px;
-            border: 1px solid var(--border-color);
-            font-family: monospace;
-            font-size: 0.8rem;
-            white-space: pre-wrap;
-        }
-
-        .log-info { color: #e0e0e0; }
-        .log-warn { color: var(--warn-color); }
-        .log-error { color: var(--danger-color); font-weight: bold; }
-
-        button.btn {
-            background-color: var(--panel-bg);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            margin-right: 0.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        button.btn:active {
-            background-color: var(--border-color);
-        }
-
-        button.btn-primary {
-            background-color: rgba(0, 188, 212, 0.2);
-            border-color: var(--accent-color);
-            color: var(--accent-color);
-        }
-
-        button.btn-danger {
-            background-color: rgba(244, 67, 54, 0.2);
-            border-color: var(--danger-color);
-            color: var(--danger-color);
-        }
-
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.4rem;
-            font-size: 0.9rem;
-        }
-
-        .form-group input, .form-group textarea {
+        /* --- Chart --- */
+        .chart-container {
             width: 100%;
-            padding: 0.6rem;
-            background-color: var(--bg-color); font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            height: 150px;
-            font-family: monospace;
+            height: 180px;
+            position: relative;
+            background: var(--bg-surface-elevated);
+            border-radius: var(--radius-sm);
+            padding: 10px;
+            border: 1px solid var(--border-subtle);
         }
 
         canvas {
             width: 100%;
-            height: 150px;
-            background-color: rgba(0, 0, 0, 0.2);
-            border-radius: 4px;
+            height: 100%;
+            display: block;
         }
 
-        .flex-between {
+        /* --- Controls & Inputs --- */
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--bg-surface-elevated);
+            color: var(--text-primary);
+            border: 1px solid var(--border-subtle);
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: var(--bg-surface-highlight);
+            border-color: var(--border-light);
+        }
+
+        .btn:active { transform: scale(0.98); }
+
+        .btn.primary {
+            background: rgba(0, 210, 255, 0.1);
+            color: var(--accent-primary);
+            border-color: rgba(0, 210, 255, 0.3);
+        }
+        .btn.primary:hover {
+            background: rgba(0, 210, 255, 0.2);
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .btn.danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--status-danger);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+        .btn.danger:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: var(--status-danger);
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .input-control {
+            width: 100%;
+            background: var(--bg-base);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        .input-control:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 2px var(--accent-glow);
+        }
+
+        textarea.input-control {
+            resize: vertical;
+            min-height: 120px;
+            white-space: pre;
+            overflow-x: auto;
+        }
+
+        /* --- Log Viewer --- */
+        .log-toolbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 0.5rem;
+            margin-bottom: 12px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 8px 12px 8px 32px;
+            border-radius: 20px;
+            border: 1px solid var(--border-subtle);
+            background: var(--bg-base);
+            color: var(--text-primary);
+            font-size: 13px;
+        }
+        .search-box::before {
+            content: '🔍';
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            opacity: 0.5;
+        }
+
+        .log-container {
+            background: #000;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-subtle);
+            height: 400px;
+            overflow-y: auto;
+            padding: 12px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            scroll-behavior: smooth;
+        }
+
+        .log-line { border-bottom: 1px solid rgba(255,255,255,0.03); padding: 2px 0; }
+        .log-line:last-child { border-bottom: none; }
+
+        .log-ts { color: var(--text-muted); margin-right: 8px; }
+        .log-level-INFO { color: var(--status-info); font-weight: bold; }
+        .log-level-WARN { color: var(--status-warning); font-weight: bold; }
+        .log-level-ERROR { color: var(--status-danger); font-weight: bold; }
+        .log-level-DEBUG { color: var(--text-secondary); }
+
+        .raw-output {
+            background: var(--bg-base);
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--accent-primary);
+            border: 1px solid var(--border-subtle);
+            word-break: break-all;
+        }
+
+        /* --- List Items --- */
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            margin-bottom: 8px;
+        }
+        .list-title { font-weight: 500; font-size: 15px; }
+        .list-subtitle { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+        .badge {
+            background: rgba(255,255,255,0.1);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge.hot { background: rgba(239, 68, 68, 0.2); color: var(--status-danger); }
+
+        /* Loader */
+        .loader {
+            display: inline-block;
+            width: 16px; height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: var(--accent-primary);
+            animation: spin 1s ease-in-out infinite;
+            display: none;
+        }
+        .loading .loader { display: inline-block; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .grid-stats { grid-template-columns: 1fr 1fr; }
+            .card { padding: 16px; }
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>ThermalAI</h1>
-        <span id="daemon-status" style="font-size:0.8rem; color:#999;">Checking...</span>
+        <div class="brand">
+            <div class="brand-icon">T</div>
+            <h1>ThermalAI <span style="font-size: 14px; color: var(--text-muted); font-weight: normal; margin-left: 8px;">v2.3.19</span></h1>
+        </div>
+        <div class="daemon-status" id="header-status">
+            <div class="status-dot"></div>
+            <span id="header-status-text">Checking...</span>
+            <div class="loader" id="status-loader"></div>
+        </div>
     </header>
 
     <nav>
-        <button class="active" onclick="window.switchTab(event, 'dashboard')">Dashboard</button>
-        <button onclick="window.switchTab(event, 'logs')">Logs</button>
-        <button onclick="window.switchTab(event, 'games')">Games</button>
-        <button onclick="window.switchTab(event, 'settings')">Settings</button>
-        <button onclick="window.switchTab(event, 'controls')">Controls</button>
+        <button class="nav-btn active" data-target="tab-dashboard">Dashboard</button>
+        <button class="nav-btn" data-target="tab-logs">Logs</button>
+        <button class="nav-btn" data-target="tab-games">Games</button>
+        <button class="nav-btn" data-target="tab-settings">Config</button>
+        <button class="nav-btn" data-target="tab-controls">Controls</button>
     </nav>
 
     <main>
-        <!-- Dashboard Tab -->
-        <div id="dashboard" class="tab-content active">
-            <div class="card">
-                <h2>Real-Time Stats</h2>
-                <div class="grid-2">
-                    <div class="stat-box">
-                        <div id="dash-temp" class="stat-value">--°C</div>
-                        <div class="stat-label">AI Temp</div>
-                    </div>
-                    <div class="stat-box">
-                        <div id="dash-policy" class="stat-value">--</div>
-                        <div class="stat-label">Current Policy</div>
-                    </div>
-                    <div class="stat-box">
-                        <div id="dash-gpu" class="stat-value">--%</div>
-                        <div class="stat-label">GPU Load</div>
-                    </div>
-                    <div class="stat-box">
-                        <div id="dash-gaming" class="stat-value">--</div>
-                        <div class="stat-label">Gaming State</div>
-                    </div>
-                    <div class="stat-box">
-                        <div id="dash-batt-temp" class="stat-value">--°C</div>
-                        <div class="stat-label">Battery Temp</div>
-                    </div>
-                    <div class="stat-box">
-                        <div id="dash-charge-state" class="stat-value">--</div>
-                        <div class="stat-label">Charge State</div>
-                    </div>
+        <!-- DASHBOARD TAB -->
+        <div id="tab-dashboard" class="tab-content active">
+            <h2 class="section-title">Live Telemetry</h2>
+            <div class="grid-stats">
+                <div class="stat-box highlight">
+                    <div class="stat-value"><span id="val-temp">--°C</span><span id="val-trend" style="font-size: 14px; margin-left: 5px;"></span></div>
+                    <div class="stat-label">AI Temp</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="val-policy">--</div>
+                    <div class="stat-label">Policy</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="val-gpu">--%</div>
+                    <div class="stat-label">GPU Load</div>
+                </div>
+                <div class="stat-box" id="box-gaming">
+                    <div class="stat-value" id="val-gaming">--</div>
+                    <div class="stat-label">Gaming State</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="val-batt">--°C</div>
+                    <div class="stat-label">Battery Temp</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="val-charge">--</div>
+                    <div class="stat-label">Charge Limit</div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 20px;">
+                <h2 class="section-title">Temperature Trend</h2>
+                <div class="chart-container">
+                    <canvas id="tempChart"></canvas>
                 </div>
             </div>
 
             <div class="card">
-                <h2>Temperature Trend (Last 30 reads)</h2>
-                <canvas id="tempChart"></canvas>
+                <h2 class="section-title">Prediction Analytics</h2>
+                <div id="analytics-panel" style="font-family: monospace; color: var(--text-secondary); line-height: 1.5; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                    Waiting for data...
+                </div>
             </div>
 
             <div class="card">
-                <h2>Prediction Analytics</h2>
-                <pre id="dash-ai-raw" style="min-height: 50px;">Waiting for data...</pre>
+                <h2 class="section-title">AI Decision Logic</h2>
+                <div id="ai-explanation" style="color: var(--text-primary); font-size: 14px; line-height: 1.6; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                    Waiting for data...
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="section-title">Policy Timeline</h2>
+                <div id="policy-timeline" style="font-family: monospace; font-size: 13px; color: var(--text-secondary); line-height: 1.4; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; white-space: pre;">
+                    Waiting for data...
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="section-title">Raw Telemetry JSON</h2>
+                <div class="raw-output" id="val-ai-raw">Waiting for daemon data...</div>
             </div>
         </div>
 
-        <!-- Logs Tab -->
-        <div id="logs" class="tab-content">
-            <div class="card">
-                <div class="flex-between">
-                    <h2>Log Viewer</h2>
-                    <div>
-                        <button class="btn btn-primary" id="btn-toggle-log" onclick="window.toggleLogType()">Verbose Mode: OFF</button>
-                        <button class="btn" onclick="window.fetchLogs()">Refresh</button>
+        <!-- LOGS TAB -->
+        <div id="tab-logs" class="tab-content">
+            <div class="card" style="height: calc(100vh - 160px); display: flex; flex-direction: column;">
+                <div class="log-toolbar">
+                    <h2 class="section-title" style="margin:0;">System Logs</h2>
+                    <div class="search-box">
+                        <input type="text" id="log-search" placeholder="Filter logs...">
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn" id="btn-verbose-toggle">Verbose: OFF</button>
+                        <button class="btn primary" id="btn-refresh-logs">Refresh</button>
+                        <button class="btn" id="btn-copy-logs">Copy</button>
                     </div>
                 </div>
-                <div id="log-container" class="log-viewer"></div>
+                <div class="log-container" id="log-viewer">Loading logs...</div>
             </div>
         </div>
 
-        <!-- Games Tab -->
-        <div id="games" class="tab-content">
+        <!-- GAMES TAB -->
+        <div id="tab-games" class="tab-content">
             <div class="card">
-                <h2>Dynamic Game Profiles</h2>
-                <p style="font-size:0.8rem; color:#999; margin-top:-10px;">Auto-calibrated data for KNOWN_HOT games.</p>
-                <div id="dynamic-profiles-container">Loading...</div>
-                <button class="btn btn-danger" style="margin-top: 10px;" onclick="window.clearGameProfiles()">Clear All Dynamic Profiles</button>
+                <h2 class="section-title">Dynamic Game Profiles</h2>
+                <p style="color:var(--text-secondary); font-size:13px; margin-top:-10px;">Auto-calibrated thermal constraints for detected games.</p>
+                <div id="game-profiles-list">
+                    <div style="text-align:center; padding: 20px; color: var(--text-muted);">Loading profiles...</div>
+                </div>
+                <div style="margin-top: 16px;">
+                    <button class="btn danger" id="btn-clear-profiles">Clear Dynamic Profiles</button>
+                </div>
             </div>
 
             <div class="card">
-                <div class="flex-between">
-                    <h2>Static Game List</h2>
-                    <button class="btn btn-primary" onclick="window.saveGameList()">Save List</button>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
+                    <h2 class="section-title" style="margin:0;">Static Game List</h2>
+                    <button class="btn primary" id="btn-save-games">Save List</button>
                 </div>
-                <div class="form-group">
-                    <textarea id="game-list-editor" spellcheck="false"></textarea>
+                <div class="input-group">
+                    <label>Known Game Packages (One per line)</label>
+                    <textarea class="input-control" id="input-game-list" spellcheck="false" placeholder="Loading..."></textarea>
                 </div>
             </div>
         </div>
 
-        <!-- Settings Tab -->
-        <div id="settings" class="tab-content">
+        <!-- SETTINGS TAB -->
+        <div id="tab-settings" class="tab-content">
             <div class="card">
-                <div class="flex-between">
-                    <h2>Core Configuration</h2>
-                    <button class="btn btn-primary" onclick="window.saveSettings()">Save & Restart</button>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
+                    <h2 class="section-title" style="margin:0;">Core Configuration</h2>
+                    <button class="btn primary" id="btn-save-cfg">Save & Restart Daemon</button>
                 </div>
-                <p style="font-size:0.8rem; color:#999; margin-top:-10px;">/data/adb/modules/thermalai/config/profiles.conf</p>
+                <p style="color:var(--text-secondary); font-size:13px; margin-top:-10px; margin-bottom: 20px;">/data/adb/modules/thermalai/config/profiles.conf</p>
 
-                <div class="grid-2">
-                    <div class="form-group">
-                        <label>POLL_INTERVAL (sec)</label>
-                        <input type="number" id="cfg_poll" value="2">
+                <p style="color:var(--text-secondary); font-size:13px; margin-top:-10px; margin-bottom: 20px;">
+                    Note: During rapid temperature rises (slope &gt; 15), the daemon automatically polls every 0 seconds (immediate). During stable idle periods it relaxes to 4 seconds automatically. The values below are the normal baselines.
+                </p>
+
+                <div class="grid-stats">
+                    <div class="input-group">
+                        <label>POLL_INTERVAL (s)</label>
+                        <input type="number" class="input-control" id="cfg_poll">
                     </div>
-                    <div class="form-group">
-                        <label>GAME_POLL_INTERVAL (sec)</label>
-                        <input type="number" id="cfg_game_poll" value="1">
+                    <div class="input-group">
+                        <label>GAME_POLL_INTERVAL (s)</label>
+                        <input type="number" class="input-control" id="cfg_game_poll">
                     </div>
-                    <div class="form-group">
+                    <div class="input-group">
                         <label>TEMP_COOL (°C)</label>
-                        <input type="number" id="cfg_tcool" value="42">
+                        <input type="number" class="input-control" id="cfg_tcool">
                     </div>
-                    <div class="form-group">
+                    <div class="input-group">
                         <label>TEMP_WARM (°C)</label>
-                        <input type="number" id="cfg_twarm" value="48">
+                        <input type="number" class="input-control" id="cfg_twarm">
                     </div>
-                    <div class="form-group">
+                    <div class="input-group">
                         <label>TEMP_HOT (°C)</label>
-                        <input type="number" id="cfg_thot" value="58">
+                        <input type="number" class="input-control" id="cfg_thot">
                     </div>
-                    <div class="form-group">
+                    <div class="input-group">
                         <label>TEMP_POWERSAVE (°C)</label>
-                        <input type="number" id="cfg_tpsave" value="68">
+                        <input type="number" class="input-control" id="cfg_tpsave">
                     </div>
-                    <div class="form-group">
+                    <div class="input-group">
                         <label>TEMP_CRITICAL (°C)</label>
-                        <input type="number" id="cfg_tcrit" value="75">
+                        <input type="number" class="input-control" id="cfg_tcrit">
                     </div>
-                    <div class="form-group">
+                    <div class="input-group">
                         <label>GAMING_SCORE_BOOST</label>
-                        <input type="number" id="cfg_gboost" value="35">
+                        <input type="number" class="input-control" id="cfg_gboost">
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Controls Tab -->
-        <div id="controls" class="tab-content">
+        <!-- CONTROLS TAB -->
+        <div id="tab-controls" class="tab-content">
             <div class="card">
-                <h2>Daemon Controls</h2>
-                <button class="btn btn-primary" onclick="window.runKsuCmd('su -c /data/adb/modules/thermalai/system/bin/thermalair restart', 'Restarted Daemon')">Restart ThermalAI Daemon</button>
-                <button class="btn btn-danger" onclick="window.runKsuCmd('su -c /data/adb/modules/thermalai/system/bin/thermalair stop', 'Stopped Daemon')">Stop Daemon</button>
-                <button class="btn btn-primary" style="margin-top: 10px;" onclick="window.runKsuCmd('su -c /data/adb/modules/thermalai/system/bin/thermalair start', 'Started Daemon')">Start Daemon</button>
+                <h2 class="section-title">Service Management</h2>
+                <div class="btn-group">
+                    <button class="btn primary" data-cmd="su -c /data/adb/modules/thermalai/system/bin/thermalair start">Start Daemon</button>
+                    <button class="btn danger" data-cmd="su -c /data/adb/modules/thermalai/system/bin/thermalair stop">Stop Daemon</button>
+                    <button class="btn" data-cmd="su -c /data/adb/modules/thermalai/system/bin/thermalair restart">Restart Daemon</button>
+                </div>
             </div>
 
             <div class="card">
-                <h2>Diagnostic Tools</h2>
-                <button class="btn" onclick="window.runKsuCmdAndShow('su -c /data/adb/modules/thermalai/system/bin/thermalair status')">Check Status</button>
-                <button class="btn" onclick="window.runKsuCmdAndShow('su -c /data/adb/modules/thermalai/system/bin/thermalair gaming')">Check Gaming State</button>
-                <button class="btn" onclick="window.runKsuCmdAndShow('su -c /data/adb/modules/thermalai/system/bin/thermalair temps')">List Active Sensors</button>
+                <h2 class="section-title">Diagnostics</h2>
+                <div class="btn-group" style="margin-bottom: 16px;">
+                    <button class="btn" data-cmd-read="su -c /data/adb/modules/thermalai/system/bin/thermalair status">Check Full Status</button>
+                    <button class="btn" data-cmd-read="su -c /data/adb/modules/thermalai/system/bin/thermalair temps">List Active Sensors</button>
+                    <button class="btn" data-cmd-read="su -c /data/adb/modules/thermalai/system/bin/thermalair gaming">Gaming Detector State</button>
+                </div>
+                <div class="raw-output" id="diag-output" style="display:none; white-space:pre-wrap;"></div>
             </div>
 
             <div class="card">
-                <h2>Maintenance</h2>
-                <button class="btn" onclick="window.runKsuCmd('su -c rm -f /data/local/tmp/thermalai*.log* && echo Cleared', 'Logs Cleared')">Clear All Logs</button>
-                <button class="btn" onclick="window.runKsuCmd('su -c /data/adb/modules/thermalai/system/bin/thermalair calibrate reset', 'Calibration Reset')">Reset Self-Calibration</button>
+                <h2 class="section-title">Maintenance</h2>
+                <div class="btn-group">
+                    <button class="btn" data-cmd="su -c rm -f /data/local/tmp/thermalai*.log*">Clear All Logs</button>
+                    <button class="btn" data-cmd="su -c /data/adb/modules/thermalai/system/bin/thermalair calibrate reset">Reset AI Calibration</button>
+                    <button class="btn" data-cmd="su -c rm -f /data/local/tmp/thermalai.lock">Clear Bootloop Lock</button>
+                </div>
             </div>
 
             <div class="card">
-                <h2>Force Policy (Temporary)</h2>
-                <button class="btn" onclick="window.runKsuCmd('su -c setprop thermalai.force_policy performance', 'Forced Performance')">Performance</button>
-                <button class="btn" onclick="window.runKsuCmd('su -c setprop thermalai.force_policy balanced', 'Forced Balanced')">Balanced</button>
-                <button class="btn" onclick="window.runKsuCmd('su -c setprop thermalai.force_policy powersave', 'Forced Powersave')">Powersave</button>
+                <h2 class="section-title">Force Policy override</h2>
+                <p style="color:var(--text-secondary); font-size:13px; margin-top:-10px;">Temporarily override AI decisions.</p>
+                <div class="btn-group">
+                    <button class="btn" data-cmd="su -c setprop thermalai.force_policy performance">Performance</button>
+                    <button class="btn" data-cmd="su -c setprop thermalai.force_policy balanced">Balanced</button>
+                    <button class="btn" data-cmd="su -c setprop thermalai.force_policy powersave">Powersave</button>
+                </div>
             </div>
         </div>
     </main>
 
-    <!-- KSU API Script -->
-
-    <!-- Load KernelSU API through all possible manager routes -->
+    <!-- KSU Execution Bridge -->
     <script type="module">
         try {
             const { exec } = await import('kernelsu');
-            window.ksuExec = exec;
+            window.ksuModuleExec = exec;
         } catch (e) {
             console.log("KernelSU ES Module not found, relying on injected window.ksu");
         }
     </script>
+
     <script>
-        window.exec = async (cmd) => {
-            if (window.ksuExec) return await window.ksuExec(cmd);
-            if (window.ksu && window.ksu.exec) return await window.ksu.exec(cmd);
-            if (window.kernelsu && window.kernelsu.exec) return await window.kernelsu.exec(cmd);
-            return { stdout: "Waiting for KernelSU API injection...", stderr: "" };
-        };
+        /**
+         * Robust Backend Bridge
+         */
+        class BackendAPI {
+                        static async exec(cmd) {
+                return new Promise(async (resolve) => {
+                    try {
+                        let execFunc = null;
 
-        let autoRefreshInterval = null;
-        let isVerboseLog = false;
-        let tempHistoryData = [];
-        const maxHistory = 30;
+                        if (typeof ksu !== 'undefined' && typeof ksu.exec === 'function') execFunc = ksu.exec;
+                        else if (typeof window.ksu !== 'undefined' && typeof window.ksu.exec === 'function') execFunc = window.ksu.exec;
+                        else if (typeof window.ksuModuleExec === 'function') execFunc = window.ksuModuleExec;
+                        else if (typeof window.kernelsu !== 'undefined' && typeof window.kernelsu.exec === 'function') execFunc = window.kernelsu.exec;
 
-        window.switchTab = (event, tabId) => {
-            try {
-                document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-                document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
-                document.getElementById(tabId).classList.add('active');
-                if (event && event.currentTarget) {
-                    event.currentTarget.classList.add('active');
-                }
+                        if (!execFunc) {
+                            resolve({ stdout: "", stderr: "KernelSU API not available.", code: -1 });
+                            return;
+                        }
 
-                if(tabId === 'dashboard') {
-                    window.startAutoRefresh();
-                } else {
-                    window.stopAutoRefresh();
-                    if(tabId === 'logs') window.fetchLogs();
-                    if(tabId === 'settings') window.loadSettings();
-                    if(tabId === 'games') window.loadGames();
-                }
-            } catch (e) {
-                console.error(e);
-            }
-        };
+                        // Try calling it
+                        try {
+                            const result = await Promise.race([
+                                execFunc(cmd),
+                                new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
+                            ]);
+                            resolve({
+                                stdout: (result && result.stdout) ? result.stdout.trim() : "",
+                                stderr: (result && result.stderr) ? result.stderr.trim() : "",
+                                code: (result && result.errno !== undefined) ? result.errno : (result && result.code !== undefined ? result.code : 0)
+                            });
+                        } catch (e) {
+                            resolve({ stdout: "", stderr: e.toString(), code: -1 });
+                        }
 
-        window.runKsuCmd = async (cmd, successMsg) => {
-            try {
-                await window.exec(cmd);
-                alert(successMsg || "Command executed successfully");
-            } catch(e) {
-                alert("Error: " + e);
-            }
-        };
-
-        window.runKsuCmdAndShow = async (cmd) => {
-            try {
-                const res = await window.exec(cmd);
-                alert(res.stdout || res.stderr || "No output");
-            } catch(e) {
-                alert("Error: " + e);
-            }
-        };
-
-        window.fetchDashboardData = async () => {
-            try {
-                const res = await window.exec('cat /data/local/tmp/thermalai.pid');
-                const pidOut = res.stdout;
-                if(pidOut && pidOut.trim().length > 0 && !pidOut.includes("No such file")) {
-                    document.getElementById('daemon-status').innerText = 'Running (PID ' + pidOut.trim() + ')';
-                    document.getElementById('daemon-status').style.color = 'var(--success-color)';
-                } else {
-                    document.getElementById('daemon-status').innerText = 'Stopped';
-                    document.getElementById('daemon-status').style.color = 'var(--danger-color)';
-                }
-
-                const aiRes = await window.exec('grep -E "Policy change:|AI:" /data/local/tmp/thermalai.log | tail -1');
-                const aiLog = aiRes.stdout;
-                if(aiLog) {
-                    const tempMatch = aiLog.match(/cur=(\d+)/) || aiLog.match(/temp=(\d+)/);
-                    const policyMatch = aiLog.match(/-> (\w+)/);
-                    const gpuMatch = aiLog.match(/gpu=(\d+)/);
-                    const gamingMatch = aiLog.match(/gaming=(\w+)/);
-
-                    if(tempMatch) {
-                        const tempVal = parseInt(tempMatch[1]);
-                        document.getElementById('dash-temp').innerText = tempVal + "°C";
-                        if(tempHistoryData.length >= maxHistory) tempHistoryData.shift();
-                        tempHistoryData.push(tempVal);
-                        window.drawChart();
+                    } catch (error) {
+                        resolve({ stdout: "", stderr: error.toString(), code: -1 });
                     }
-                    if(policyMatch) document.getElementById('dash-policy').innerText = policyMatch[1].toUpperCase();
-                    if(gpuMatch) document.getElementById('dash-gpu').innerText = gpuMatch[1] + "%";
-                    if(gamingMatch) document.getElementById('dash-gaming').innerText = gamingMatch[1].toUpperCase();
-                    document.getElementById('dash-ai-raw').innerText = aiLog.trim();
-                }
-
-                const chargeRes = await window.exec('grep "Charging current limit" /data/local/tmp/thermalai_verbose.log | tail -1');
-                const chargeLog = chargeRes.stdout;
-                if(chargeLog) {
-                    const battMatch = chargeLog.match(/batt_temp=(\d+)/);
-                    const stateMatch = chargeLog.match(/state=(\w+)/);
-                    if(battMatch) document.getElementById('dash-batt-temp').innerText = battMatch[1] + "°C";
-                    if(stateMatch) document.getElementById('dash-charge-state').innerText = stateMatch[1].toUpperCase();
-                }
-            } catch (e) {
-                console.error("Fetch dashboard error:", e);
-                const el = document.getElementById('daemon-status');
-                if (el) el.innerText = "KSU API Error";
-            }
-        };
-
-        window.drawChart = () => {
-            const canvas = document.getElementById('tempChart');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            const width = canvas.width = canvas.offsetWidth;
-            const height = canvas.height = canvas.offsetHeight;
-
-            ctx.clearRect(0, 0, width, height);
-            if(tempHistoryData.length < 2) return;
-
-            const minTemp = 25;
-            const maxTemp = 80;
-            const range = maxTemp - minTemp;
-            const stepX = width / (maxHistory - 1);
-
-            ctx.beginPath();
-            ctx.strokeStyle = '#00bcd4';
-            ctx.lineWidth = 2;
-
-            for(let i=0; i<tempHistoryData.length; i++) {
-                let temp = tempHistoryData[i];
-                if(temp < minTemp) temp = minTemp;
-                if(temp > maxTemp) temp = maxTemp;
-                const x = i * stepX;
-                const y = height - ((temp - minTemp) / range * height);
-                if(i === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-            }
-            ctx.stroke();
-
-            ctx.lineTo((tempHistoryData.length - 1) * stepX, height);
-            ctx.lineTo(0, height);
-            ctx.closePath();
-
-            const gradient = ctx.createLinearGradient(0, 0, 0, height);
-            gradient.addColorStop(0, 'rgba(0, 188, 212, 0.4)');
-            gradient.addColorStop(1, 'rgba(0, 188, 212, 0.0)');
-            ctx.fillStyle = gradient;
-            ctx.fill();
-        };
-
-        window.toggleLogType = () => {
-            isVerboseLog = !isVerboseLog;
-            const btn = document.getElementById('btn-toggle-log');
-            if(btn) btn.innerText = isVerboseLog ? "Verbose Mode: ON" : "Verbose Mode: OFF";
-            window.fetchLogs();
-        };
-
-        window.fetchLogs = async () => {
-            const file = isVerboseLog ? '/data/local/tmp/thermalai_verbose.log' : '/data/local/tmp/thermalai.log';
-            try {
-                const res = await window.exec(`tail -n 100 ${file}`);
-                const stdout = res.stdout;
-                const container = document.getElementById('log-container');
-                if(!container) return;
-
-                let formatted = (stdout || "Empty").replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                formatted = formatted.replace(/\[INFO\]/g, '<span class="log-info">[INFO]</span>');
-                formatted = formatted.replace(/\[WARN\]/g, '<span class="log-warn">[WARN]</span>');
-                formatted = formatted.replace(/\[ERROR\]/g, '<span class="log-error">[ERROR]</span>');
-
-                container.innerHTML = formatted;
-                container.scrollTop = container.scrollHeight;
-            } catch(e) {
-                const container = document.getElementById('log-container');
-                if(container) container.innerText = "Failed to load log.";
-            }
-        };
-
-        window.loadSettings = async () => {
-            const CONFIG_FILE = "/data/adb/modules/thermalai/config/profiles.conf";
-            try {
-                const res = await window.exec(`cat ${CONFIG_FILE}`);
-                const stdout = res.stdout;
-                if(!stdout) return;
-
-                const lines = stdout.split('\n');
-                lines.forEach(line => {
-                    const parts = line.split('=');
-                    if(parts.length < 2) return;
-                    const val = parts[1].trim();
-                    if(line.startsWith('POLL_INTERVAL=')) document.getElementById('cfg_poll').value = val;
-                    if(line.startsWith('GAME_POLL_INTERVAL=')) document.getElementById('cfg_game_poll').value = val;
-                    if(line.startsWith('TEMP_COOL=')) document.getElementById('cfg_tcool').value = val;
-                    if(line.startsWith('TEMP_WARM=')) document.getElementById('cfg_twarm').value = val;
-                    if(line.startsWith('TEMP_HOT=')) document.getElementById('cfg_thot').value = val;
-                    if(line.startsWith('TEMP_POWERSAVE=')) document.getElementById('cfg_tpsave').value = val;
-                    if(line.startsWith('TEMP_CRITICAL=')) document.getElementById('cfg_tcrit').value = val;
-                    if(line.startsWith('GAMING_SCORE_BOOST=')) document.getElementById('cfg_gboost').value = val;
                 });
-            } catch(e) {
-                console.error("Failed to load config", e);
             }
-        };
 
-        window.saveSettings = async () => {
-            const CONFIG_FILE = "/data/adb/modules/thermalai/config/profiles.conf";
-            const v = (id) => { const el = document.getElementById(id); return el ? el.value : ''; };
-            const newConfig = `POLL_INTERVAL=${v('cfg_poll')}
-GAME_POLL_INTERVAL=${v('cfg_game_poll')}
-TEMP_COOL=${v('cfg_tcool')}
-TEMP_WARM=${v('cfg_twarm')}
-TEMP_HOT=${v('cfg_thot')}
-TEMP_POWERSAVE=${v('cfg_tpsave')}
-TEMP_CRITICAL=${v('cfg_tcrit')}
-GAMING_SCORE_BOOST=${v('cfg_gboost')}`;
-            try {
-                await window.exec(`echo "${newConfig.trim()}" > /data/local/tmp/t_cfg.tmp && cp /data/local/tmp/t_cfg.tmp ${CONFIG_FILE}`);
-                alert("Settings saved. Restarting daemon...");
-                await window.exec('su -c /data/adb/modules/thermalai/system/bin/thermalair restart');
-            } catch(e) {
-                alert("Save failed: " + e);
+            static async readLog(file, lines = 100) {
+                return await this.exec(`tail -n ${lines} ${file} 2>/dev/null`);
             }
-        };
 
-        window.loadGames = async () => {
-            const GAME_LIST_FILE = "/data/adb/modules/thermalai/config/game_list.conf";
-            try {
-                const listRes = await window.exec(`cat ${GAME_LIST_FILE}`);
-                const editor = document.getElementById('game-list-editor');
-                if(editor) editor.value = listRes.stdout || "";
-
-                const profRes = await window.exec(`ls -1 /data/local/tmp/thermalai.game_profiles/ 2>/dev/null`);
-                const profOut = profRes.stdout;
-                let profHtml = "";
-
-                if(profOut && profOut.trim().length > 0 && !profOut.includes("No such file")) {
-                    const profiles = profOut.trim().split('\n');
-                    for(const p of profiles) {
-                        if(!p) continue;
-                        const detRes = await window.exec(`cat /data/local/tmp/thermalai.game_profiles/${p}`);
-                        const details = detRes.stdout;
-                        let maxT = details.match(/MAX_TEMP=(\d+)/)?.[1] || "N/A";
-                        let hot = details.match(/KNOWN_HOT=(true|false)/)?.[1] || "false";
-                        let color = hot === "true" ? "var(--danger-color)" : "var(--accent-color)";
-                        profHtml += `<div style="background:rgba(255,255,255,0.05); padding:10px; margin-bottom:5px; border-radius:4px; display:flex; justify-content:space-between;">
-                            <span>${p}</span>
-                            <span>Max: ${maxT}°C | <span style="color:${color}">HOT: ${hot.toUpperCase()}</span></span>
-                        </div>`;
-                    }
-                } else {
-                    profHtml = "<p>No dynamic profiles recorded yet.</p>";
+            static async isRunning() {
+                // Quick connectivity check
+                const testRes = await this.exec('echo "ok"');
+                if (testRes.code === -1 || testRes.stderr.includes("KernelSU API not available")) {
+                    return "UNAVAILABLE";
                 }
-                const container = document.getElementById('dynamic-profiles-container');
-                if(container) container.innerHTML = profHtml;
-            } catch(e) {
-                console.error("Game load error", e);
+
+                // Read PID and verify it actually exists via kill -0
+                const res = await this.exec('pid=$(cat /data/local/tmp/thermalai.pid 2>/dev/null); if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then echo "$pid"; fi');
+                if (res.stdout) {
+                    return res.stdout; // Returns PID if alive
+                }
+                return false;
+            }
+
+            static async getRealtimeStats() {
+                const res = await this.exec('cat /data/local/tmp/thermalai_state.json 2>/dev/null');
+                if (res.code === -1) return { error: "Backend Unavailable" };
+                if (!res.stdout) return { error: "Telemetry file not found" };
+                if (res.stdout && res.stdout.startsWith('{')) {
+                    try {
+                        return JSON.parse(res.stdout);
+                    } catch(e) {
+                        return { error: "Failed to parse JSON telemetry" };
+                    }
+                }
+                return { error: "Invalid telemetry format" };
+            }
+        }
+
+        /**
+         * UI Controller
+         */
+        const UI = {
+            activeTab: 'tab-dashboard',
+            isVerboseLog: false,
+            pollTimer: null,
+            tempHistory: [],
+            MAX_HISTORY: 40,
+
+            init() {
+                this.bindNav();
+                this.bindControls();
+                this.setupChart();
+
+                // Start tracking
+                this.switchTab('tab-dashboard');
+
+                // Show status loader
+                document.getElementById('status-loader').style.display = 'inline-block';
+            },
+
+            bindNav() {
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const target = e.target.getAttribute('data-target');
+                        this.switchTab(target);
+                    });
+                });
+            },
+
+            switchTab(tabId) {
+                // Update UI
+                document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelector(`[data-target="${tabId}"]`).classList.add('active');
+
+                document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+                document.getElementById(tabId).classList.add('active');
+
+                this.activeTab = tabId;
+
+                // Stop polling if leaving dashboard
+                if (this.pollTimer) {
+                    clearInterval(this.pollTimer);
+                    this.pollTimer = null;
+                }
+
+                // Trigger tab specific actions
+                if (tabId === 'tab-dashboard') {
+                    this.pollDashboard();
+                    this.pollTimer = setInterval(() => this.pollDashboard(), 2000);
+                } else if (tabId === 'tab-logs') {
+                    this.loadLogs();
+                } else if (tabId === 'tab-settings') {
+                    this.loadConfig();
+                } else if (tabId === 'tab-games') {
+                    this.loadGames();
+                } else if (tabId === 'tab-controls') {
+                    this.checkDaemonStatus(); // Update status on control tab load
+                }
+            },
+
+            bindControls() {
+                // Action Buttons
+                document.querySelectorAll('button[data-cmd]').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const cmd = e.target.getAttribute('data-cmd');
+                        const originalText = e.target.innerText;
+                        e.target.innerText = "Running...";
+                        e.target.disabled = true;
+
+                        await BackendAPI.exec(cmd);
+
+                        e.target.innerText = "Done";
+                        setTimeout(() => {
+                            e.target.innerText = originalText;
+                            e.target.disabled = false;
+                        }, 1000);
+
+                        this.checkDaemonStatus();
+                    });
+                });
+
+                // Diagnostic Read Buttons
+                document.querySelectorAll('button[data-cmd-read]').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const cmd = e.target.getAttribute('data-cmd-read');
+                        const outDiv = document.getElementById('diag-output');
+                        outDiv.style.display = 'block';
+                        outDiv.innerText = "Executing...\n";
+
+                        const res = await BackendAPI.exec(cmd);
+                        if (!res.stdout && !res.stderr) {
+                            alert("No output received. The daemon may be stopped.\nTry starting it from the Controls tab first.");
+                            outDiv.style.display = 'none';
+                        } else {
+                            outDiv.style.display = 'block';
+                            outDiv.innerText = res.stdout || res.stderr;
+                        }
+                    });
+                });
+
+                // Log Controls
+                document.getElementById('btn-verbose-toggle').addEventListener('click', (e) => {
+                    this.isVerboseLog = !this.isVerboseLog;
+                    e.target.innerText = this.isVerboseLog ? "Verbose: ON" : "Verbose: OFF";
+                    e.target.classList.toggle('primary', this.isVerboseLog);
+                    this.loadLogs();
+                });
+
+                document.getElementById('btn-refresh-logs').addEventListener('click', () => this.loadLogs());
+
+                document.getElementById('log-search').addEventListener('input', (e) => {
+                    const term = e.target.value.toLowerCase();
+                    const lines = document.querySelectorAll('.log-line');
+                    lines.forEach(line => {
+                        if (line.innerText.toLowerCase().includes(term)) {
+                            line.style.display = 'block';
+                        } else {
+                            line.style.display = 'none';
+                        }
+                    });
+                });
+
+                document.getElementById('btn-copy-logs').addEventListener('click', () => {
+                    const text = document.getElementById('log-viewer').innerText;
+                    navigator.clipboard.writeText(text).then(() => alert("Logs copied to clipboard!"));
+                });
+
+                // Settings & Games Saves
+                document.getElementById('btn-save-cfg').addEventListener('click', () => this.saveConfig());
+                document.getElementById('btn-save-games').addEventListener('click', () => this.saveGames());
+                document.getElementById('btn-clear-profiles').addEventListener('click', () => this.clearGameProfiles());
+            },
+
+            // --- Status & Dashboard ---
+
+            async checkDaemonStatus() {
+                const pid = await BackendAPI.isRunning();
+                const statDiv = document.getElementById('header-status');
+                const statText = document.getElementById('header-status-text');
+                const loader = document.getElementById('status-loader');
+
+                loader.style.display = 'none';
+
+                if (pid === "UNAVAILABLE") {
+                    statDiv.className = 'daemon-status stopped';
+                    statDiv.style.backgroundColor = 'var(--status-warning)';
+                    statText.innerText = 'Backend Unavailable';
+                } else if (pid) {
+                    statDiv.className = 'daemon-status running';
+                    statDiv.style.backgroundColor = 'var(--status-running)';
+                    statText.innerText = `Running (${pid})`;
+                } else {
+                    statDiv.className = 'daemon-status stopped';
+                    statDiv.style.backgroundColor = 'var(--status-stopped)';
+                    statText.innerText = 'Stopped';
+                }
+            },
+
+            async pollDashboard() {
+                this.checkDaemonStatus();
+                const stats = await BackendAPI.getRealtimeStats();
+
+                if (stats && !stats.error) {
+                    document.getElementById('val-ai-raw').innerText = JSON.stringify(stats, null, 2);
+
+                    document.getElementById('val-temp').innerText = `${stats.ai_temp}°C`;
+
+                    // Improvement 3: Trend Arrow Indicator
+                    let trendArrow = "—";
+                    let trendColor = "var(--text-secondary)";
+                    if (stats.trend_score > 8) { trendArrow = "↑"; trendColor = "var(--status-danger)"; }
+                    else if (stats.trend_score > 2) { trendArrow = "↑"; trendColor = "var(--status-warning)"; }
+                    else if (stats.trend_score < -2) { trendArrow = "↓"; trendColor = "var(--accent-primary)"; }
+                    document.getElementById('val-trend').innerText = trendArrow;
+                    document.getElementById('val-trend').style.color = trendColor;
+
+                    this.updateChart(stats.ai_temp);
+
+                    document.getElementById('val-policy').innerText = stats.policy.toUpperCase();
+                    document.getElementById('val-gpu').innerText = `${stats.gpu_load}%`;
+
+                    document.getElementById('val-batt').innerText = `${stats.batt_temp}°C`;
+
+                    // Feature 4: Input Wattage on charging
+                    let chargeStr = `${stats.charge_limit_ma}mA [${stats.charge_state}]`;
+                    if (stats.input_watts && stats.input_watts > 0) {
+                        chargeStr += `\n(${stats.input_watts}W)`;
+                    }
+                    document.getElementById('val-charge').innerText = chargeStr;
+                    document.getElementById('val-charge').style.whiteSpace = "pre-wrap";
+                    if (stats.input_watts && stats.input_watts > 0) {
+                        document.getElementById('val-charge').style.fontSize = "16px";
+                    }
+
+                    const box = document.getElementById('box-gaming');
+                    if (stats.gaming) {
+                        document.getElementById('val-gaming').innerText = `ACTIVE (${stats.game_pkg !== 'none' ? stats.game_pkg : '...'})`;
+                        box.classList.add('highlight');
+                        document.getElementById('val-gaming').style.color = 'var(--accent-primary)';
+                        document.getElementById('val-gaming').style.fontSize = '14px'; // Shrink slightly to fit pkg name
+                    } else {
+                        document.getElementById('val-gaming').innerText = "INACTIVE";
+                        box.classList.remove('highlight');
+                        document.getElementById('val-gaming').style.color = 'var(--text-primary)';
+                        document.getElementById('val-gaming').style.fontSize = '24px';
+                    }
+
+                    // Feature 2: Prediction Analytics
+                    let analyticsHtml = `Predicted Temp: ${stats.predicted_temp}°C (Trend Score: ${stats.trend_score})<br>`;
+                    analyticsHtml += `Memory Pressure: ${stats.mem_pressure}%<br>`;
+                    if (stats.slow_cooler === "true") {
+                        analyticsHtml += `<span style="color:var(--status-warning)">⚠️ External Cooling Suggested (Slow Recovery Detected)</span><br>`;
+                    }
+                    document.getElementById('analytics-panel').innerHTML = analyticsHtml;
+
+                    // Feature 6: Explanation Panel
+                    let exp = `<strong>Current Policy: ${stats.policy.toUpperCase()}</strong><br>Reason: `;
+                    let reasons = [];
+                    if (stats.ai_temp >= 48) reasons.push(`Temperature is high (${stats.ai_temp}°C)`);
+                    else if (stats.ai_temp >= 42) reasons.push(`Temperature is warm (${stats.ai_temp}°C)`);
+                    else reasons.push(`Temperature is cool (${stats.ai_temp}°C)`);
+
+                    if (stats.gaming) reasons.push("gaming is active");
+                    if (stats.gpu_load > 60) reasons.push(`GPU load is high (${stats.gpu_load}%)`);
+
+                    exp += reasons.join(", ") + `.`;
+                    if (stats.trend_score > 5) exp += `<br><em>AI is predicting a rapid temperature rise.</em>`;
+                    if (stats.charge_state === "HOT" || stats.charge_state === "EMERGENCY") {
+                        exp += `<br><em>Thermal charging guard is active (State: ${stats.charge_state}).</em>`;
+                    }
+                    document.getElementById('ai-explanation').innerHTML = exp;
+
+                    // Feature 3: Policy Timeline
+                    const logRes = await BackendAPI.exec(`grep "Policy change:" /data/local/tmp/thermalai.log | tail -5`);
+                    if (logRes.stdout) {
+                        // "06:15:22  Policy change: temp=48 gpu=67 gaming=true -> conservative" -> "06:15:22 temp=48 gpu=67 -> conservative"
+                        const tLines = logRes.stdout.split('\n').map(l => {
+                           const parts = l.split("Policy change:");
+                           if (parts.length === 2) {
+                               const time = parts[0].substring(0,8).trim() || "";
+                               const detail = parts[1].replace("gaming=true","[Game]").replace("gaming=false","[Idle]").trim();
+                               return `[${time}] ${detail}`;
+                           }
+                           return l;
+                        }).reverse().join('\n');
+                        document.getElementById('policy-timeline').innerText = tLines;
+                    }
+
+                } else if (stats && stats.error) {
+                    document.getElementById('val-ai-raw').innerText = `Error: ${stats.error}`;
+                    document.getElementById('analytics-panel').innerText = `Telemetry unavailable: ${stats.error}`;
+                } else {
+                    document.getElementById('val-ai-raw').innerText = "Waiting for JSON telemetry...";
+                }
+            },
+
+            // --- Chart Logic ---
+
+            setupChart() {
+                const canvas = document.getElementById('tempChart');
+                if(!canvas) return;
+                // Fix internal resolution
+                canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+                canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+
+                window.addEventListener('resize', () => {
+                    if (this.activeTab === 'tab-dashboard') {
+                        canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+                        canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+                        this.drawChart();
+                    }
+                });
+            },
+
+            updateChart(temp) {
+                if (this.tempHistory.length >= this.MAX_HISTORY) this.tempHistory.shift();
+                this.tempHistory.push(temp);
+                this.drawChart();
+            },
+
+            drawChart() {
+                const canvas = document.getElementById('tempChart');
+                if (!canvas || this.tempHistory.length < 2) return;
+
+                const ctx = canvas.getContext('2d');
+                const W = canvas.width;
+                const H = canvas.height;
+
+                ctx.clearRect(0, 0, W, H);
+
+                const minT = 20;
+                const maxT = 70;
+                const range = maxT - minT;
+                const stepX = W / (this.MAX_HISTORY - 1);
+
+                // Draw Grid
+                ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                for(let i=0; i<4; i++) {
+                    const y = H - (i * H / 3);
+                    ctx.moveTo(0, y); ctx.lineTo(W, y);
+                }
+                ctx.stroke();
+
+                // Draw Line
+                ctx.beginPath();
+                ctx.strokeStyle = '#00d2ff';
+                ctx.lineWidth = 3 * window.devicePixelRatio;
+                ctx.lineJoin = 'round';
+                ctx.lineCap = 'round';
+
+                for (let i = 0; i < this.tempHistory.length; i++) {
+                    let t = Math.max(minT, Math.min(maxT, this.tempHistory[i]));
+                    const x = i * stepX;
+                    const y = H - ((t - minT) / range * H);
+
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+
+                ctx.stroke();
+
+                // Gradient Fill
+                ctx.lineTo((this.tempHistory.length - 1) * stepX, H);
+                ctx.lineTo(0, H);
+                ctx.closePath();
+
+                const grad = ctx.createLinearGradient(0, 0, 0, H);
+                grad.addColorStop(0, 'rgba(0, 210, 255, 0.3)');
+                grad.addColorStop(1, 'rgba(0, 210, 255, 0.0)');
+                ctx.fillStyle = grad;
+                ctx.fill();
+            },
+
+            // --- Logs ---
+
+            async loadLogs() {
+                const file = this.isVerboseLog ? '/data/local/tmp/thermalai_verbose.log' : '/data/local/tmp/thermalai.log';
+                const viewer = document.getElementById('log-viewer');
+                viewer.innerHTML = "Loading...";
+
+                const res = await BackendAPI.readLog(file, 200);
+                if (res.code === -1) {
+                    viewer.innerHTML = `<span style="color:var(--status-warning);">Error accessing logs (Backend Unavailable).</span>`;
+                    return;
+                }
+                if (!res.stdout) {
+                    viewer.innerHTML = "No logs found or file is empty.";
+                    return;
+                }
+
+                const lines = res.stdout.split('\n');
+                let html = '';
+
+                lines.forEach(line => {
+                    if(!line.trim()) return;
+                    let safeLine = line.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+                    // Parse timestamp
+                    let tsMatch = safeLine.match(/^\[(.*?)\]/);
+                    let ts = tsMatch ? tsMatch[1] : '';
+                    if(tsMatch) safeLine = safeLine.substring(tsMatch[0].length);
+
+                    // Parse level
+                    let lvlMatch = safeLine.match(/^\s*\[(INFO|WARN|ERROR|DEBUG)\]/);
+                    let lvl = lvlMatch ? lvlMatch[1] : '';
+                    if(lvlMatch) safeLine = safeLine.substring(lvlMatch[0].length);
+
+                    html += `<div class="log-line">
+                        ${ts ? `<span class="log-ts">[${ts}]</span>` : ''}
+                        ${lvl ? `<span class="log-level-${lvl}">[${lvl}]</span>` : ''}
+                        <span>${safeLine}</span>
+                    </div>`;
+                });
+
+                viewer.innerHTML = html;
+                viewer.scrollTop = viewer.scrollHeight;
+
+                // Re-apply filter if active
+                const term = document.getElementById('log-search').value;
+                if(term) document.getElementById('log-search').dispatchEvent(new Event('input'));
+            },
+
+            // --- Config ---
+
+            async loadConfig() {
+                const CFG = "/data/adb/modules/thermalai/config/profiles.conf";
+                const res = await BackendAPI.exec(`cat ${CFG} 2>/dev/null`);
+                if(res.stdout) {
+                    const lines = res.stdout.split('\n');
+                    const map = {
+                        'POLL_INTERVAL': 'cfg_poll',
+                        'GAME_POLL_INTERVAL': 'cfg_game_poll',
+                        'TEMP_COOL': 'cfg_tcool',
+                        'TEMP_WARM': 'cfg_twarm',
+                        'TEMP_HOT': 'cfg_thot',
+                        'TEMP_POWERSAVE': 'cfg_tpsave',
+                        'TEMP_CRITICAL': 'cfg_tcrit',
+                        'GAMING_SCORE_BOOST': 'cfg_gboost'
+                    };
+                    lines.forEach(line => {
+                        const [k, v] = line.split('=');
+                        if(!k || !v || !map[k]) return;
+                        const el = document.getElementById(map[k]);
+                        if(el) el.value = v.trim();
+                    });
+                }
+            },
+
+            async saveConfig() {
+                const CFG = "/data/adb/modules/thermalai/config/profiles.conf";
+                const v = id => (document.getElementById(id).value || '').trim();
+
+                const fields = {
+                    'POLL_INTERVAL': v('cfg_poll'),
+                    'GAME_POLL_INTERVAL': v('cfg_game_poll'),
+                    'TEMP_COOL': v('cfg_tcool'),
+                    'TEMP_WARM': v('cfg_twarm'),
+                    'TEMP_HOT': v('cfg_thot'),
+                    'TEMP_POWERSAVE': v('cfg_tpsave'),
+                    'TEMP_CRITICAL': v('cfg_tcrit'),
+                    'GAMING_SCORE_BOOST': v('cfg_gboost')
+                };
+
+                for (const [key, val] of Object.entries(fields)) {
+                    if (!/^\d+$/.test(val)) {
+                        alert(`Invalid numeric value for ${key}. Save aborted.`);
+                        return;
+                    }
+                }
+
+                document.getElementById('btn-save-cfg').innerText = "Saving...";
+
+                let commands = "";
+                for (const [key, val] of Object.entries(fields)) {
+                    commands += `sed -i "s/^${key}=.*/${key}=${val}/" ${CFG};\n`;
+                }
+
+                await BackendAPI.exec(`su -c '${commands}'`);
+                await BackendAPI.exec(`su -c /data/adb/modules/thermalai/system/bin/thermalair restart`);
+                document.getElementById('btn-save-cfg').innerText = "Save & Restart Daemon";
+                alert("Config saved and Daemon restarted.");
+            },
+
+            // --- Games ---
+
+            async loadGames() {
+                // Static list
+                const LIST_FILE = "/data/adb/modules/thermalai/config/game_list.conf";
+                const lRes = await BackendAPI.exec(`cat ${LIST_FILE} 2>/dev/null`);
+                document.getElementById('input-game-list').value = lRes.stdout || "";
+
+                // Dynamic profiles
+                const pRes = await BackendAPI.exec(`ls -1 /data/local/tmp/thermalai.game_profiles/ 2>/dev/null`);
+                const listDiv = document.getElementById('game-profiles-list');
+
+                if(pRes.code === -1) {
+                    listDiv.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--status-warning);">Profile data unavailable (Backend Error).</div>`;
+                    return;
+                }
+
+                if(!pRes.stdout || pRes.stdout.includes("No such file")) {
+                    listDiv.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-muted);">No dynamic profiles recorded yet. Play a game once and the daemon will start learning.</div>`;
+                    return;
+                }
+
+                const files = pRes.stdout.split('\n').filter(Boolean);
+                let html = '';
+
+                for(let file of files) {
+                    const dRes = await BackendAPI.exec(`cat /data/local/tmp/thermalai.game_profiles/${file}`);
+                    const maxT = dRes.stdout.match(/MAX_TEMP=(\d+)/)?.[1] || "N/A";
+                    const hot = dRes.stdout.match(/KNOWN_HOT=(true|false)/)?.[1] || "false";
+                    const sessions = dRes.stdout.match(/SESSION_COUNT=(\d+)/)?.[1] || "0";
+                    const pkgName = file.replace('.conf', '');
+
+                    html += `
+                        <div class="list-item">
+                            <div style="flex-grow: 1;">
+                                <div class="list-title">${file}</div>
+                                <div class="list-subtitle">Max Recorded Temp: ${maxT}°C | Sessions: ${sessions}</div>
+                            </div>
+                            <div class="badge ${hot === 'true' ? 'hot' : ''}" style="margin-right: 10px;">HOT: ${hot.toUpperCase()}</div>
+                            <button class="btn btn-sm" onclick="BackendAPI.exec('su -c rm -f /data/local/tmp/thermalai.game_profiles/${file}').then(() => UI.loadGames())">Reset</button>
+                        </div>
+                    `;
+                }
+                listDiv.innerHTML = html;
+            },
+
+            async saveGames() {
+                const LIST_FILE = "/data/adb/modules/thermalai/config/game_list.conf";
+                const val = document.getElementById('input-game-list').value;
+                document.getElementById('btn-save-games').innerText = "Saving...";
+
+                const b64 = btoa(val);
+                await BackendAPI.exec(`echo "${b64}" | base64 -d > /data/local/tmp/g_cfg.tmp && su -c cp /data/local/tmp/g_cfg.tmp ${LIST_FILE}`);
+
+                document.getElementById('btn-save-games').innerText = "Save List";
+                alert("Static game list saved.");
+            },
+
+            async clearGameProfiles() {
+                if(confirm("Are you sure you want to clear all learned dynamic profiles?")) {
+                    await BackendAPI.exec(`su -c rm -rf /data/local/tmp/thermalai.game_profiles/*`);
+                    this.loadGames();
+                }
             }
         };
 
-        window.saveGameList = async () => {
-            const GAME_LIST_FILE = "/data/adb/modules/thermalai/config/game_list.conf";
-            const editor = document.getElementById('game-list-editor');
-            if(!editor) return;
-            const val = editor.value;
-            try {
-                await window.exec(`echo "${val}" > /data/local/tmp/g_cfg.tmp && cp /data/local/tmp/g_cfg.tmp ${GAME_LIST_FILE}`);
-                alert("Game list saved.");
-            } catch(e) {
-                alert("Failed: " + e);
+        // Initialize on load
+        function waitForKsuAndInit(attempts) {
+            if (typeof ksu !== 'undefined' || typeof window.ksu !== 'undefined' || typeof window.ksuModuleExec !== 'undefined' || typeof window.kernelsu !== 'undefined') {
+                UI.init();
+            } else if (attempts < 50) {
+                setTimeout(() => waitForKsuAndInit(attempts + 1), 100);
+            } else {
+                console.error("KernelSU API not found after 5 seconds.");
+                UI.init(); // Init anyway, will show API unavailable error
             }
-        };
+        }
+        window.addEventListener('DOMContentLoaded', () => waitForKsuAndInit(0));
 
-        window.clearGameProfiles = async () => {
-            try {
-                await window.exec(`rm -rf /data/local/tmp/thermalai.game_profiles/*`);
-                alert("Profiles cleared");
-                window.loadGames();
-            } catch(e) {
-                alert("Failed: " + e);
-            }
-        };
-
-        window.startAutoRefresh = () => {
-            window.fetchDashboardData();
-            if(!autoRefreshInterval) {
-                autoRefreshInterval = setInterval(window.fetchDashboardData, 2000);
-            }
-        };
-
-        window.stopAutoRefresh = () => {
-            if(autoRefreshInterval) {
-                clearInterval(autoRefreshInterval);
-                autoRefreshInterval = null;
-            }
-        };
-
-        // Init
-        setTimeout(() => {
-            window.startAutoRefresh();
-        }, 500);
-
-        window.addEventListener('resize', () => {
-            const dash = document.getElementById('dashboard');
-            if(dash && dash.classList.contains('active')) {
-                window.drawChart();
-            }
-        });
     </script>
-
 </body>
 </html>

@@ -87,6 +87,12 @@ get_context_score() {
         fi
     fi
 
+    # Low battery under load generates extra heat (Improvement 1)
+    if [ "$batt_status" != "Charging" ] && [ "$batt_cap" -lt 15 ]; then
+        comfort_penalty=$((comfort_penalty - 8))
+        log_debug "Low battery ($batt_cap%) under load: -8 comfort penalty"
+    fi
+
     echo "$context_score"
 }
 
@@ -125,6 +131,32 @@ update_game_profile() {
                     echo "KNOWN_HOT=true" >> "$profile_file"
                 fi
             fi
+
+            # Improvement 4: Game-specific Charge Aggressiveness
+            if [ "$current_temp" -gt 50 ]; then
+                if ! grep -q "CHARGE_AGGRESSIVE=true" "$profile_file"; then
+                    if grep -q "CHARGE_AGGRESSIVE=" "$profile_file"; then
+                        sed "s/CHARGE_AGGRESSIVE=.*/CHARGE_AGGRESSIVE=true/" "$profile_file" > "${profile_file}.tmp" && mv "${profile_file}.tmp" "$profile_file"
+                    else
+                        echo "CHARGE_AGGRESSIVE=true" >> "$profile_file"
+                    fi
+                fi
+            fi
+        fi
+    fi
+}
+
+increment_game_session() {
+    local game_pkg="$1"
+    local profile_file="$GAME_PROFILES_DIR/$game_pkg.conf"
+    if [ -f "$profile_file" ]; then
+        local session_count=$(grep SESSION_COUNT "$profile_file" 2>/dev/null | cut -d= -f2 || echo 0)
+        session_count=$((session_count + 1))
+        export GAMING_SESSION_COUNT=$session_count
+        if grep -q "SESSION_COUNT=" "$profile_file"; then
+            sed "s/SESSION_COUNT=.*/SESSION_COUNT=$session_count/" "$profile_file" > "${profile_file}.tmp" && mv "${profile_file}.tmp" "$profile_file"
+        else
+            echo "SESSION_COUNT=$session_count" >> "$profile_file"
         fi
     fi
 }
