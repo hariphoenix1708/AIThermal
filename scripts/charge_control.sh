@@ -33,48 +33,79 @@ get_robust_battery_temp() {
     fi
 
     # Fallback to dynamic thermal zones
-    # We want MIN of matched to avoid charger_therm inflating actual battery temp
-    local min_t=999
-    local found_exact_battery="false"
+    local max_t=0
 
     for tz_type in /sys/class/thermal/thermal_zone*/type; do
         [ -f "$tz_type" ] || continue
         local type_val=$(cat "$tz_type" 2>/dev/null | tr -d '\n')
 
-        # If we find EXACTLY "battery", take it and exit loop.
-        if [ "$type_val" = "battery" ]; then
+        # Collect highest relevant temperature across battery, charger, pmic, usb
+        if echo "$type_val" | grep -iqE "battery|charger_therm|vbat|pmic|usb|chg"; then
             local tz_dir="${tz_type%/*}"
             if [ -f "$tz_dir/temp" ]; then
                 local raw=$(cat "$tz_dir/temp" 2>/dev/null || echo 0)
                 [ "$raw" -gt 10000 ] && raw=$((raw / 100))
                 if [ "$raw" -ge 100 ] && [ "$raw" -le 800 ]; then
-                    echo "$raw"
-                    return
-                fi
-            fi
-        fi
-
-        # Otherwise, collect matches and find the minimum valid one
-        if echo "$type_val" | grep -iqE "battery|charger_therm|vbat"; then
-            local tz_dir="${tz_type%/*}"
-            if [ -f "$tz_dir/temp" ]; then
-                local raw=$(cat "$tz_dir/temp" 2>/dev/null || echo 0)
-                [ "$raw" -gt 10000 ] && raw=$((raw / 100))
-                if [ "$raw" -ge 100 ] && [ "$raw" -le 800 ]; then
-                    if [ "$raw" -lt "$min_t" ]; then
-                        min_t="$raw"
+                    if [ "$raw" -gt "$max_t" ]; then
+                        max_t="$raw"
                     fi
                 fi
             fi
         fi
     done
 
-    if [ "$min_t" -lt 999 ]; then
-        echo "$min_t"
+    if [ "$max_t" -gt 0 ]; then
+        echo "$max_t"
     else
         # Safe default
         echo 350
     fi
+}
+
+get_soc_target_ua() {
+    local soc="$1"
+    local gaming="$2"
+    local target=1500000
+
+    if [ "$gaming" = "true" ]; then
+        if [ "$soc" -lt 20 ]; then target=9800000
+        elif [ "$soc" -lt 40 ]; then target=8750000
+        elif [ "$soc" -lt 51 ]; then target=8400000
+        elif [ "$soc" -lt 55 ]; then target=8000000
+        elif [ "$soc" -lt 60 ]; then target=7000000
+        elif [ "$soc" -lt 65 ]; then target=6600000
+        elif [ "$soc" -lt 73 ]; then target=6300000
+        elif [ "$soc" -lt 76 ]; then target=5600000
+        elif [ "$soc" -lt 80 ]; then target=4900000
+        elif [ "$soc" -lt 83 ]; then target=4500000
+        elif [ "$soc" -lt 86 ]; then target=3800000
+        elif [ "$soc" -lt 89 ]; then target=3100000
+        elif [ "$soc" -lt 91 ]; then target=2800000
+        elif [ "$soc" -lt 93 ]; then target=2500000
+        elif [ "$soc" -lt 95 ]; then target=2100000
+        elif [ "$soc" -lt 97 ]; then target=1500000
+        else target=1000000; fi
+    else
+        if [ "$soc" -lt 20 ]; then target=14000000
+        elif [ "$soc" -lt 40 ]; then target=12500000
+        elif [ "$soc" -lt 51 ]; then target=12000000
+        elif [ "$soc" -lt 55 ]; then target=11500000
+        elif [ "$soc" -lt 60 ]; then target=10000000
+        elif [ "$soc" -lt 65 ]; then target=9500000
+        elif [ "$soc" -lt 73 ]; then target=9000000
+        elif [ "$soc" -lt 76 ]; then target=8000000
+        elif [ "$soc" -lt 80 ]; then target=7000000
+        elif [ "$soc" -lt 83 ]; then target=6500000
+        elif [ "$soc" -lt 86 ]; then target=5500000
+        elif [ "$soc" -lt 89 ]; then target=4500000
+        elif [ "$soc" -lt 91 ]; then target=4000000
+        elif [ "$soc" -lt 93 ]; then target=3600000
+        elif [ "$soc" -lt 95 ]; then target=3000000
+        elif [ "$soc" -lt 97 ]; then target=2200000
+        else target=1500000; fi
+    fi
+
+    echo "$target"
 }
 
 # ─── Adjust Charging Current ──────────────────────────────────────────────────
@@ -94,6 +125,22 @@ MAX_CURRENT_UA=5000000
 
 LAST_APPLIED_CHARGE_LIMIT=""
 LAST_ENFORCE_TIME=0
+PREV_BATT_TEMP=""
+BATT_TEMP_SLOPE=0
+PREV_CHARGE_STATE="NORMAL"
+
+RAMP_ACTIVE="false"
+RAMP_TARGET=0
+RAMP_STEP=0
+RAMP_CURRENT=0
+
+get_current_hw_charge_ua() {
+    local val
+    val=$(cat /sys/class/power_supply/battery/current_now 2>/dev/null || echo 0)
+    # Some kernels report as negative during charge, take absolute value
+    [ "$val" -lt 0 ] && val=$(( val * -1 ))
+    echo "$val"
+}
 
 apply_charging_control() {
     local realtime_gaming="$1"  # Unlatched true/false indicating instant game status
@@ -104,6 +151,11 @@ apply_charging_control() {
     batt_temp_raw=$(get_robust_battery_temp)
     local batt_temp=$((batt_temp_raw / 10))
 
+    if [ -n "$PREV_BATT_TEMP" ]; then
+        BATT_TEMP_SLOPE=$((batt_temp - PREV_BATT_TEMP))
+    fi
+    PREV_BATT_TEMP=$batt_temp
+
     local current_plugged=$(cat /sys/class/power_supply/battery/status 2>/dev/null || echo "Unknown")
 
     # Read battery capacity / SOC percentage
@@ -112,34 +164,10 @@ apply_charging_control() {
         batt_level=$(cat "$BATT_CAPACITY" 2>/dev/null || echo 0)
     fi
 
-    # 1. State Machine Transitions
-    local next_state="$CHARGE_STATE"
-
-    if [ "$batt_temp" -ge 40 ]; then
-        next_state="EMERGENCY"
-    elif [ "$batt_temp" -ge 38 ]; then
-        next_state="THERMAL_THROTTLE"
-    elif [ "$batt_temp" -le 35 ] && { [ "$CHARGE_STATE" = "THERMAL_THROTTLE" ] || [ "$CHARGE_STATE" = "EMERGENCY" ]; }; then
-        # Hysteresis: Only exit thermal throttling/emergency when temp drops to 35C
-        if [ "$realtime_gaming" = "true" ]; then
-            next_state="GAMING"
-        else
-            next_state="NORMAL"
-        fi
-    elif [ "$CHARGE_STATE" != "THERMAL_THROTTLE" ] && [ "$CHARGE_STATE" != "EMERGENCY" ]; then
-        # We are not throttling. Choose base state based on gaming.
-        if [ "$realtime_gaming" = "true" ]; then
-            next_state="GAMING"
-        else
-            next_state="NORMAL"
-        fi
-    fi
-
     # Only enforce limits if the device is actually charging
     if [ "$current_plugged" != "Charging" ]; then
-        CHARGE_STATE="$next_state"
         LAST_APPLIED_CHARGE_LIMIT=""
-        # Do not adapt learned current while disconnected
+        RAMP_ACTIVE="false"
         return 0
     fi
 
@@ -184,8 +212,6 @@ apply_charging_control() {
         if [ $((NOW_TIME % 60)) -eq 0 ]; then
             echo "$DYNAMIC_CURRENT_UA" > "$LEARNED_CHARGE_PROFILE"
         fi
-
-        max_current_ua="$DYNAMIC_CURRENT_UA"
     fi
 
     # 3. Apply Hard Limits Based on Current State (Overrides Learned Curve)
@@ -197,12 +223,9 @@ apply_charging_control() {
         else
             max_current_ua="2000000"
         fi
+        max_current_ua="$RAMP_CURRENT"
     fi
-
-    # 4. Apply SOC-based graceful degradation overriding everything except emergency limits
-    if [ "$batt_level" -ge 90 ] && [ "$max_current_ua" -gt 1000000 ]; then
-        max_current_ua="1000000"
-    fi
+    # 0-50% Aggressive charging allows up to MAX_CURRENT_UA if temps permit
 
     # 5. Hardware Enforcement
     if [ "$LAST_APPLIED_CHARGE_LIMIT" != "$max_current_ua" ]; then
