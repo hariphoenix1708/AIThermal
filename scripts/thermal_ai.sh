@@ -436,6 +436,8 @@ main_loop() {
     start_log_rotation
     apply_thermal_policy "balanced" "false" "40" "transition"
 
+    local GPU_RAMP_BOOST_UNTIL=0
+
     while true; do
         export NOW_TIME=$(date +%s)
 
@@ -567,6 +569,7 @@ main_loop() {
                 if [ "$gpu_delta" -gt 20 ]; then
                     log_info "Predictive Pre-load: GPU ramped +${gpu_delta}% in 1 cycle. Forcing 1-cycle performance boost to prevent stutter."
                     apply_thermal_policy "performance" "$gaming" "$temp" "transition"
+                    GPU_RAMP_BOOST_UNTIL=$((NOW_TIME + 3))
                 fi
             fi
         else
@@ -581,6 +584,11 @@ main_loop() {
             new_policy="suspend"
         else
             new_policy=$(ai_decide_policy "$temp" "$gpu" "$gaming" "$pred" "$conf" "$current_game_pkg")
+
+            if [ "$NOW_TIME" -lt "$GPU_RAMP_BOOST_UNTIL" ]; then
+                new_policy="performance"
+                log_debug "GPU ramp boost holding performance for $((GPU_RAMP_BOOST_UNTIL - NOW_TIME))s"
+            fi
 
             if [ "$NOW_TIME" -lt "$GAME_EXIT_COOLDOWN_UNTIL" ]; then
                 if [ "$gaming" = "true" ]; then

@@ -89,7 +89,7 @@ else
     DYNAMIC_CURRENT_UA=3000000
 fi
 # Hardware physical limit bounds
-MIN_CURRENT_UA=500000
+    MIN_CURRENT_UA=1000000
 MAX_CURRENT_UA=5000000
 
 LAST_APPLIED_CHARGE_LIMIT=""
@@ -153,46 +153,27 @@ apply_charging_control() {
         # reset learning to a safer midpoint instead of maxing out instantly.
         if [ "$next_state" = "NORMAL" ] || [ "$next_state" = "GAMING" ]; then
              DYNAMIC_CURRENT_UA=2000000
-        fi
-    fi
-
-    # Charger Type Awareness
-    local current_now_ua=$(cat /sys/class/power_supply/battery/current_now 2>/dev/null | tr -d '-' || echo 0)
-    local voltage_now_uv=$(cat /sys/class/power_supply/battery/voltage_now 2>/dev/null || echo 0)
-
-    local is_fast_charger=false
-    if [ "$current_now_ua" -gt 0 ] && [ "$voltage_now_uv" -gt 0 ]; then
-        # Watts = (current_uA * voltage_uV) / 1000000000000
-        # Shell math is integer only, so we scale it carefully.
-        # Micro is 10^-6. So (uA/1000 * uV/1000) / 1000000 = Watts
-        local ma=$((current_now_ua / 1000))
-        local mv=$((voltage_now_uv / 1000))
-        local watts=$(( (ma * mv) / 1000000 ))
-
-        if [ "$watts" -gt 15 ]; then
-            is_fast_charger=true
+             rm -f "$LEARNED_CHARGE_PROFILE"
         fi
     fi
 
     # 2. Learning-based Step Adaptation
     # Define "Sweet Spot" target temperatures
-    local target_temp=36
-    if [ "$CHARGE_STATE" = "GAMING" ]; then
-        target_temp=34
-    fi
-
-    # Proactively drop targets if a massive fast charger is connected
-    if [ "$is_fast_charger" = "true" ]; then
-        target_temp=$((target_temp - 2))
-    fi
+    local target_temp=37
 
     if [ "$CHARGE_STATE" = "NORMAL" ] || [ "$CHARGE_STATE" = "GAMING" ]; then
-        # If we are below target, we can speed up charging slightly
-        if [ "$batt_temp" -lt "$target_temp" ]; then
+        local temp_delta=$((batt_temp - target_temp))
+
+        if [ "$temp_delta" -le -3 ]; then
+            DYNAMIC_CURRENT_UA=$((DYNAMIC_CURRENT_UA + 300000))
+        elif [ "$temp_delta" -le -1 ]; then
             DYNAMIC_CURRENT_UA=$((DYNAMIC_CURRENT_UA + 100000))
-        # If we are at or above target (but not yet throttling), slow down slightly
-        elif [ "$batt_temp" -ge "$target_temp" ]; then
-            DYNAMIC_CURRENT_UA=$((DYNAMIC_CURRENT_UA - 200000))
+        elif [ "$temp_delta" -le 1 ]; then
+            : # Within 1°C of target, hold steady
+        elif [ "$temp_delta" -le 2 ]; then
+            DYNAMIC_CURRENT_UA=$((DYNAMIC_CURRENT_UA - 150000))
+        else
+            DYNAMIC_CURRENT_UA=$((DYNAMIC_CURRENT_UA - 300000))
         fi
 
         # Clamp bounds
@@ -212,9 +193,9 @@ apply_charging_control() {
         max_current_ua="500000"
     elif [ "$CHARGE_STATE" = "THERMAL_THROTTLE" ]; then
         if [ "$batt_temp" -ge 39 ]; then
-            max_current_ua="500000"
-        else
             max_current_ua="1000000"
+        else
+            max_current_ua="2000000"
         fi
     fi
 
@@ -288,20 +269,24 @@ apply_universal_charging_control() {
 
     for node in $CHARGE_NODES; do
         if [ -w "$node" ]; then
-             sysfs_write "$target_ua" "$node"
-             applied="true"
-        fi
-    done
-
-    # Dynamic search for any other power_supply nodes with input_current_limit or constant_charge_current
-    for dyn_node in /sys/class/power_supply/*/input_current_limit /sys/class/power_supply/*/constant_charge_current; do
-        if [ -w "$dyn_node" ]; then
-            sysfs_write "$target_ua" "$dyn_node"
+            sysfs_write "$target_ua" "$node"
             applied="true"
+            break
         fi
     done
 
     if [ "$applied" = "false" ]; then
-        log_debug "No compatible fast-charging control node found on this kernel."
+        for dyn_node in /sys/class/power_supply/*/input_current_limit \
+                        /sys/class/power_supply/*/constant_charge_current; do
+            if [ -w "$dyn_node" ]; then
+                sysfs_write "$target_ua" "$dyn_node"
+                applied="true"
+                break
+            fi
+        done
+    fi
+
+    if [ "$applied" = "false" ]; then
+        log_debug "No compatible charging control node found on this kernel."
     fi
 }

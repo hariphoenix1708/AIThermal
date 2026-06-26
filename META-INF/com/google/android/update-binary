@@ -4,7 +4,7 @@
 SKIPUNZIP=1
 
 ui_print "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-ui_print "   ThermalAI v2.3.14 - Intelligent Thermal Manager"
+ui_print "   ThermalAI v2.4.1 - Intelligent Thermal Manager"
 ui_print "   Device Edition: Universal Android"
 ui_print "   Linux 4.14+ / AOSP / HyperOS"
 ui_print "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
