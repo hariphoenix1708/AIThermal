@@ -373,6 +373,7 @@ apply_charging_control() {
             SESSION_RED_COUNT=$(( SESSION_RED_COUNT + 1 ))
             LEARNED_STABLE_UA=$therm_target
         fi
+        max_current_ua="$RAMP_CURRENT"
     fi
 
     # Evaluate Minimums (Order: SOC -> Thermal -> Learned)
