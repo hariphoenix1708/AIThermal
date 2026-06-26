@@ -68,42 +68,40 @@ get_soc_target_ua() {
     local target=1500000
 
     if [ "$gaming" = "true" ]; then
-        if [ "$soc" -lt 5 ]; then target=4000000
-        elif [ "$soc" -lt 10 ]; then target=4200000
-        elif [ "$soc" -lt 20 ]; then target=4500000
-        elif [ "$soc" -lt 25 ]; then target=4300000
-        elif [ "$soc" -lt 30 ]; then target=4200000
-        elif [ "$soc" -lt 35 ]; then target=4000000
-        elif [ "$soc" -lt 40 ]; then target=3900000
-        elif [ "$soc" -lt 45 ]; then target=3800000
-        elif [ "$soc" -lt 50 ]; then target=3700000
-        elif [ "$soc" -lt 55 ]; then target=3600000
-        elif [ "$soc" -lt 70 ]; then target=3500000
-        elif [ "$soc" -lt 75 ]; then target=3400000
-        elif [ "$soc" -lt 80 ]; then target=3300000
-        elif [ "$soc" -lt 85 ]; then target=3000000
-        elif [ "$soc" -lt 90 ]; then target=2750000
-        elif [ "$soc" -lt 95 ]; then target=2000000
-        else target=1500000; fi
+        if [ "$soc" -lt 20 ]; then target=9800000
+        elif [ "$soc" -lt 40 ]; then target=8750000
+        elif [ "$soc" -lt 51 ]; then target=8400000
+        elif [ "$soc" -lt 55 ]; then target=8000000
+        elif [ "$soc" -lt 60 ]; then target=7000000
+        elif [ "$soc" -lt 65 ]; then target=6600000
+        elif [ "$soc" -lt 73 ]; then target=6300000
+        elif [ "$soc" -lt 76 ]; then target=5600000
+        elif [ "$soc" -lt 80 ]; then target=4900000
+        elif [ "$soc" -lt 83 ]; then target=4500000
+        elif [ "$soc" -lt 86 ]; then target=3800000
+        elif [ "$soc" -lt 89 ]; then target=3100000
+        elif [ "$soc" -lt 91 ]; then target=2800000
+        elif [ "$soc" -lt 93 ]; then target=2500000
+        elif [ "$soc" -lt 95 ]; then target=2100000
+        elif [ "$soc" -lt 97 ]; then target=1500000
+        else target=1000000; fi
     else
-        if [ "$soc" -lt 5 ]; then target=5500000
-        elif [ "$soc" -lt 10 ]; then target=6000000
-        elif [ "$soc" -lt 15 ]; then target=6500000
-        elif [ "$soc" -lt 20 ]; then target=7000000
-        elif [ "$soc" -lt 30 ]; then target=7000000
-        elif [ "$soc" -lt 35 ]; then target=6800000
-        elif [ "$soc" -lt 40 ]; then target=6500000
-        elif [ "$soc" -lt 45 ]; then target=6000000
-        elif [ "$soc" -lt 50 ]; then target=5600000
-        elif [ "$soc" -lt 55 ]; then target=5200000
-        elif [ "$soc" -lt 60 ]; then target=4800000
-        elif [ "$soc" -lt 65 ]; then target=4500000
-        elif [ "$soc" -lt 70 ]; then target=4200000
-        elif [ "$soc" -lt 75 ]; then target=3900000
-        elif [ "$soc" -lt 80 ]; then target=3500000
-        elif [ "$soc" -lt 85 ]; then target=3000000
-        elif [ "$soc" -lt 90 ]; then target=2750000
-        elif [ "$soc" -lt 95 ]; then target=2000000
+        if [ "$soc" -lt 20 ]; then target=14000000
+        elif [ "$soc" -lt 40 ]; then target=12500000
+        elif [ "$soc" -lt 51 ]; then target=12000000
+        elif [ "$soc" -lt 55 ]; then target=11500000
+        elif [ "$soc" -lt 60 ]; then target=10000000
+        elif [ "$soc" -lt 65 ]; then target=9500000
+        elif [ "$soc" -lt 73 ]; then target=9000000
+        elif [ "$soc" -lt 76 ]; then target=8000000
+        elif [ "$soc" -lt 80 ]; then target=7000000
+        elif [ "$soc" -lt 83 ]; then target=6500000
+        elif [ "$soc" -lt 86 ]; then target=5500000
+        elif [ "$soc" -lt 89 ]; then target=4500000
+        elif [ "$soc" -lt 91 ]; then target=4000000
+        elif [ "$soc" -lt 93 ]; then target=3600000
+        elif [ "$soc" -lt 95 ]; then target=3000000
+        elif [ "$soc" -lt 97 ]; then target=2200000
         else target=1500000; fi
     fi
 
@@ -115,21 +113,25 @@ get_soc_target_ua() {
 CHARGE_STATE="NORMAL" # States: NORMAL, GAMING, THERMAL_THROTTLE, EMERGENCY
 LEARNED_CHARGE_PROFILE="/data/local/tmp/thermalai.charge_profile"
 
-# Initialize learned dynamic current
-if [ -f "$LEARNED_CHARGE_PROFILE" ]; then
-    DYNAMIC_CURRENT_UA=$(cat "$LEARNED_CHARGE_PROFILE" 2>/dev/null || echo "3000000")
-else
-    DYNAMIC_CURRENT_UA=3000000
-fi
-# Hardware physical limit bounds
-MIN_CURRENT_UA=3500000
-MAX_CURRENT_UA=5000000
-EMERGENCY_MIN_CURRENT_UA=1500000
-
+# Global Variables for State Tracking
 LAST_APPLIED_CHARGE_LIMIT=""
 LAST_ENFORCE_TIME=0
 PREV_BATT_TEMP=""
 BATT_TEMP_SLOPE=0
+PREV_CHARGE_STATE="NORMAL"
+
+RAMP_ACTIVE="false"
+RAMP_TARGET=0
+RAMP_STEP=0
+RAMP_CURRENT=0
+
+get_current_hw_charge_ua() {
+    local val
+    val=$(cat /sys/class/power_supply/battery/current_now 2>/dev/null || echo 0)
+    # Some kernels report as negative during charge, take absolute value
+    [ "$val" -lt 0 ] && val=$(( val * -1 ))
+    echo "$val"
+}
 
 apply_charging_control() {
     local realtime_gaming="$1"  # Unlatched true/false indicating instant game status
@@ -156,7 +158,7 @@ apply_charging_control() {
     # Only enforce limits if the device is actually charging
     if [ "$current_plugged" != "Charging" ]; then
         LAST_APPLIED_CHARGE_LIMIT=""
-        # Do not adapt learned current while disconnected
+        RAMP_ACTIVE="false"
         return 0
     fi
 
@@ -165,89 +167,78 @@ apply_charging_control() {
 
     # 2. Temperature and Trend Adjustments
     local is_emergency="false"
+    max_current_ua="$soc_target"
 
     if [ "$realtime_gaming" = "true" ]; then
         CHARGE_STATE="GAMING"
-        if [ "$batt_temp" -gt 39 ]; then
+        if [ "$batt_temp" -ge 48 ]; then
             is_emergency="true"
-        elif [ "$batt_temp" -lt 34 ]; then
-            # No reduction
-            :
-        elif [ "$batt_temp" -ge 34 ] && [ "$batt_temp" -lt 36 ]; then
-            # Hold target current
-            :
-        elif [ "$batt_temp" -ge 36 ] && [ "$batt_temp" -lt 37 ]; then
-            if [ "$BATT_TEMP_SLOPE" -gt 0 ]; then
-                DYNAMIC_CURRENT_UA=$((DYNAMIC_CURRENT_UA - 200000))
-            fi
-        elif [ "$batt_temp" -ge 37 ] && [ "$batt_temp" -lt 38 ]; then
-            DYNAMIC_CURRENT_UA=$((DYNAMIC_CURRENT_UA - 300000))
-        elif [ "$batt_temp" -ge 38 ] && [ "$batt_temp" -le 39 ]; then
-            DYNAMIC_CURRENT_UA=$((DYNAMIC_CURRENT_UA - 500000))
+            max_current_ua=2000000
+        elif [ "$batt_temp" -lt 42 ]; then
+            max_current_ua="$soc_target"
+        elif [ "$batt_temp" -ge 42 ] && [ "$batt_temp" -lt 44 ]; then
+            max_current_ua=8000000
+        elif [ "$batt_temp" -ge 44 ] && [ "$batt_temp" -lt 46 ]; then
+            max_current_ua=6000000
+        elif [ "$batt_temp" -ge 46 ] && [ "$batt_temp" -lt 48 ]; then
+            max_current_ua=3500000
+        fi
+        # Soft caps should still not exceed SOC target
+        if [ "$max_current_ua" -gt "$soc_target" ]; then
+            max_current_ua="$soc_target"
         fi
     else
         CHARGE_STATE="NORMAL"
-        if [ "$batt_temp" -gt 45 ]; then
+        if [ "$batt_temp" -ge 50 ]; then
             is_emergency="true"
-        elif [ "$batt_temp" -lt 36 ]; then
-            # No reduction
-            :
-        elif [ "$batt_temp" -ge 36 ] && [ "$batt_temp" -lt 39 ]; then
-            # Hold target current
-            :
-        elif [ "$batt_temp" -ge 39 ] && [ "$batt_temp" -lt 41 ]; then
-            if [ "$BATT_TEMP_SLOPE" -gt 0 ]; then
-                DYNAMIC_CURRENT_UA=$((DYNAMIC_CURRENT_UA - 200000))
-            fi
-        elif [ "$batt_temp" -ge 41 ] && [ "$batt_temp" -lt 43 ]; then
-            DYNAMIC_CURRENT_UA=$((DYNAMIC_CURRENT_UA - 400000))
-        elif [ "$batt_temp" -ge 43 ] && [ "$batt_temp" -le 44 ]; then
-            DYNAMIC_CURRENT_UA=$((DYNAMIC_CURRENT_UA - 500000))
-        elif [ "$batt_temp" -gt 44 ] && [ "$batt_temp" -le 45 ]; then
-            DYNAMIC_CURRENT_UA=$((DYNAMIC_CURRENT_UA - 800000))
+            max_current_ua=2000000
+        elif [ "$batt_temp" -lt 44 ]; then
+            max_current_ua="$soc_target"
+        elif [ "$batt_temp" -ge 44 ] && [ "$batt_temp" -lt 46 ]; then
+            max_current_ua=9000000
+        elif [ "$batt_temp" -ge 46 ] && [ "$batt_temp" -lt 48 ]; then
+            max_current_ua=7000000
+        elif [ "$batt_temp" -ge 48 ] && [ "$batt_temp" -lt 50 ]; then
+            max_current_ua=4000000
+        fi
+        # Soft caps should still not exceed SOC target
+        if [ "$max_current_ua" -gt "$soc_target" ]; then
+            max_current_ua="$soc_target"
         fi
     fi
 
-    # 3. Recovery Learning Rule
-    if [ "$is_emergency" = "false" ]; then
-        if [ "$BATT_TEMP_SLOPE" -le 0 ]; then
-            # Only recover if we are below the SOC target
-            if [ "$DYNAMIC_CURRENT_UA" -lt "$soc_target" ]; then
-                # Recovery increments every 60-90s (approx. handled by occasional triggers or we do it directly)
-                # To simulate gradual, we step up slowly if temperature is falling or flat.
-                if [ "$BATT_TEMP_SLOPE" -lt 0 ]; then
-                    DYNAMIC_CURRENT_UA=$((DYNAMIC_CURRENT_UA + 200000))
-                else
-                    # Stable, increment slower
-                    DYNAMIC_CURRENT_UA=$((DYNAMIC_CURRENT_UA + 100000))
-                fi
-            fi
-        fi
-
-        # Clamp to physical max bounds
-        [ "$DYNAMIC_CURRENT_UA" -gt "$MAX_CURRENT_UA" ] && DYNAMIC_CURRENT_UA="$MAX_CURRENT_UA"
-
-        # In non-emergency, enforce MIN_CURRENT_UA floor first
-        [ "$DYNAMIC_CURRENT_UA" -lt "$MIN_CURRENT_UA" ] && DYNAMIC_CURRENT_UA="$MIN_CURRENT_UA"
-
-        # Then clamp to SOC target (SOC target is the absolute ceiling, overriding the minimum)
-        if [ "$DYNAMIC_CURRENT_UA" -gt "$soc_target" ]; then
-            DYNAMIC_CURRENT_UA="$soc_target"
-        fi
-
-        max_current_ua="$DYNAMIC_CURRENT_UA"
-    else
+    if [ "$is_emergency" = "true" ]; then
         CHARGE_STATE="EMERGENCY"
-        # Emergency Override: Ignore SOC target, drop aggressively until recovered.
-        DYNAMIC_CURRENT_UA=$((DYNAMIC_CURRENT_UA - 1000000))
-
-        [ "$DYNAMIC_CURRENT_UA" -lt "$EMERGENCY_MIN_CURRENT_UA" ] && DYNAMIC_CURRENT_UA="$EMERGENCY_MIN_CURRENT_UA"
-        max_current_ua="$DYNAMIC_CURRENT_UA"
     fi
 
-    # Save learned optimal state occasionally
-    if [ $((NOW_TIME % 60)) -eq 0 ]; then
-        echo "$DYNAMIC_CURRENT_UA" > "$LEARNED_CHARGE_PROFILE"
+    if [ "$PREV_CHARGE_STATE" = "EMERGENCY" ] && [ "$CHARGE_STATE" != "EMERGENCY" ]; then
+        log_info "Recovered from EMERGENCY charging state. Resetting limits."
+    fi
+    PREV_CHARGE_STATE="$CHARGE_STATE"
+
+    # 3. Smooth Ramp-Down Transition
+    if [ "$RAMP_ACTIVE" = "false" ]; then
+        local hw_current
+        hw_current=$(get_current_hw_charge_ua)
+        local delta=$((hw_current - max_current_ua))
+        # Use ramp-down for any reduction greater than 500mA to smooth SOC crossings
+        if [ "$delta" -gt 500000 ]; then
+            RAMP_ACTIVE="true"
+            RAMP_TARGET="$max_current_ua"
+            RAMP_STEP=$((delta / 8))
+            RAMP_CURRENT="$hw_current"
+            log_info "Charging ramp-down started: ${hw_current}uA -> ${max_current_ua}uA over 8 cycles"
+        fi
+    fi
+
+    if [ "$RAMP_ACTIVE" = "true" ]; then
+        RAMP_CURRENT=$((RAMP_CURRENT - RAMP_STEP))
+        if [ "$RAMP_CURRENT" -le "$RAMP_TARGET" ]; then
+            RAMP_CURRENT="$RAMP_TARGET"
+            RAMP_ACTIVE="false"
+            log_info "Charging ramp-down complete at ${RAMP_TARGET}uA"
+        fi
+        max_current_ua="$RAMP_CURRENT"
     fi
     # 0-50% Aggressive charging allows up to MAX_CURRENT_UA if temps permit
 
