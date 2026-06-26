@@ -1,7 +1,7 @@
 id=thermalai
 name=ThermalAI - Intelligent Thermal Manager
-version=v2.4.0
-versionCode=250
+version=v2.4.1
+versionCode=251
 author=ThermalAI Project
-description=AI-driven adaptive thermal throttling for Android. v2.4.0: Complete overhaul of battery charging logic to closely mimic stock PMIC charging bounds and SOC-based degradation constraints.
+description=AI-driven adaptive thermal throttling for Android. v2.4.1: Complete overhaul of battery charging logic to closely mimic stock PMIC charging bounds and SOC-based degradation constraints.
 updateJson=

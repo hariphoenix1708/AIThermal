@@ -113,7 +113,16 @@ get_soc_target_ua() {
 CHARGE_STATE="NORMAL" # States: NORMAL, GAMING, THERMAL_THROTTLE, EMERGENCY
 LEARNED_CHARGE_PROFILE="/data/local/tmp/thermalai.charge_profile"
 
-# Global Variables for State Tracking
+# Initialize learned dynamic current
+if [ -f "$LEARNED_CHARGE_PROFILE" ]; then
+    DYNAMIC_CURRENT_UA=$(cat "$LEARNED_CHARGE_PROFILE" 2>/dev/null || echo "3000000")
+else
+    DYNAMIC_CURRENT_UA=3000000
+fi
+# Hardware physical limit bounds
+    MIN_CURRENT_UA=1000000
+MAX_CURRENT_UA=5000000
+
 LAST_APPLIED_CHARGE_LIMIT=""
 LAST_ENFORCE_TIME=0
 PREV_BATT_TEMP=""
@@ -162,81 +171,57 @@ apply_charging_control() {
         return 0
     fi
 
-    # 1. Base Target from Battery Percentage (SOC Rule)
-    local soc_target=$(get_soc_target_ua "$batt_level" "$realtime_gaming")
+    # Force a state transition logging flush if state changed
+    if [ "$CHARGE_STATE" != "$next_state" ]; then
+        log_info "Charging State Transition: $CHARGE_STATE -> $next_state (batt_temp=${batt_temp}°C)"
+        CHARGE_STATE="$next_state"
+        LAST_APPLIED_CHARGE_LIMIT="" # invalidate cache to force immediate application
 
-    # 2. Temperature and Trend Adjustments
-    local is_emergency="false"
-    max_current_ua="$soc_target"
-
-    if [ "$realtime_gaming" = "true" ]; then
-        CHARGE_STATE="GAMING"
-        if [ "$batt_temp" -ge 48 ]; then
-            is_emergency="true"
-            max_current_ua=2000000
-        elif [ "$batt_temp" -lt 42 ]; then
-            max_current_ua="$soc_target"
-        elif [ "$batt_temp" -ge 42 ] && [ "$batt_temp" -lt 44 ]; then
-            max_current_ua=8000000
-        elif [ "$batt_temp" -ge 44 ] && [ "$batt_temp" -lt 46 ]; then
-            max_current_ua=6000000
-        elif [ "$batt_temp" -ge 46 ] && [ "$batt_temp" -lt 48 ]; then
-            max_current_ua=3500000
-        fi
-        # Soft caps should still not exceed SOC target
-        if [ "$max_current_ua" -gt "$soc_target" ]; then
-            max_current_ua="$soc_target"
-        fi
-    else
-        CHARGE_STATE="NORMAL"
-        if [ "$batt_temp" -ge 50 ]; then
-            is_emergency="true"
-            max_current_ua=2000000
-        elif [ "$batt_temp" -lt 44 ]; then
-            max_current_ua="$soc_target"
-        elif [ "$batt_temp" -ge 44 ] && [ "$batt_temp" -lt 46 ]; then
-            max_current_ua=9000000
-        elif [ "$batt_temp" -ge 46 ] && [ "$batt_temp" -lt 48 ]; then
-            max_current_ua=7000000
-        elif [ "$batt_temp" -ge 48 ] && [ "$batt_temp" -lt 50 ]; then
-            max_current_ua=4000000
-        fi
-        # Soft caps should still not exceed SOC target
-        if [ "$max_current_ua" -gt "$soc_target" ]; then
-            max_current_ua="$soc_target"
+        # When shifting back to Normal/Gaming from Emergency/Throttle,
+        # reset learning to a safer midpoint instead of maxing out instantly.
+        if [ "$next_state" = "NORMAL" ] || [ "$next_state" = "GAMING" ]; then
+             DYNAMIC_CURRENT_UA=2000000
+             rm -f "$LEARNED_CHARGE_PROFILE"
         fi
     fi
 
-    if [ "$is_emergency" = "true" ]; then
-        CHARGE_STATE="EMERGENCY"
-    fi
+    # 2. Learning-based Step Adaptation
+    # Define "Sweet Spot" target temperatures
+    local target_temp=37
 
-    if [ "$PREV_CHARGE_STATE" = "EMERGENCY" ] && [ "$CHARGE_STATE" != "EMERGENCY" ]; then
-        log_info "Recovered from EMERGENCY charging state. Resetting limits."
-    fi
-    PREV_CHARGE_STATE="$CHARGE_STATE"
+    if [ "$CHARGE_STATE" = "NORMAL" ] || [ "$CHARGE_STATE" = "GAMING" ]; then
+        local temp_delta=$((batt_temp - target_temp))
 
-    # 3. Smooth Ramp-Down Transition
-    if [ "$RAMP_ACTIVE" = "false" ]; then
-        local hw_current
-        hw_current=$(get_current_hw_charge_ua)
-        local delta=$((hw_current - max_current_ua))
-        # Use ramp-down for any reduction greater than 500mA to smooth SOC crossings
-        if [ "$delta" -gt 500000 ]; then
-            RAMP_ACTIVE="true"
-            RAMP_TARGET="$max_current_ua"
-            RAMP_STEP=$((delta / 8))
-            RAMP_CURRENT="$hw_current"
-            log_info "Charging ramp-down started: ${hw_current}uA -> ${max_current_ua}uA over 8 cycles"
+        if [ "$temp_delta" -le -3 ]; then
+            DYNAMIC_CURRENT_UA=$((DYNAMIC_CURRENT_UA + 300000))
+        elif [ "$temp_delta" -le -1 ]; then
+            DYNAMIC_CURRENT_UA=$((DYNAMIC_CURRENT_UA + 100000))
+        elif [ "$temp_delta" -le 1 ]; then
+            : # Within 1°C of target, hold steady
+        elif [ "$temp_delta" -le 2 ]; then
+            DYNAMIC_CURRENT_UA=$((DYNAMIC_CURRENT_UA - 150000))
+        else
+            DYNAMIC_CURRENT_UA=$((DYNAMIC_CURRENT_UA - 300000))
+        fi
+
+        # Clamp bounds
+        [ "$DYNAMIC_CURRENT_UA" -gt "$MAX_CURRENT_UA" ] && DYNAMIC_CURRENT_UA="$MAX_CURRENT_UA"
+        [ "$DYNAMIC_CURRENT_UA" -lt "$MIN_CURRENT_UA" ] && DYNAMIC_CURRENT_UA="$MIN_CURRENT_UA"
+
+        # Save learned optimal state occasionally
+        if [ $((NOW_TIME % 60)) -eq 0 ]; then
+            echo "$DYNAMIC_CURRENT_UA" > "$LEARNED_CHARGE_PROFILE"
         fi
     fi
 
-    if [ "$RAMP_ACTIVE" = "true" ]; then
-        RAMP_CURRENT=$((RAMP_CURRENT - RAMP_STEP))
-        if [ "$RAMP_CURRENT" -le "$RAMP_TARGET" ]; then
-            RAMP_CURRENT="$RAMP_TARGET"
-            RAMP_ACTIVE="false"
-            log_info "Charging ramp-down complete at ${RAMP_TARGET}uA"
+    # 3. Apply Hard Limits Based on Current State (Overrides Learned Curve)
+    if [ "$CHARGE_STATE" = "EMERGENCY" ]; then
+        max_current_ua="500000"
+    elif [ "$CHARGE_STATE" = "THERMAL_THROTTLE" ]; then
+        if [ "$batt_temp" -ge 39 ]; then
+            max_current_ua="1000000"
+        else
+            max_current_ua="2000000"
         fi
         max_current_ua="$RAMP_CURRENT"
     fi
