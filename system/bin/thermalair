@@ -213,6 +213,7 @@ cmd_stop() {
     [ -n "$pid" ] && kill "$pid" 2>/dev/null && echo "Daemon stopped (PID=$pid)" \
                   || echo "Daemon not running"
     pkill -f "thermal_ai.sh" 2>/dev/null || true
+    rm -f "$PID_FILE"
     restore_stock_thermal
 }
 

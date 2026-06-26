@@ -61,14 +61,20 @@ LOCK_FILE="/data/local/tmp/thermalai.lock"
 # If the lock file exists from a previous boot and wasn't cleared, it means the
 # device crashed shortly after our service started (potential bootloop).
 if [ -f "$LOCK_FILE" ]; then
-    log_error "CRITICAL: Lock file found! Possible bootloop detected."
-    log_error "Aborting ThermalAI startup and restoring stock thermal."
-    # Source governor tuner just to have access to restore_snapshot
-    restore_stock_thermal
-    . "$MODDIR/scripts/governor_tuner.sh" 2>/dev/null
-    restore_snapshot
-    restore_stock_thermal
-    exit 1
+    local uptime_secs
+    uptime_secs=$(cut -d. -f1 /proc/uptime 2>/dev/null || echo "999")
+    if [ "$uptime_secs" -gt 300 ]; then
+        log_warn "Lock file found but device uptime is ${uptime_secs}s. Treating as stale false positive. Clearing and continuing."
+        rm -f "$LOCK_FILE"
+    else
+        log_error "CRITICAL: Lock file found and uptime is only ${uptime_secs}s. Genuine bootloop risk. Aborting."
+        # Source governor tuner just to have access to restore_snapshot
+        restore_stock_thermal
+        . "$MODDIR/scripts/governor_tuner.sh" 2>/dev/null
+        restore_snapshot
+        restore_stock_thermal
+        exit 1
+    fi
 fi
 
 # Create lock file to monitor stability
