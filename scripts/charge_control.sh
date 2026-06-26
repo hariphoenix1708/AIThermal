@@ -1,65 +1,86 @@
 #!/system/bin/sh
-# ThermalAI - Charge Heat Control
-# Dynamically adjusts maximum charging current to prevent the phone from overheating
-# while plugged in.
+# ThermalAI - Charge Heat Control (Unified Adaptive Controller)
+# Dynamically adjusts maximum charging current to behave like a stock controller.
 
-# Charging paths (qualcomm standard)
+# Hardware limits and Paths
 BATT_CURRENT_MAX="/sys/class/power_supply/battery/constant_charge_current_max"
-BATT_CURRENT_NOW="/sys/class/power_supply/battery/current_now"
-
-# Set limits in microamps (uA)
-# 3000mA = 3000000 uA
-# 2000mA = 2000000 uA
-# 1000mA = 1000000 uA
-# 500mA  = 500000 uA
-
-# Battery Paths
 BATT_CAPACITY="/sys/class/power_supply/battery/capacity"
+CHARGE_LOG_FILE="/data/local/tmp/thermalai_charging.log"
 
-# ─── Robust Battery Temp Read ─────────────────────────────────────────────────
-get_robust_battery_temp() {
-    local batt_temp=0
+MAX_HW_CURRENT_UA=14000000
+EMERGENCY_MIN_CURRENT_UA=500000 # Only if literally overheating
 
-    # Best reliable path on most Android devices
+# Memory globals for rate limiter, history, and learning
+LAST_APPLIED_UA=0
+LAST_ENFORCE_TIME=0
+PREV_BATT_TEMP=0
+BATT_TEMP_EMA_X10=0
+EMA_ALPHA=7 # Tuning for EMA. EMA = (alpha * current + (10 - alpha) * prev) / 10
+CHARGE_STATE="DISCONNECTED"
+PREV_CHARGE_STATE="DISCONNECTED"
+
+SESSION_START_SOC=0
+SESSION_START_TIME=0
+SESSION_PEAK_BATT=0
+SESSION_PEAK_USB=0
+SESSION_PEAK_PMIC=0
+SESSION_MAX_POWER=0
+SESSION_RED_COUNT=0
+SESSION_REC_COUNT=0
+SESSION_SAMPLES_COUNT=0
+SESSION_SAMPLES_SUM_UA=0
+SESSION_SAMPLES_SUM_W_X10=0
+
+LEARNED_STABLE_UA=7000000
+STABLE_TIME_SEC=0
+
+log_charge_event() {
+    local evt="$1"
+    echo "[$(date "+%H:%M:%S")] EVENT: $evt" >> "$CHARGE_LOG_FILE"
+}
+
+get_thermal_sensor_data() {
+    # We want max relevant temperature
+    local batt_t=0
+    local usb_t=0
+    local pmic_t=0
+    local chg_t=0
+
+    # Best reliable path for battery specifically
     local primary_path="/sys/class/power_supply/battery/temp"
-
     if [ -f "$primary_path" ]; then
-        batt_temp=$(cat "$primary_path" 2>/dev/null || echo 0)
-        [ "$batt_temp" -gt 10000 ] && batt_temp=$((batt_temp / 100))
-        if [ "$batt_temp" -ge 100 ] && [ "$batt_temp" -le 800 ]; then
-            echo "$batt_temp"
-            return
-        fi
+        local raw=$(cat "$primary_path" 2>/dev/null || echo 0)
+        [ "$raw" -gt 10000 ] && raw=$((raw / 100))
+        [ "$raw" -ge 100 ] && [ "$raw" -le 800 ] && batt_t=$raw
     fi
 
-    # Fallback to dynamic thermal zones
-    local max_t=0
-
+    # Read all relevant thermal zones
     for tz_type in /sys/class/thermal/thermal_zone*/type; do
         [ -f "$tz_type" ] || continue
         local type_val=$(cat "$tz_type" 2>/dev/null | tr -d '\n')
+        local tz_dir="${tz_type%/*}"
+        local raw=0
+        if [ -f "$tz_dir/temp" ]; then
+            raw=$(cat "$tz_dir/temp" 2>/dev/null || echo 0)
+            [ "$raw" -gt 10000 ] && raw=$((raw / 100))
+            [ "$raw" -lt 100 ] || [ "$raw" -gt 800 ] && raw=0
+        fi
 
-        # Collect highest relevant temperature across battery, charger, pmic, usb
-        if echo "$type_val" | grep -iqE "battery|charger_therm|vbat|pmic|usb|chg"; then
-            local tz_dir="${tz_type%/*}"
-            if [ -f "$tz_dir/temp" ]; then
-                local raw=$(cat "$tz_dir/temp" 2>/dev/null || echo 0)
-                [ "$raw" -gt 10000 ] && raw=$((raw / 100))
-                if [ "$raw" -ge 100 ] && [ "$raw" -le 800 ]; then
-                    if [ "$raw" -gt "$max_t" ]; then
-                        max_t="$raw"
-                    fi
-                fi
-            fi
+        if echo "$type_val" | grep -iqE "battery|vbat"; then
+            [ "$raw" -gt "$batt_t" ] && batt_t=$raw
+        elif echo "$type_val" | grep -iq "usb"; then
+            [ "$raw" -gt "$usb_t" ] && usb_t=$raw
+        elif echo "$type_val" | grep -iqE "pmic"; then
+            [ "$raw" -gt "$pmic_t" ] && pmic_t=$raw
+        elif echo "$type_val" | grep -iqE "charger|chg"; then
+            [ "$raw" -gt "$chg_t" ] && chg_t=$raw
         fi
     done
 
-    if [ "$max_t" -gt 0 ]; then
-        echo "$max_t"
-    else
-        # Safe default
-        echo 350
-    fi
+    # Fallback bounds
+    [ "$batt_t" -eq 0 ] && batt_t=350
+
+    echo "${batt_t}:${usb_t}:${pmic_t}:${chg_t}"
 }
 
 get_soc_target_ua() {
@@ -68,209 +89,51 @@ get_soc_target_ua() {
     local target=1500000
 
     if [ "$gaming" = "true" ]; then
-        if [ "$soc" -lt 20 ]; then target=9800000
-        elif [ "$soc" -lt 40 ]; then target=8750000
-        elif [ "$soc" -lt 51 ]; then target=8400000
-        elif [ "$soc" -lt 55 ]; then target=8000000
-        elif [ "$soc" -lt 60 ]; then target=7000000
-        elif [ "$soc" -lt 65 ]; then target=6600000
-        elif [ "$soc" -lt 73 ]; then target=6300000
-        elif [ "$soc" -lt 76 ]; then target=5600000
-        elif [ "$soc" -lt 80 ]; then target=4900000
-        elif [ "$soc" -lt 83 ]; then target=4500000
-        elif [ "$soc" -lt 86 ]; then target=3800000
-        elif [ "$soc" -lt 89 ]; then target=3100000
-        elif [ "$soc" -lt 91 ]; then target=2800000
-        elif [ "$soc" -lt 93 ]; then target=2500000
-        elif [ "$soc" -lt 95 ]; then target=2100000
-        elif [ "$soc" -lt 97 ]; then target=1500000
-        else target=1000000; fi
+        if [ "$soc" -lt 5 ]; then target=4000000
+        elif [ "$soc" -lt 10 ]; then target=4200000
+        elif [ "$soc" -lt 15 ]; then target=4500000
+        elif [ "$soc" -lt 20 ]; then target=4500000
+        elif [ "$soc" -lt 25 ]; then target=4300000
+        elif [ "$soc" -lt 30 ]; then target=4200000
+        elif [ "$soc" -lt 35 ]; then target=4000000
+        elif [ "$soc" -lt 40 ]; then target=3900000
+        elif [ "$soc" -lt 45 ]; then target=3800000
+        elif [ "$soc" -lt 50 ]; then target=3700000
+        elif [ "$soc" -lt 55 ]; then target=3600000
+        elif [ "$soc" -lt 60 ]; then target=3500000
+        elif [ "$soc" -lt 65 ]; then target=3500000
+        elif [ "$soc" -lt 70 ]; then target=3500000
+        elif [ "$soc" -lt 75 ]; then target=3400000
+        elif [ "$soc" -lt 80 ]; then target=3300000
+        elif [ "$soc" -lt 85 ]; then target=3000000
+        elif [ "$soc" -lt 90 ]; then target=2750000
+        elif [ "$soc" -lt 95 ]; then target=2000000
+        else target=1500000; fi
     else
-        if [ "$soc" -lt 20 ]; then target=14000000
-        elif [ "$soc" -lt 40 ]; then target=12500000
-        elif [ "$soc" -lt 51 ]; then target=12000000
-        elif [ "$soc" -lt 55 ]; then target=11500000
-        elif [ "$soc" -lt 60 ]; then target=10000000
-        elif [ "$soc" -lt 65 ]; then target=9500000
-        elif [ "$soc" -lt 73 ]; then target=9000000
-        elif [ "$soc" -lt 76 ]; then target=8000000
-        elif [ "$soc" -lt 80 ]; then target=7000000
-        elif [ "$soc" -lt 83 ]; then target=6500000
-        elif [ "$soc" -lt 86 ]; then target=5500000
-        elif [ "$soc" -lt 89 ]; then target=4500000
-        elif [ "$soc" -lt 91 ]; then target=4000000
-        elif [ "$soc" -lt 93 ]; then target=3600000
-        elif [ "$soc" -lt 95 ]; then target=3000000
-        elif [ "$soc" -lt 97 ]; then target=2200000
+        if [ "$soc" -lt 5 ]; then target=5500000
+        elif [ "$soc" -lt 10 ]; then target=6000000
+        elif [ "$soc" -lt 15 ]; then target=6500000
+        elif [ "$soc" -lt 20 ]; then target=7000000
+        elif [ "$soc" -lt 25 ]; then target=7000000
+        elif [ "$soc" -lt 30 ]; then target=7000000
+        elif [ "$soc" -lt 35 ]; then target=6800000
+        elif [ "$soc" -lt 40 ]; then target=6500000
+        elif [ "$soc" -lt 45 ]; then target=6000000
+        elif [ "$soc" -lt 50 ]; then target=5600000
+        elif [ "$soc" -lt 55 ]; then target=5200000
+        elif [ "$soc" -lt 60 ]; then target=4800000
+        elif [ "$soc" -lt 65 ]; then target=4500000
+        elif [ "$soc" -lt 70 ]; then target=4200000
+        elif [ "$soc" -lt 75 ]; then target=3900000
+        elif [ "$soc" -lt 80 ]; then target=3500000
+        elif [ "$soc" -lt 85 ]; then target=3000000
+        elif [ "$soc" -lt 90 ]; then target=2750000
+        elif [ "$soc" -lt 95 ]; then target=2000000
         else target=1500000; fi
     fi
 
     echo "$target"
 }
-
-# ─── Adjust Charging Current ──────────────────────────────────────────────────
-# Global Charging State Machine variables
-CHARGE_STATE="NORMAL" # States: NORMAL, GAMING, THERMAL_THROTTLE, EMERGENCY
-LEARNED_CHARGE_PROFILE="/data/local/tmp/thermalai.charge_profile"
-
-# Initialize learned dynamic current
-if [ -f "$LEARNED_CHARGE_PROFILE" ]; then
-    DYNAMIC_CURRENT_UA=$(cat "$LEARNED_CHARGE_PROFILE" 2>/dev/null || echo "3000000")
-else
-    DYNAMIC_CURRENT_UA=3000000
-fi
-# Hardware physical limit bounds
-    MIN_CURRENT_UA=1000000
-MAX_CURRENT_UA=5000000
-
-LAST_APPLIED_CHARGE_LIMIT=""
-LAST_ENFORCE_TIME=0
-PREV_BATT_TEMP=""
-BATT_TEMP_SLOPE=0
-PREV_CHARGE_STATE="NORMAL"
-
-RAMP_ACTIVE="false"
-RAMP_TARGET=0
-RAMP_STEP=0
-RAMP_CURRENT=0
-
-get_current_hw_charge_ua() {
-    local val
-    val=$(cat /sys/class/power_supply/battery/current_now 2>/dev/null || echo 0)
-    # Some kernels report as negative during charge, take absolute value
-    [ "$val" -lt 0 ] && val=$(( val * -1 ))
-    echo "$val"
-}
-
-apply_charging_control() {
-    local realtime_gaming="$1"  # Unlatched true/false indicating instant game status
-    local max_current_ua="$DYNAMIC_CURRENT_UA"
-
-    # Read actual battery temperature safely
-    local batt_temp_raw
-    batt_temp_raw=$(get_robust_battery_temp)
-    local batt_temp=$((batt_temp_raw / 10))
-
-    if [ -n "$PREV_BATT_TEMP" ]; then
-        BATT_TEMP_SLOPE=$((batt_temp - PREV_BATT_TEMP))
-    fi
-    PREV_BATT_TEMP=$batt_temp
-
-    local current_plugged=$(cat /sys/class/power_supply/battery/status 2>/dev/null || echo "Unknown")
-
-    # Read battery capacity / SOC percentage
-    local batt_level=0
-    if [ -f "$BATT_CAPACITY" ]; then
-        batt_level=$(cat "$BATT_CAPACITY" 2>/dev/null || echo 0)
-    fi
-
-    # Only enforce limits if the device is actually charging
-    if [ "$current_plugged" != "Charging" ]; then
-        LAST_APPLIED_CHARGE_LIMIT=""
-        RAMP_ACTIVE="false"
-        return 0
-    fi
-
-    # Force a state transition logging flush if state changed
-    if [ "$CHARGE_STATE" != "$next_state" ]; then
-        log_info "Charging State Transition: $CHARGE_STATE -> $next_state (batt_temp=${batt_temp}°C)"
-        CHARGE_STATE="$next_state"
-        LAST_APPLIED_CHARGE_LIMIT="" # invalidate cache to force immediate application
-
-        # When shifting back to Normal/Gaming from Emergency/Throttle,
-        # reset learning to a safer midpoint instead of maxing out instantly.
-        if [ "$next_state" = "NORMAL" ] || [ "$next_state" = "GAMING" ]; then
-             DYNAMIC_CURRENT_UA=2000000
-             rm -f "$LEARNED_CHARGE_PROFILE"
-        fi
-    fi
-
-    # 2. Learning-based Step Adaptation
-    # Define "Sweet Spot" target temperatures
-    local target_temp=37
-
-    if [ "$CHARGE_STATE" = "NORMAL" ] || [ "$CHARGE_STATE" = "GAMING" ]; then
-        local temp_delta=$((batt_temp - target_temp))
-
-        if [ "$temp_delta" -le -3 ]; then
-            DYNAMIC_CURRENT_UA=$((DYNAMIC_CURRENT_UA + 300000))
-        elif [ "$temp_delta" -le -1 ]; then
-            DYNAMIC_CURRENT_UA=$((DYNAMIC_CURRENT_UA + 100000))
-        elif [ "$temp_delta" -le 1 ]; then
-            : # Within 1°C of target, hold steady
-        elif [ "$temp_delta" -le 2 ]; then
-            DYNAMIC_CURRENT_UA=$((DYNAMIC_CURRENT_UA - 150000))
-        else
-            DYNAMIC_CURRENT_UA=$((DYNAMIC_CURRENT_UA - 300000))
-        fi
-
-        # Clamp bounds
-        [ "$DYNAMIC_CURRENT_UA" -gt "$MAX_CURRENT_UA" ] && DYNAMIC_CURRENT_UA="$MAX_CURRENT_UA"
-        [ "$DYNAMIC_CURRENT_UA" -lt "$MIN_CURRENT_UA" ] && DYNAMIC_CURRENT_UA="$MIN_CURRENT_UA"
-
-        # Save learned optimal state occasionally
-        if [ $((NOW_TIME % 60)) -eq 0 ]; then
-            echo "$DYNAMIC_CURRENT_UA" > "$LEARNED_CHARGE_PROFILE"
-        fi
-    fi
-
-    # 3. Apply Hard Limits Based on Current State (Overrides Learned Curve)
-    if [ "$CHARGE_STATE" = "EMERGENCY" ]; then
-        max_current_ua="500000"
-    elif [ "$CHARGE_STATE" = "THERMAL_THROTTLE" ]; then
-        if [ "$batt_temp" -ge 39 ]; then
-            max_current_ua="1000000"
-        else
-            max_current_ua="2000000"
-        fi
-        max_current_ua="$RAMP_CURRENT"
-    fi
-    # 0-50% Aggressive charging allows up to MAX_CURRENT_UA if temps permit
-
-    # 5. Hardware Enforcement
-    if [ "$LAST_APPLIED_CHARGE_LIMIT" != "$max_current_ua" ]; then
-        if [ -w "$BATT_CURRENT_MAX" ]; then
-            sysfs_write "$max_current_ua" "$BATT_CURRENT_MAX"
-        fi
-        apply_universal_charging_control "$max_current_ua"
-
-        echo "[$(date "+%Y-%m-%d %H:%M:%S")] [DEBUG] Charging current limit set to $((max_current_ua / 1000))mA (batt_temp=${batt_temp}°C, state=$CHARGE_STATE)" >> /data/local/tmp/thermalai_verbose.log 2>/dev/null
-
-        if [ "$CHARGE_STATE" = "EMERGENCY" ] || [ "$CHARGE_STATE" = "THERMAL_THROTTLE" ]; then
-            log_warn "Battery Temp High (${batt_temp}°C) - Throttling to $((max_current_ua / 1000))mA"
-        else
-            log_info "Learned charging curve adjusted to $((max_current_ua / 1000))mA (batt_temp=${batt_temp}°C, state=$CHARGE_STATE)"
-        fi
-
-        LAST_APPLIED_CHARGE_LIMIT="$max_current_ua"
-        LAST_ENFORCE_TIME="$NOW_TIME"
-    else
-        # Prevent hardware resetting it under our nose without spamming log
-        local time_since=$((NOW_TIME - LAST_ENFORCE_TIME))
-        if [ "$time_since" -ge 30 ]; then
-            if [ -w "$BATT_CURRENT_MAX" ]; then
-                sysfs_write "$max_current_ua" "$BATT_CURRENT_MAX"
-            fi
-            apply_universal_charging_control "$max_current_ua"
-            LAST_ENFORCE_TIME="$NOW_TIME"
-        fi
-    fi
-}
-
-# ─── Restore Charging Control ──────────────────────────────────────────────────
-restore_charging_control() {
-    # Qualcomm standard for "unlimited" or hardware max is usually very high or 0
-    # Writing 5000000 (5A) usually restores full speed
-    if [ -w "$BATT_CURRENT_MAX" ]; then
-         echo "5000000" > "$BATT_CURRENT_MAX" 2>/dev/null
-         log_info "Charging limits restored to hardware default"
-    fi
-    apply_universal_charging_control "5000000"
-}
-
-# ─── Universal Charging Control Fallbacks ─────────────────────────────────────
-# Since node paths differ greatly between custom ROMs and kernels (e.g., Mediatek,
-# Exynos, custom Qualcomm trees), we maintain an array of common limits.
 
 CHARGE_NODES="
 /sys/class/power_supply/battery/constant_charge_current_max
@@ -289,7 +152,6 @@ CHARGE_NODES="
 apply_universal_charging_control() {
     local target_ua="$1"
     local applied="false"
-
     for node in $CHARGE_NODES; do
         if [ -w "$node" ]; then
             sysfs_write "$target_ua" "$node"
@@ -297,19 +159,269 @@ apply_universal_charging_control() {
             break
         fi
     done
-
     if [ "$applied" = "false" ]; then
         for dyn_node in /sys/class/power_supply/*/input_current_limit \
                         /sys/class/power_supply/*/constant_charge_current; do
             if [ -w "$dyn_node" ]; then
                 sysfs_write "$target_ua" "$dyn_node"
-                applied="true"
                 break
             fi
         done
     fi
+}
 
-    if [ "$applied" = "false" ]; then
-        log_debug "No compatible charging control node found on this kernel."
+finish_charging_session() {
+    local end_soc="$1"
+    local time_mins=$(( (NOW_TIME - SESSION_START_TIME) / 60 ))
+    if [ "$time_mins" -le 0 ]; then time_mins=1; fi
+
+    local avg_ua=0
+    local avg_w_x10=0
+    if [ "$SESSION_SAMPLES_COUNT" -gt 0 ]; then
+        avg_ua=$(( SESSION_SAMPLES_SUM_UA / SESSION_SAMPLES_COUNT ))
+        avg_w_x10=$(( SESSION_SAMPLES_SUM_W_X10 / SESSION_SAMPLES_COUNT ))
     fi
+
+    echo "" >> "$CHARGE_LOG_FILE"
+    echo "==============================" >> "$CHARGE_LOG_FILE"
+    echo "FINAL CHARGING SUMMARY" >> "$CHARGE_LOG_FILE"
+    echo "==============================" >> "$CHARGE_LOG_FILE"
+    echo "Charging started at ${SESSION_START_SOC}%" >> "$CHARGE_LOG_FILE"
+    echo "Charging ended at ${end_soc}%" >> "$CHARGE_LOG_FILE"
+    echo "Total charging time: ${time_mins}m" >> "$CHARGE_LOG_FILE"
+    echo "Average Charging Current: $(( avg_ua / 1000 )) mA" >> "$CHARGE_LOG_FILE"
+    echo "Average Charging Power: $(( avg_w_x10 / 10 )).$(( avg_w_x10 % 10 )) W" >> "$CHARGE_LOG_FILE"
+    echo "Peak Charging Power: $(( SESSION_MAX_POWER / 10 )).$(( SESSION_MAX_POWER % 10 )) W" >> "$CHARGE_LOG_FILE"
+    echo "Peak Battery Temperature: $(( SESSION_PEAK_BATT / 10 )).$(( SESSION_PEAK_BATT % 10 )) °C" >> "$CHARGE_LOG_FILE"
+    echo "Peak USB Temperature: $(( SESSION_PEAK_USB / 10 )).$(( SESSION_PEAK_USB % 10 )) °C" >> "$CHARGE_LOG_FILE"
+    echo "Peak PMIC Temperature: $(( SESSION_PEAK_PMIC / 10 )).$(( SESSION_PEAK_PMIC % 10 )) °C" >> "$CHARGE_LOG_FILE"
+    echo "Number of Thermal Reductions: $SESSION_RED_COUNT" >> "$CHARGE_LOG_FILE"
+    echo "Number of Recovery Events: $SESSION_REC_COUNT" >> "$CHARGE_LOG_FILE"
+    echo "" >> "$CHARGE_LOG_FILE"
+}
+
+apply_charging_control() {
+    local gaming="$1"
+
+    local current_plugged=$(cat /sys/class/power_supply/battery/status 2>/dev/null || echo "Unknown")
+    local soc=$(cat "$BATT_CAPACITY" 2>/dev/null || echo 0)
+
+    # Disconnect Logic
+    if [ "$current_plugged" != "Charging" ] && [ "$current_plugged" != "Full" ]; then
+        if [ "$CHARGE_STATE" != "DISCONNECTED" ]; then
+            CHARGE_STATE="DISCONNECTED"
+            finish_charging_session "$soc"
+        fi
+        LAST_APPLIED_UA=0
+        return 0
+    fi
+
+    # Read thermal array (batt:usb:pmic:chg)
+    local therm_str=$(get_thermal_sensor_data)
+    local b_raw=$(echo "$therm_str" | cut -d: -f1)
+    local u_raw=$(echo "$therm_str" | cut -d: -f2)
+    local p_raw=$(echo "$therm_str" | cut -d: -f3)
+    local c_raw=$(echo "$therm_str" | cut -d: -f4)
+
+    # Hardware read
+    local current_now_ua=$(cat /sys/class/power_supply/battery/current_now 2>/dev/null || echo 0)
+    [ "$current_now_ua" -lt 0 ] && current_now_ua=$(( current_now_ua * -1 ))
+    local voltage_now_uv=$(cat /sys/class/power_supply/battery/voltage_now 2>/dev/null || echo 0)
+
+    local power_w_x10=$(( (current_now_ua / 1000) * (voltage_now_uv / 1000) / 100000 ))
+
+    # Setup New Session
+    if [ "$CHARGE_STATE" = "DISCONNECTED" ]; then
+        SESSION_START_SOC=$soc
+        SESSION_START_TIME=$NOW_TIME
+        SESSION_PEAK_BATT=0
+        SESSION_PEAK_USB=0
+        SESSION_PEAK_PMIC=0
+        SESSION_MAX_POWER=0
+        SESSION_RED_COUNT=0
+        SESSION_REC_COUNT=0
+        SESSION_SAMPLES_COUNT=0
+        SESSION_SAMPLES_SUM_UA=0
+        SESSION_SAMPLES_SUM_W_X10=0
+        LEARNED_STABLE_UA=7000000
+        BATT_TEMP_EMA_X10=$(( b_raw * 10 ))
+        LAST_APPLIED_UA=$current_now_ua
+        PREV_BATT_TEMP=$b_raw
+
+        # We start by letting HW decide its max, but bound to SOC target immediately
+        if [ "$LAST_APPLIED_UA" -lt 100000 ]; then
+            LAST_APPLIED_UA=$(get_soc_target_ua "$soc" "$gaming")
+        fi
+    fi
+
+    # Track Peaks
+    [ "$b_raw" -gt "$SESSION_PEAK_BATT" ] && SESSION_PEAK_BATT=$b_raw
+    [ "$u_raw" -gt "$SESSION_PEAK_USB" ] && SESSION_PEAK_USB=$u_raw
+    [ "$p_raw" -gt "$SESSION_PEAK_PMIC" ] && SESSION_PEAK_PMIC=$p_raw
+    [ "$power_w_x10" -gt "$SESSION_MAX_POWER" ] && SESSION_MAX_POWER=$power_w_x10
+
+    SESSION_SAMPLES_COUNT=$(( SESSION_SAMPLES_COUNT + 1 ))
+    SESSION_SAMPLES_SUM_UA=$(( SESSION_SAMPLES_SUM_UA + current_now_ua ))
+    SESSION_SAMPLES_SUM_W_X10=$(( SESSION_SAMPLES_SUM_W_X10 + power_w_x10 ))
+
+    # Determine highest relevant safety temp
+    local max_t=$b_raw
+    [ "$u_raw" -gt "$max_t" ] && max_t=$u_raw
+    [ "$p_raw" -gt "$max_t" ] && max_t=$p_raw
+    [ "$c_raw" -gt "$max_t" ] && max_t=$c_raw
+
+    # EMA Trend
+    if [ "$BATT_TEMP_EMA_X10" -eq 0 ]; then
+        BATT_TEMP_EMA_X10=$(( b_raw * 10 ))
+    else
+        BATT_TEMP_EMA_X10=$(( (EMA_ALPHA * (b_raw * 10) + (10 - EMA_ALPHA) * BATT_TEMP_EMA_X10) / 10 ))
+    fi
+    local ema_temp=$(( BATT_TEMP_EMA_X10 / 10 ))
+    local slope=$(( b_raw - PREV_BATT_TEMP ))
+    PREV_BATT_TEMP=$b_raw
+
+    local slope_str="Stable"
+    if [ "$slope" -ge 2 ]; then slope_str="Rising quickly";
+    elif [ "$slope" -eq 1 ]; then slope_str="Rising slowly";
+    elif [ "$slope" -le -2 ]; then slope_str="Falling quickly";
+    elif [ "$slope" -eq -1 ]; then slope_str="Falling slowly"; fi
+
+    local charge_mode="Normal"
+    [ "$gaming" = "true" ] && charge_mode="Gaming"
+
+    local soc_target=$(get_soc_target_ua "$soc" "$gaming")
+    local therm_target=$LAST_APPLIED_UA
+    local reason=""
+
+    # Base Safety Override (Always wins)
+    local is_safety_override="false"
+    if [ "$max_t" -ge 460 ]; then
+        is_safety_override="true"
+        CHARGE_STATE="EMERGENCY"
+        therm_target=$EMERGENCY_MIN_CURRENT_UA
+        reason="Safety_Override (T=${max_t})"
+    else
+        CHARGE_STATE="ACTIVE"
+        # Determine Thermal Adjustments Based on Mode
+        if [ "$gaming" = "true" ]; then
+            if [ "$b_raw" -lt 340 ]; then
+                :
+            elif [ "$b_raw" -ge 340 ] && [ "$b_raw" -lt 360 ]; then
+                :
+            elif [ "$b_raw" -ge 360 ] && [ "$b_raw" -lt 370 ]; then
+                if [ "$slope" -gt 0 ]; then
+                    therm_target=$(( therm_target - 150000 ))
+                    reason="Gaming_Taper (36C+)"
+                fi
+            elif [ "$b_raw" -ge 370 ] && [ "$b_raw" -lt 380 ]; then
+                therm_target=$(( therm_target - 250000 ))
+                reason="Gaming_Taper (37C+)"
+            elif [ "$b_raw" -ge 380 ] && [ "$b_raw" -lt 390 ]; then
+                therm_target=$(( therm_target - 450000 ))
+                reason="Gaming_Taper (38C+)"
+            elif [ "$b_raw" -ge 390 ]; then
+                is_safety_override="true"
+                CHARGE_STATE="EMERGENCY"
+                therm_target=$(( therm_target - 1000000 ))
+                reason="Gaming_Emergency (>39C)"
+            fi
+        else
+            if [ "$b_raw" -lt 360 ]; then
+                :
+            elif [ "$b_raw" -ge 360 ] && [ "$b_raw" -lt 390 ]; then
+                :
+            elif [ "$b_raw" -ge 390 ] && [ "$b_raw" -lt 410 ]; then
+                if [ "$slope" -gt 0 ]; then
+                    therm_target=$(( therm_target - 200000 ))
+                    reason="Normal_Taper (39C+)"
+                fi
+            elif [ "$b_raw" -ge 410 ] && [ "$b_raw" -lt 430 ]; then
+                therm_target=$(( therm_target - 350000 ))
+                reason="Normal_Taper (41C+)"
+            elif [ "$b_raw" -ge 430 ] && [ "$b_raw" -lt 440 ]; then
+                therm_target=$(( therm_target - 500000 ))
+                reason="Normal_Taper (43C+)"
+            elif [ "$b_raw" -ge 440 ] && [ "$b_raw" -lt 450 ]; then
+                therm_target=$(( therm_target - 1000000 ))
+                reason="Normal_Aggressive (>44C)"
+            elif [ "$b_raw" -ge 450 ]; then
+                is_safety_override="true"
+                CHARGE_STATE="EMERGENCY"
+                therm_target=$(( therm_target - 1500000 ))
+                reason="Normal_Emergency (>45C)"
+            fi
+        fi
+    fi
+
+    # Recovery Learning Rule (If we are not reducing due to thermal)
+    if [ "$reason" = "" ] && [ "$is_safety_override" = "false" ]; then
+        if [ "$slope" -le 0 ]; then
+            STABLE_TIME_SEC=$(( STABLE_TIME_SEC + 5 )) # Approx time per loop cycle
+            if [ "$STABLE_TIME_SEC" -ge 60 ]; then
+                therm_target=$(( therm_target + 150000 ))
+                LEARNED_STABLE_UA=$therm_target
+                STABLE_TIME_SEC=0
+                reason="Recovery_Learning"
+                SESSION_REC_COUNT=$(( SESSION_REC_COUNT + 1 ))
+            fi
+        else
+            STABLE_TIME_SEC=0
+        fi
+    else
+        STABLE_TIME_SEC=0
+        if echo "$reason" | grep -q "Taper"; then
+            SESSION_RED_COUNT=$(( SESSION_RED_COUNT + 1 ))
+            LEARNED_STABLE_UA=$therm_target
+        fi
+        max_current_ua="$RAMP_CURRENT"
+    fi
+
+    # Evaluate Minimums (Order: SOC -> Thermal -> Learned)
+    local final_target=$soc_target
+    [ "$therm_target" -lt "$final_target" ] && final_target=$therm_target
+    [ "$LEARNED_STABLE_UA" -lt "$final_target" ] && final_target=$LEARNED_STABLE_UA
+
+    # Rate Limiter
+    if [ "$is_safety_override" = "false" ]; then
+        local diff=$(( final_target - LAST_APPLIED_UA ))
+        if [ "$diff" -gt 200000 ]; then
+            final_target=$(( LAST_APPLIED_UA + 200000 ))
+            reason="Rate_Limiter_Up"
+        elif [ "$diff" -lt -300000 ]; then
+            final_target=$(( LAST_APPLIED_UA - 300000 ))
+            reason="Rate_Limiter_Down"
+        fi
+    fi
+
+    # Clamp bounds absolutely to HW capability
+    [ "$final_target" -gt "$MAX_HW_CURRENT_UA" ] && final_target=$MAX_HW_CURRENT_UA
+    [ "$final_target" -lt "$EMERGENCY_MIN_CURRENT_UA" ] && final_target=$EMERGENCY_MIN_CURRENT_UA
+
+    # If no explicit reason, state is just SOC target clamp
+    [ "$reason" = "" ] && [ "$final_target" -eq "$soc_target" ] && reason="SOC_Target"
+
+    # Write log if target changes
+    if [ "$LAST_APPLIED_UA" != "$final_target" ]; then
+        echo "[$(date "+%H:%M:%S")]" >> "$CHARGE_LOG_FILE"
+        echo "Mode=${charge_mode} State=${CHARGE_STATE} SOC=${soc}% Batt=$(( b_raw / 10 )).$(( b_raw % 10 ))°C (EMA=$(( ema_temp / 10 )).$(( ema_temp % 10 ))°C) USB=$(( u_raw / 10 )).$(( u_raw % 10 ))°C PMIC=$(( p_raw / 10 )).$(( p_raw % 10 ))°C Slope=${slope_str} SOCT=$(( soc_target / 1000 ))mA TT=$(( therm_target / 1000 ))mA LT=$(( LEARNED_STABLE_UA / 1000 ))mA Final=$(( final_target / 1000 ))mA Applied=$(( LAST_APPLIED_UA / 1000 ))->$(( final_target / 1000 ))mA Reason=${reason}" >> "$CHARGE_LOG_FILE"
+
+        sysfs_write "$final_target" "$BATT_CURRENT_MAX"
+        apply_universal_charging_control "$final_target"
+        LAST_APPLIED_UA=$final_target
+        LAST_ENFORCE_TIME=$NOW_TIME
+    else
+        local time_since=$((NOW_TIME - LAST_ENFORCE_TIME))
+        if [ "$time_since" -ge 30 ]; then
+            sysfs_write "$final_target" "$BATT_CURRENT_MAX"
+            apply_universal_charging_control "$final_target"
+            LAST_ENFORCE_TIME=$NOW_TIME
+        fi
+    fi
+}
+
+restore_charging_control() {
+    if [ -w "$BATT_CURRENT_MAX" ]; then
+         echo "$MAX_HW_CURRENT_UA" > "$BATT_CURRENT_MAX" 2>/dev/null
+    fi
+    apply_universal_charging_control "$MAX_HW_CURRENT_UA"
 }

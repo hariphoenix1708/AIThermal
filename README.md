@@ -43,13 +43,13 @@ keeping your device safe.
 - **Suspend Cooling**: Drops CPU and GPU to absolute minimal power states instantly when the screen is turned off.
 - **Background isolation**: Pushes non-game processes to little cores via cpuset during gaming conserve/powersave modes.
 
-### Changelog v2.4.1
-- **Stock Charging Mimicry**: Completely rebuilt the battery charging module based on physical POCO F6 stock testing behavior. Eliminates aggressive ratchets and introduces bidirectional proportional curve fitting to reach target temperatures smoothly.
-- **Normal vs Gaming Target Profiles**: Hardcoded explicit upper bounds (44°C Normal, 39°C Gaming). Added new battery charge minimums (3500mA baseline, dropping to 1500mA only during emergencies or extreme thermal thresholds).
-- **Graceful High-SOC Degradation**: Dynamically introduces hard conservative tapers at >50% and >80% SOC limits to prevent end-of-charge heat saturation.
-- **Predictive Slope Hold**: Current limits will now explicitly look ahead and hold charge currents flat when temperature slopes are naturally falling, preventing oscillations.
+### Changelog v2.5.0
+- **Unified Adaptive Charging**: Completely rewrote the charging engine to merge Thermal, SOC, and Hardware safety bounds into a single non-conflicting ruleset mimicking OEM PMIC behavior.
+- **Dedicated Charge Logging**: Added `/data/local/tmp/thermalai_charging.log` to track exact slope calculations, state transitions, target decisions, and recovery events.
+- **Session Summaries**: Automatically generates performance and peak-temperature summaries when unplugging to evaluate charging efficiency against stock behavior.
+- **Safe Recovery Engine**: Eliminated strict irreversible floor ratchets. Allows stable currents to gracefully climb by +150mA steps every 60 seconds if conditions remain completely stable and cool.
 
-### Changelog v2.3.14
+### Changelog v2.4.1
 - **7 New Advanced Heuristics**:
   - **Memory Pressure Tracking**: Monitors `/proc/meminfo`. Pre-emptively raises ZRAM swappiness if RAM > 85% during gaming to prevent OOM stutters.
   - **GPU Pre-Load Spikes**: Detects sudden +20% GPU load spikes in a single cycle (indicative of heavy map/match loading) and forces an immediate 1-cycle `performance` boost to eliminate loading screen frame drops.
