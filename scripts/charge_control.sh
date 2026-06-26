@@ -240,6 +240,7 @@ apply_charging_control() {
         fi
         max_current_ua="$RAMP_CURRENT"
     fi
+    # 0-50% Aggressive charging allows up to MAX_CURRENT_UA if temps permit
 
     # 5. Hardware Enforcement
     if [ "$LAST_APPLIED_CHARGE_LIMIT" != "$max_current_ua" ]; then
