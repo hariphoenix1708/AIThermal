@@ -43,6 +43,9 @@ keeping your device safe.
 - **Suspend Cooling**: Drops CPU and GPU to absolute minimal power states instantly when the screen is turned off.
 - **Background isolation**: Pushes non-game processes to little cores via cpuset during gaming conserve/powersave modes.
 
+### Changelog v2.5.1
+- **Charging Framework Bugfixes**: Fixed 5 logic boundary issues within the unified framework, correctly scoping safety overrides to battery temp only, restructuring recovery thresholds to avoid accumulation bugs, and fixing normal SOC charging profiles that were misaligned.
+
 ### Changelog v2.5.0
 - **Unified Adaptive Charging**: Completely rewrote the charging engine to merge Thermal, SOC, and Hardware safety bounds into a single non-conflicting ruleset mimicking OEM PMIC behavior.
 - **Dedicated Charge Logging**: Added `/data/local/tmp/thermalai_charging.log` to track exact slope calculations, state transitions, target decisions, and recovery events.

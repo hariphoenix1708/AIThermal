@@ -89,46 +89,40 @@ get_soc_target_ua() {
     local target=1500000
 
     if [ "$gaming" = "true" ]; then
-        if [ "$soc" -lt 5 ]; then target=4000000
-        elif [ "$soc" -lt 10 ]; then target=4200000
-        elif [ "$soc" -lt 15 ]; then target=4500000
-        elif [ "$soc" -lt 20 ]; then target=4500000
-        elif [ "$soc" -lt 25 ]; then target=4300000
-        elif [ "$soc" -lt 30 ]; then target=4200000
-        elif [ "$soc" -lt 35 ]; then target=4000000
-        elif [ "$soc" -lt 40 ]; then target=3900000
-        elif [ "$soc" -lt 45 ]; then target=3800000
-        elif [ "$soc" -lt 50 ]; then target=3700000
-        elif [ "$soc" -lt 55 ]; then target=3600000
-        elif [ "$soc" -lt 60 ]; then target=3500000
-        elif [ "$soc" -lt 65 ]; then target=3500000
-        elif [ "$soc" -lt 70 ]; then target=3500000
-        elif [ "$soc" -lt 75 ]; then target=3400000
-        elif [ "$soc" -lt 80 ]; then target=3300000
-        elif [ "$soc" -lt 85 ]; then target=3000000
-        elif [ "$soc" -lt 90 ]; then target=2750000
-        elif [ "$soc" -lt 95 ]; then target=2000000
-        else target=1500000; fi
+        if [ "$soc" -lt 20 ]; then target=9800000
+        elif [ "$soc" -lt 40 ]; then target=8750000
+        elif [ "$soc" -lt 51 ]; then target=8400000
+        elif [ "$soc" -lt 55 ]; then target=8000000
+        elif [ "$soc" -lt 60 ]; then target=7000000
+        elif [ "$soc" -lt 65 ]; then target=6600000
+        elif [ "$soc" -lt 73 ]; then target=6300000
+        elif [ "$soc" -lt 76 ]; then target=5600000
+        elif [ "$soc" -lt 80 ]; then target=4900000
+        elif [ "$soc" -lt 83 ]; then target=4500000
+        elif [ "$soc" -lt 86 ]; then target=3800000
+        elif [ "$soc" -lt 89 ]; then target=3100000
+        elif [ "$soc" -lt 91 ]; then target=2800000
+        elif [ "$soc" -lt 93 ]; then target=2500000
+        elif [ "$soc" -lt 95 ]; then target=2100000
+        elif [ "$soc" -lt 97 ]; then target=1500000
+        else target=1000000; fi
     else
-        if [ "$soc" -lt 5 ]; then target=5500000
-        elif [ "$soc" -lt 10 ]; then target=6000000
-        elif [ "$soc" -lt 15 ]; then target=6500000
-        elif [ "$soc" -lt 20 ]; then target=7000000
-        elif [ "$soc" -lt 25 ]; then target=7000000
-        elif [ "$soc" -lt 30 ]; then target=7000000
-        elif [ "$soc" -lt 35 ]; then target=6800000
-        elif [ "$soc" -lt 40 ]; then target=6500000
-        elif [ "$soc" -lt 45 ]; then target=6000000
-        elif [ "$soc" -lt 50 ]; then target=5600000
-        elif [ "$soc" -lt 55 ]; then target=5200000
-        elif [ "$soc" -lt 60 ]; then target=4800000
-        elif [ "$soc" -lt 65 ]; then target=4500000
-        elif [ "$soc" -lt 70 ]; then target=4200000
-        elif [ "$soc" -lt 75 ]; then target=3900000
-        elif [ "$soc" -lt 80 ]; then target=3500000
-        elif [ "$soc" -lt 85 ]; then target=3000000
-        elif [ "$soc" -lt 90 ]; then target=2750000
-        elif [ "$soc" -lt 95 ]; then target=2000000
+        if [ "$soc" -lt 20 ]; then target=14000000
+        elif [ "$soc" -lt 40 ]; then target=12500000
+        elif [ "$soc" -lt 51 ]; then target=12000000
+        elif [ "$soc" -lt 55 ]; then target=11500000
+        elif [ "$soc" -lt 60 ]; then target=10000000
+        elif [ "$soc" -lt 65 ]; then target=9500000
+        elif [ "$soc" -lt 73 ]; then target=9000000
+        elif [ "$soc" -lt 76 ]; then target=8000000
+        elif [ "$soc" -lt 80 ]; then target=7000000
+        elif [ "$soc" -lt 83 ]; then target=6500000
+        elif [ "$soc" -lt 86 ]; then target=5500000
+        elif [ "$soc" -lt 89 ]; then target=4500000
+        elif [ "$soc" -lt 91 ]; then target=4000000
+        elif [ "$soc" -lt 93 ]; then target=3600000
+        elif [ "$soc" -lt 95 ]; then target=3000000
+        elif [ "$soc" -lt 97 ]; then target=2200000
         else target=1500000; fi
     fi
 
@@ -295,11 +289,11 @@ apply_charging_control() {
 
     # Base Safety Override (Always wins)
     local is_safety_override="false"
-    if [ "$max_t" -ge 460 ]; then
+    if [ "$b_raw" -ge 460 ]; then
         is_safety_override="true"
         CHARGE_STATE="EMERGENCY"
         therm_target=$EMERGENCY_MIN_CURRENT_UA
-        reason="Safety_Override (T=${max_t})"
+        reason="Safety_Override (T=${b_raw})"
     else
         CHARGE_STATE="ACTIVE"
         # Determine Thermal Adjustments Based on Mode
@@ -309,16 +303,28 @@ apply_charging_control() {
             elif [ "$b_raw" -ge 340 ] && [ "$b_raw" -lt 360 ]; then
                 :
             elif [ "$b_raw" -ge 360 ] && [ "$b_raw" -lt 370 ]; then
-                if [ "$slope" -gt 0 ]; then
-                    therm_target=$(( therm_target - 150000 ))
+                STABLE_TIME_SEC=$(( STABLE_TIME_SEC + 5 ))
+                if [ "$slope" -gt 0 ] && [ "$STABLE_TIME_SEC" -ge 25 ]; then
+                    therm_target=$(( therm_target - 100000 ))
                     reason="Gaming_Taper (36C+)"
+                    STABLE_TIME_SEC=0
                 fi
             elif [ "$b_raw" -ge 370 ] && [ "$b_raw" -lt 380 ]; then
-                therm_target=$(( therm_target - 250000 ))
-                reason="Gaming_Taper (37C+)"
+                STABLE_TIME_SEC=$(( STABLE_TIME_SEC + 5 ))
+                if [ "$STABLE_TIME_SEC" -ge 25 ]; then
+                    local severity=$(( (b_raw - 370) / 3 ))
+                    therm_target=$(( therm_target - (100000 + (100000 * severity)) ))
+                    reason="Gaming_Taper (37C+)"
+                    STABLE_TIME_SEC=0
+                fi
             elif [ "$b_raw" -ge 380 ] && [ "$b_raw" -lt 390 ]; then
-                therm_target=$(( therm_target - 450000 ))
-                reason="Gaming_Taper (38C+)"
+                STABLE_TIME_SEC=$(( STABLE_TIME_SEC + 5 ))
+                if [ "$STABLE_TIME_SEC" -ge 25 ]; then
+                    local severity=$(( (b_raw - 380) / 2 ))
+                    therm_target=$(( therm_target - (200000 + (200000 * severity)) ))
+                    reason="Gaming_Taper (38C+)"
+                    STABLE_TIME_SEC=0
+                fi
             elif [ "$b_raw" -ge 390 ]; then
                 is_safety_override="true"
                 CHARGE_STATE="EMERGENCY"
@@ -331,23 +337,38 @@ apply_charging_control() {
             elif [ "$b_raw" -ge 360 ] && [ "$b_raw" -lt 390 ]; then
                 :
             elif [ "$b_raw" -ge 390 ] && [ "$b_raw" -lt 410 ]; then
-                if [ "$slope" -gt 0 ]; then
-                    therm_target=$(( therm_target - 200000 ))
+                STABLE_TIME_SEC=$(( STABLE_TIME_SEC + 5 ))
+                if [ "$slope" -gt 0 ] && [ "$STABLE_TIME_SEC" -ge 25 ]; then
+                    therm_target=$(( therm_target - 100000 ))
                     reason="Normal_Taper (39C+)"
+                    STABLE_TIME_SEC=0
                 fi
             elif [ "$b_raw" -ge 410 ] && [ "$b_raw" -lt 430 ]; then
-                therm_target=$(( therm_target - 350000 ))
-                reason="Normal_Taper (41C+)"
+                STABLE_TIME_SEC=$(( STABLE_TIME_SEC + 5 ))
+                if [ "$STABLE_TIME_SEC" -ge 25 ]; then
+                    local severity=$(( (b_raw - 410) / 5 ))
+                    therm_target=$(( therm_target - (200000 + (100000 * severity)) ))
+                    reason="Normal_Taper (41C+)"
+                    STABLE_TIME_SEC=0
+                fi
             elif [ "$b_raw" -ge 430 ] && [ "$b_raw" -lt 440 ]; then
-                therm_target=$(( therm_target - 500000 ))
-                reason="Normal_Taper (43C+)"
+                STABLE_TIME_SEC=$(( STABLE_TIME_SEC + 5 ))
+                if [ "$STABLE_TIME_SEC" -ge 25 ]; then
+                    therm_target=$(( therm_target - 400000 ))
+                    reason="Normal_Taper (43C+)"
+                    STABLE_TIME_SEC=0
+                fi
             elif [ "$b_raw" -ge 440 ] && [ "$b_raw" -lt 450 ]; then
-                therm_target=$(( therm_target - 1000000 ))
-                reason="Normal_Aggressive (>44C)"
+                STABLE_TIME_SEC=$(( STABLE_TIME_SEC + 5 ))
+                if [ "$STABLE_TIME_SEC" -ge 25 ]; then
+                    therm_target=$(( therm_target - 600000 ))
+                    reason="Normal_Aggressive (>44C)"
+                    STABLE_TIME_SEC=0
+                fi
             elif [ "$b_raw" -ge 450 ]; then
                 is_safety_override="true"
                 CHARGE_STATE="EMERGENCY"
-                therm_target=$(( therm_target - 1500000 ))
+                therm_target=$(( therm_target - 1000000 ))
                 reason="Normal_Emergency (>45C)"
             fi
         fi
@@ -359,7 +380,7 @@ apply_charging_control() {
             STABLE_TIME_SEC=$(( STABLE_TIME_SEC + 5 )) # Approx time per loop cycle
             if [ "$STABLE_TIME_SEC" -ge 60 ]; then
                 therm_target=$(( therm_target + 150000 ))
-                LEARNED_STABLE_UA=$therm_target
+                LEARNED_STABLE_UA=$(( LEARNED_STABLE_UA + 150000 ))
                 STABLE_TIME_SEC=0
                 reason="Recovery_Learning"
                 SESSION_REC_COUNT=$(( SESSION_REC_COUNT + 1 ))
@@ -368,10 +389,11 @@ apply_charging_control() {
             STABLE_TIME_SEC=0
         fi
     else
-        STABLE_TIME_SEC=0
-        if echo "$reason" | grep -q "Taper"; then
+        # Only reset time if reason is NOT taper, we want tapers to fire every few cycles
+        if ! echo "$reason" | grep -q "Taper"; then
+            STABLE_TIME_SEC=0
+        else
             SESSION_RED_COUNT=$(( SESSION_RED_COUNT + 1 ))
-            LEARNED_STABLE_UA=$therm_target
         fi
         max_current_ua="$RAMP_CURRENT"
     fi
