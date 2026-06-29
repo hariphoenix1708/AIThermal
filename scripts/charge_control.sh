@@ -428,6 +428,14 @@ apply_charging_control() {
         else
             SESSION_RED_COUNT=$(( SESSION_RED_COUNT + 1 ))
         fi
+    else
+        # Only reset time if reason is NOT taper, we want tapers to fire every few cycles
+        if ! echo "$reason" | grep -q "Taper"; then
+            STABLE_TIME_SEC=0
+        else
+            SESSION_RED_COUNT=$(( SESSION_RED_COUNT + 1 ))
+        fi
+        max_current_ua="$RAMP_CURRENT"
     fi
 
     # Evaluate Minimums (Order: SOC -> Thermal -> Learned)
