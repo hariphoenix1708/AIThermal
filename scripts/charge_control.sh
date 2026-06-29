@@ -237,7 +237,7 @@ apply_charging_control() {
         SESSION_SAMPLES_COUNT=0
         SESSION_SAMPLES_SUM_UA=0
         SESSION_SAMPLES_SUM_W_X10=0
-        LEARNED_STABLE_UA=7000000
+        LEARNED_STABLE_UA=$(get_soc_target_ua "$soc" "$gaming")
         BATT_TEMP_EMA_X10=$(( b_raw * 10 ))
         LAST_APPLIED_UA=$current_now_ua
         PREV_BATT_TEMP=$b_raw
@@ -299,77 +299,110 @@ apply_charging_control() {
         # Determine Thermal Adjustments Based on Mode
         if [ "$gaming" = "true" ]; then
             if [ "$b_raw" -lt 340 ]; then
+                [ "$CURRENT_TEMP_BAND" != "Cool" ] && TAPER_TIME_SEC=0 && CURRENT_TEMP_BAND="Cool"
                 :
             elif [ "$b_raw" -ge 340 ] && [ "$b_raw" -lt 360 ]; then
+                [ "$CURRENT_TEMP_BAND" != "Gaming_340_360" ] && TAPER_TIME_SEC=0 && CURRENT_TEMP_BAND="Gaming_340_360"
                 :
             elif [ "$b_raw" -ge 360 ] && [ "$b_raw" -lt 370 ]; then
-                STABLE_TIME_SEC=$(( STABLE_TIME_SEC + 5 ))
-                if [ "$slope" -gt 0 ] && [ "$STABLE_TIME_SEC" -ge 25 ]; then
+                [ "$CURRENT_TEMP_BAND" != "Gaming_360_370" ] && TAPER_TIME_SEC=0 && CURRENT_TEMP_BAND="Gaming_360_370"
+                TAPER_TIME_SEC=$(( TAPER_TIME_SEC + 5 ))
+                if [ "$slope" -gt 0 ] && [ "$TAPER_TIME_SEC" -ge 25 ]; then
                     therm_target=$(( therm_target - 100000 ))
                     reason="Gaming_Taper (36C+)"
-                    STABLE_TIME_SEC=0
+                    TAPER_TIME_SEC=0
                 fi
             elif [ "$b_raw" -ge 370 ] && [ "$b_raw" -lt 380 ]; then
-                STABLE_TIME_SEC=$(( STABLE_TIME_SEC + 5 ))
-                if [ "$STABLE_TIME_SEC" -ge 25 ]; then
+                [ "$CURRENT_TEMP_BAND" != "Gaming_370_380" ] && TAPER_TIME_SEC=0 && CURRENT_TEMP_BAND="Gaming_370_380"
+                TAPER_TIME_SEC=$(( TAPER_TIME_SEC + 5 ))
+                if [ "$TAPER_TIME_SEC" -ge 25 ]; then
                     local severity=$(( (b_raw - 370) / 3 ))
                     therm_target=$(( therm_target - (100000 + (100000 * severity)) ))
                     reason="Gaming_Taper (37C+)"
-                    STABLE_TIME_SEC=0
+                    TAPER_TIME_SEC=0
                 fi
             elif [ "$b_raw" -ge 380 ] && [ "$b_raw" -lt 390 ]; then
-                STABLE_TIME_SEC=$(( STABLE_TIME_SEC + 5 ))
-                if [ "$STABLE_TIME_SEC" -ge 25 ]; then
+                [ "$CURRENT_TEMP_BAND" != "Gaming_380_390" ] && TAPER_TIME_SEC=0 && CURRENT_TEMP_BAND="Gaming_380_390"
+                TAPER_TIME_SEC=$(( TAPER_TIME_SEC + 5 ))
+                if [ "$TAPER_TIME_SEC" -ge 25 ]; then
                     local severity=$(( (b_raw - 380) / 2 ))
                     therm_target=$(( therm_target - (200000 + (200000 * severity)) ))
                     reason="Gaming_Taper (38C+)"
-                    STABLE_TIME_SEC=0
+                    TAPER_TIME_SEC=0
                 fi
             elif [ "$b_raw" -ge 390 ]; then
+                [ "$CURRENT_TEMP_BAND" != "Gaming_390_Emergency" ] && TAPER_TIME_SEC=0 && CURRENT_TEMP_BAND="Gaming_390_Emergency"
                 is_safety_override="true"
                 CHARGE_STATE="EMERGENCY"
-                therm_target=$(( therm_target - 1000000 ))
-                reason="Gaming_Emergency (>39C)"
+                if [ "$TAPER_TIME_SEC" -eq 0 ]; then
+                    therm_target=$(( therm_target - 1000000 ))
+                    reason="Gaming_Emergency (>39C)"
+                    TAPER_TIME_SEC=$(( TAPER_TIME_SEC + 5 ))
+                else
+                    TAPER_TIME_SEC=$(( TAPER_TIME_SEC + 5 ))
+                    if [ "$TAPER_TIME_SEC" -ge 25 ]; then
+                        therm_target=$(( therm_target - 1000000 ))
+                        reason="Gaming_Emergency (>39C)"
+                        TAPER_TIME_SEC=5
+                    fi
+                fi
             fi
         else
             if [ "$b_raw" -lt 360 ]; then
+                [ "$CURRENT_TEMP_BAND" != "Cool" ] && TAPER_TIME_SEC=0 && CURRENT_TEMP_BAND="Cool"
                 :
             elif [ "$b_raw" -ge 360 ] && [ "$b_raw" -lt 390 ]; then
+                [ "$CURRENT_TEMP_BAND" != "Normal_360_390" ] && TAPER_TIME_SEC=0 && CURRENT_TEMP_BAND="Normal_360_390"
                 :
             elif [ "$b_raw" -ge 390 ] && [ "$b_raw" -lt 410 ]; then
-                STABLE_TIME_SEC=$(( STABLE_TIME_SEC + 5 ))
-                if [ "$slope" -gt 0 ] && [ "$STABLE_TIME_SEC" -ge 25 ]; then
+                [ "$CURRENT_TEMP_BAND" != "Normal_390_410" ] && TAPER_TIME_SEC=0 && CURRENT_TEMP_BAND="Normal_390_410"
+                TAPER_TIME_SEC=$(( TAPER_TIME_SEC + 5 ))
+                if [ "$slope" -gt 0 ] && [ "$TAPER_TIME_SEC" -ge 25 ]; then
                     therm_target=$(( therm_target - 100000 ))
                     reason="Normal_Taper (39C+)"
-                    STABLE_TIME_SEC=0
+                    TAPER_TIME_SEC=0
                 fi
             elif [ "$b_raw" -ge 410 ] && [ "$b_raw" -lt 430 ]; then
-                STABLE_TIME_SEC=$(( STABLE_TIME_SEC + 5 ))
-                if [ "$STABLE_TIME_SEC" -ge 25 ]; then
+                [ "$CURRENT_TEMP_BAND" != "Normal_410_430" ] && TAPER_TIME_SEC=0 && CURRENT_TEMP_BAND="Normal_410_430"
+                TAPER_TIME_SEC=$(( TAPER_TIME_SEC + 5 ))
+                if [ "$TAPER_TIME_SEC" -ge 25 ]; then
                     local severity=$(( (b_raw - 410) / 5 ))
                     therm_target=$(( therm_target - (200000 + (100000 * severity)) ))
                     reason="Normal_Taper (41C+)"
-                    STABLE_TIME_SEC=0
+                    TAPER_TIME_SEC=0
                 fi
             elif [ "$b_raw" -ge 430 ] && [ "$b_raw" -lt 440 ]; then
-                STABLE_TIME_SEC=$(( STABLE_TIME_SEC + 5 ))
-                if [ "$STABLE_TIME_SEC" -ge 25 ]; then
+                [ "$CURRENT_TEMP_BAND" != "Normal_430_440" ] && TAPER_TIME_SEC=0 && CURRENT_TEMP_BAND="Normal_430_440"
+                TAPER_TIME_SEC=$(( TAPER_TIME_SEC + 5 ))
+                if [ "$TAPER_TIME_SEC" -ge 25 ]; then
                     therm_target=$(( therm_target - 400000 ))
                     reason="Normal_Taper (43C+)"
-                    STABLE_TIME_SEC=0
+                    TAPER_TIME_SEC=0
                 fi
             elif [ "$b_raw" -ge 440 ] && [ "$b_raw" -lt 450 ]; then
-                STABLE_TIME_SEC=$(( STABLE_TIME_SEC + 5 ))
-                if [ "$STABLE_TIME_SEC" -ge 25 ]; then
+                [ "$CURRENT_TEMP_BAND" != "Normal_440_450" ] && TAPER_TIME_SEC=0 && CURRENT_TEMP_BAND="Normal_440_450"
+                TAPER_TIME_SEC=$(( TAPER_TIME_SEC + 5 ))
+                if [ "$TAPER_TIME_SEC" -ge 25 ]; then
                     therm_target=$(( therm_target - 600000 ))
                     reason="Normal_Aggressive (>44C)"
-                    STABLE_TIME_SEC=0
+                    TAPER_TIME_SEC=0
                 fi
             elif [ "$b_raw" -ge 450 ]; then
+                [ "$CURRENT_TEMP_BAND" != "Normal_450_Emergency" ] && TAPER_TIME_SEC=0 && CURRENT_TEMP_BAND="Normal_450_Emergency"
                 is_safety_override="true"
                 CHARGE_STATE="EMERGENCY"
-                therm_target=$(( therm_target - 1000000 ))
-                reason="Normal_Emergency (>45C)"
+                if [ "$TAPER_TIME_SEC" -eq 0 ]; then
+                    therm_target=$(( therm_target - 1000000 ))
+                    reason="Normal_Emergency (>45C)"
+                    TAPER_TIME_SEC=$(( TAPER_TIME_SEC + 5 ))
+                else
+                    TAPER_TIME_SEC=$(( TAPER_TIME_SEC + 5 ))
+                    if [ "$TAPER_TIME_SEC" -ge 25 ]; then
+                        therm_target=$(( therm_target - 1000000 ))
+                        reason="Normal_Emergency (>45C)"
+                        TAPER_TIME_SEC=5
+                    fi
+                fi
             fi
         fi
     fi
@@ -387,6 +420,13 @@ apply_charging_control() {
             fi
         else
             STABLE_TIME_SEC=0
+        fi
+    else
+        # Only reset time if reason is NOT taper, we want tapers to fire every few cycles
+        if ! echo "$reason" | grep -q "Taper"; then
+            STABLE_TIME_SEC=0
+        else
+            SESSION_RED_COUNT=$(( SESSION_RED_COUNT + 1 ))
         fi
     else
         # Only reset time if reason is NOT taper, we want tapers to fire every few cycles

@@ -172,6 +172,19 @@ calculate_trend() {
 update_trend_ema() {
     local s="$1"
 
+    # NEW: Fast decay for trend score when actually cooling
+    if [ "$TEMP_HISTORY_COUNT" -ge 3 ]; then
+        # Use simple string parsing since arrays aren't posix standard everywhere
+        local last_idx=$TEMP_HISTORY_COUNT
+        local prev_prev_idx=$((last_idx - 2))
+        local actual_temp=$(echo "$TEMP_HISTORY" | awk "{print \$$last_idx}")
+        local prev_prev_temp=$(echo "$TEMP_HISTORY" | awk "{print \$$prev_prev_idx}")
+
+        if [ "$actual_temp" -le $((prev_prev_temp - 2)) ]; then
+            s=$((s - 15))
+        fi
+    fi
+
     # NEW: Heavily penalize sudden huge temperature spikes to act faster
     if [ "$s" -gt 15 ] && [ "$s" -gt "$TREND_SCORE" ]; then
         # Huge spike detected, fast-track the EMA upward
@@ -226,6 +239,11 @@ ai_decide_policy() {
         elif [ "$delta" -lt -5 ]; then s_pred=20
         elif [ "$delta" -lt -2 ]; then s_pred=10
         fi
+
+        # Guard: Cap prediction penalty if actual temp is below TEMP_POWERSAVE
+        if [ "$cur" -lt "$TEMP_POWERSAVE" ] && [ "$s_pred" -lt -15 ]; then
+            s_pred=-15
+        fi
     fi
 
     # Gaming boost
@@ -251,6 +269,10 @@ ai_decide_policy() {
     if [ "$gaming" = "true" ]; then
         if [ -n "$game_pkg" ]; then
             local game_mod=$(get_game_profile_modifier "$game_pkg")
+            # Suspend game_mod penalty during emergency cooling
+            if [ "$CURRENT_POLICY" = "emergency_cool" ] && [ "$game_mod" -lt 0 ]; then
+                game_mod=0
+            fi
             s=$((s + game_mod))
             local fg_boost=$(get_foreground_priority "$game_pkg")
             s=$((s + fg_boost))
@@ -555,6 +577,7 @@ main_loop() {
             if [ -n "$current_game_pkg" ]; then
                 if [ "$current_game_pkg" != "$LAST_GAME_PKG" ]; then
                     export GAMING_SESSION_COUNT=$((GAMING_SESSION_COUNT + 1))
+                    GAMING_SESSION_START="$NOW_TIME"
                     load_game_profile "$current_game_pkg"
                     LAST_GAME_PKG="$current_game_pkg"
                     # Force a transition apply when switching games to clear stale settings
@@ -609,20 +632,37 @@ main_loop() {
             fi
         fi
 
+        # Guard: Emergency release based on actual temperature drop
+        if [ "$CURRENT_POLICY" = "emergency_cool" ] && [ "$new_policy" = "emergency_cool" ]; then
+            if [ "$temp" -lt "$TEMP_HOT" ] && [ "$temp" -le "$((EMERGENCY_PEAK_TEMP - 4))" ]; then
+                log_info "Emergency release: actual temp dropped to safe levels (${temp}°C), overriding stuck trend"
+                TREND_SCORE=0
+                # Recalculate policy since we just zeroed the trend
+                new_policy=$(ai_decide_policy "$temp" "$gpu" "$gaming" "$pred" "$conf" "$current_game_pkg")
+            fi
+        fi
+
         # Stutter override: jank during balanced -> force conservative gaming
+        # Guard: Only allow stutter override if the gaming session has been active for at least 60 seconds
         if [ "$gaming" = "true" ] && [ "$new_policy" = "balanced" ]; then
-            local game_pkg="$_CONFIRMED_GAME_PKG"
-            local stutter
-            stutter=$(detect_frame_stutter "$game_pkg")
-            if [ "$stutter" = "true" ]; then
-                log_info "Stutter override: balanced -> conservative (jank detected)"
-                new_policy="conservative"
+            if [ -n "$GAMING_SESSION_START" ] && [ "$((NOW_TIME - GAMING_SESSION_START))" -ge 60 ]; then
+                local game_pkg="$_CONFIRMED_GAME_PKG"
+                local stutter
+                stutter=$(detect_frame_stutter "$game_pkg")
+                if [ "$stutter" = "true" ]; then
+                    log_info "Stutter override: balanced -> conservative (jank detected)"
+                    new_policy="conservative"
+                fi
             fi
         fi
 
         if [ "$new_policy" != "$CURRENT_POLICY" ]; then
             apply_thermal_policy "$new_policy" "$gaming" "$temp" "transition"
             log_info "Policy change: temp=${temp} gpu=${gpu} gaming=${gaming} -> ${new_policy}"
+
+            if [ "$new_policy" = "emergency_cool" ]; then
+                EMERGENCY_PEAK_TEMP="$temp"
+            fi
 
             CURRENT_POLICY="$new_policy"
             LAST_POLICY_CHANGE="$NOW_TIME"
