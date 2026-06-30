@@ -5,7 +5,7 @@
 # Hardware limits and Paths
 BATT_CURRENT_MAX="/sys/class/power_supply/battery/constant_charge_current_max"
 BATT_CAPACITY="/sys/class/power_supply/battery/capacity"
-CHARGE_LOG_FILE="/data/local/tmp/thermalai.log"
+CHARGE_LOG_FILE="/data/local/tmp/thermalai_charging.log"
 
 MAX_HW_CURRENT_UA=14000000
 EMERGENCY_MIN_CURRENT_UA=500000 # Only if literally overheating
@@ -149,7 +149,8 @@ apply_universal_charging_control() {
     local applied="false"
 
     # Check if we already applied this limit to prevent multi-write stutter
-    if [ "$target_ua" = "$LAST_APPLIED_CHARGE_LIMIT" ]; then
+    # ONLY do this if we are not forcing a write (parameter 2)
+    if [ "$target_ua" = "$LAST_APPLIED_CHARGE_LIMIT" ] && [ "$2" != "force" ]; then
         return 0
     fi
 
@@ -266,12 +267,6 @@ apply_charging_control() {
     SESSION_SAMPLES_COUNT=$(( SESSION_SAMPLES_COUNT + 1 ))
     SESSION_SAMPLES_SUM_UA=$(( SESSION_SAMPLES_SUM_UA + current_now_ua ))
     SESSION_SAMPLES_SUM_W_X10=$(( SESSION_SAMPLES_SUM_W_X10 + power_w_x10 ))
-
-    # Determine highest relevant safety temp
-    local max_t=$b_raw
-    [ "$u_raw" -gt "$max_t" ] && max_t=$u_raw
-    [ "$p_raw" -gt "$max_t" ] && max_t=$p_raw
-    [ "$c_raw" -gt "$max_t" ] && max_t=$c_raw
 
     # EMA Trend
     if [ "$BATT_TEMP_EMA_X10" -eq 0 ]; then
@@ -469,15 +464,13 @@ apply_charging_control() {
         echo "[$(date "+%H:%M:%S")]" >> "$CHARGE_LOG_FILE"
         echo "Mode=${charge_mode} State=${CHARGE_STATE} SOC=${soc}% Batt=$(( b_raw / 10 )).$(( b_raw % 10 ))°C (EMA=$(( ema_temp / 10 )).$(( ema_temp % 10 ))°C) USB=$(( u_raw / 10 )).$(( u_raw % 10 ))°C PMIC=$(( p_raw / 10 )).$(( p_raw % 10 ))°C Slope=${slope_str} SOCT=$(( soc_target / 1000 ))mA TT=$(( therm_target / 1000 ))mA LT=$(( LEARNED_STABLE_UA / 1000 ))mA Final=$(( final_target / 1000 ))mA Applied=$(( LAST_APPLIED_UA / 1000 ))->$(( final_target / 1000 ))mA Reason=${reason}" >> "$CHARGE_LOG_FILE"
 
-        sysfs_write "$final_target" "$BATT_CURRENT_MAX"
         apply_universal_charging_control "$final_target"
         LAST_APPLIED_UA=$final_target
         LAST_ENFORCE_TIME=$NOW_TIME
     else
         local time_since=$((NOW_TIME - LAST_ENFORCE_TIME))
         if [ "$time_since" -ge 30 ]; then
-            sysfs_write "$final_target" "$BATT_CURRENT_MAX"
-            apply_universal_charging_control "$final_target"
+            apply_universal_charging_control "$final_target" "force"
             LAST_ENFORCE_TIME=$NOW_TIME
         fi
     fi
