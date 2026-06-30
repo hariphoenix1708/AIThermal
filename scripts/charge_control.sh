@@ -409,6 +409,7 @@ apply_charging_control() {
                 fi
             fi
         fi
+        max_current_ua="$RAMP_CURRENT"
     fi
 
     # Recovery Learning Rule (If we are not reducing due to thermal)
