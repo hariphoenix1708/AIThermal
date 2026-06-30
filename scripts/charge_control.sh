@@ -5,7 +5,7 @@
 # Hardware limits and Paths
 BATT_CURRENT_MAX="/sys/class/power_supply/battery/constant_charge_current_max"
 BATT_CAPACITY="/sys/class/power_supply/battery/capacity"
-CHARGE_LOG_FILE="/data/local/tmp/thermalai_charging.log"
+CHARGE_LOG_FILE="/data/local/tmp/thermalai.log"
 
 MAX_HW_CURRENT_UA=14000000
 EMERGENCY_MIN_CURRENT_UA=500000 # Only if literally overheating
@@ -13,6 +13,7 @@ EMERGENCY_MIN_CURRENT_UA=500000 # Only if literally overheating
 # Memory globals for rate limiter, history, and learning
 LAST_APPLIED_UA=0
 LAST_ENFORCE_TIME=0
+LAST_APPLIED_CHARGE_LIMIT=0
 PREV_BATT_TEMP=0
 BATT_TEMP_EMA_X10=0
 EMA_ALPHA=7 # Tuning for EMA. EMA = (alpha * current + (10 - alpha) * prev) / 10
@@ -146,6 +147,12 @@ CHARGE_NODES="
 apply_universal_charging_control() {
     local target_ua="$1"
     local applied="false"
+
+    # Check if we already applied this limit to prevent multi-write stutter
+    if [ "$target_ua" = "$LAST_APPLIED_CHARGE_LIMIT" ]; then
+        return 0
+    fi
+
     for node in $CHARGE_NODES; do
         if [ -w "$node" ]; then
             sysfs_write "$target_ua" "$node"
@@ -162,6 +169,8 @@ apply_universal_charging_control() {
             fi
         done
     fi
+
+    LAST_APPLIED_CHARGE_LIMIT="$target_ua"
 }
 
 finish_charging_session() {
@@ -405,6 +414,7 @@ apply_charging_control() {
                 fi
             fi
         fi
+        max_current_ua="$RAMP_CURRENT"
     fi
 
     # Recovery Learning Rule (If we are not reducing due to thermal)
@@ -428,14 +438,6 @@ apply_charging_control() {
         else
             SESSION_RED_COUNT=$(( SESSION_RED_COUNT + 1 ))
         fi
-    else
-        # Only reset time if reason is NOT taper, we want tapers to fire every few cycles
-        if ! echo "$reason" | grep -q "Taper"; then
-            STABLE_TIME_SEC=0
-        else
-            SESSION_RED_COUNT=$(( SESSION_RED_COUNT + 1 ))
-        fi
-        max_current_ua="$RAMP_CURRENT"
     fi
 
     # Evaluate Minimums (Order: SOC -> Thermal -> Learned)
