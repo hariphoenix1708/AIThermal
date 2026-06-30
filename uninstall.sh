@@ -38,5 +38,7 @@ rm -f "/data/local/tmp/thermalai.snapshot"
 rm -rf "/data/local/tmp/thermalai.game_profiles"
 rm -f "/data/local/tmp/thermalai.calibration"
 rm -f "/data/local/tmp/thermalai.calibration_offset"
+rm -f "/data/local/tmp/thermalai_charging.log"
+rm -f "/data/local/tmp/thermalai.charge_profile"
 
 log -t ThermalAI -p I "Module uninstalled. Daemon stopped, settings restored, and temporary files cleaned up."
